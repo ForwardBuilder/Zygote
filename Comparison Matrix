@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Comparison Matrix</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Aparajita&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 30px 15px;
+      margin: 0;
+      background: linear-gradient(to right, #d9e7ff, #f0f4f8);
+      color: #333;
+      transition: all 0.5s ease;
+    }
+
+    body.dark-mode {
+      background: linear-gradient(135deg, #1e1f26, #2b5876, #4e4376);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      color: #f0f0f0;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .tagline {
+      font-family: 'Aparajita', serif;
+      font-size: 20px;
+      font-style: italic;
+      margin-bottom: 20px;
+      color: #444;
+    }
+
+    body.dark-mode .tagline {
+      color: #f0e68c;
+    }
+
+    .top-right {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      text-align: right;
+    }
+
+    .toggle-button {
+      background: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.3s ease;
+    }
+
+    .toggle-button:hover {
+      background: #e0e0e0;
+    }
+
+    .top-right small {
+      display: block;
+      font-size: 11px;
+      color: #555;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+
+    body.dark-mode .top-right small,
+    body.dark-mode .note {
+      color: #ffe169;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.65);
+      padding: 25px 20px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      display: inline-block;
+      text-align: center;
+      max-width: 100%;
+      position: relative;
+      transition: all 0.5s ease;
+    }
+
+    body.dark-mode .container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      color: #f0f0f0;
+    }
+
+    select, button {
+      margin: 10px 0;
+      padding: 12px 16px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: 1.5px solid #aaa;
+      background-color: #ffffff;
+      color: #333;
+      width: 100%;
+      max-width: 300px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    select:hover, button:hover {
+      transform: scale(1.03);
+      background-color: #e0e0e0;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    #disclaimer {
+      margin-top: 30px;
+      font-family: sans-serif;
+      font-size: 13px;
+      color: #ff4c4c;
+      font-weight: bold;
+      padding: 0 10px;
+    }
+
+    .note {
+      font-size: 12px;
+      color: #555;
+      margin-top: 10px;
+    }
+
+    .watermark {
+      position: absolute;
+      bottom: 10px;
+      right: 15px;
+      font-size: 12px;
+      color: rgba(0,0,0,0.5);
+      font-family: Arial, sans-serif;
+      pointer-events: none;
+    }
+
+    body.dark-mode .watermark {
+      color: rgba(255,255,255,0.6);
+    }
+
+    @media (max-width: 600px) {
+      h2 { font-size: 26px; }
+      .tagline { font-size: 16px; }
+      select, button { font-size: 15px; }
+      #result { font-size: 16px; }
+      .top-right {
+        position: static;
+        margin-top: 10px;
+        margin-bottom: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="top-right">
+    <button class="toggle-button" onclick="toggleMode()">🌓 Light Sensitivity</button>
+    <small onclick="showInfo()">Learn More</small>
+  </div>
+
+  <h2>Comparison Matrix</h2>
+  <div class="tagline">Visualize Nation Progress: A Fun HDI Comparison Matrix!</div>
+
+  <div class="container" id="comparison-box">
+    <label for="country1">Select Country:</label><br>
+    <select id="country1"></select><br>
+
+    <label for="country2">Compare To:</label><br>
+    <select id="country2"></select><br>
+
+    <button onclick="compare()">Compare Progress</button>
+    <button onclick="saveImage()" id="saveBtn">📸 Save as Image</button>
+
+    <p id="result"></p>
+    <div class="watermark" id="watermark" style="display: none;">© Pradhyumna Nittala. The Comparison Matrix</div>
+  </div>
+
+  <div class="note">Only a subset of countries is currently listed. Data is sourced from UNDP's 2023 HDI report.</div>
+
+  <div id="disclaimer">
+    <p><strong>Disclaimer:</strong> This is not an official development index. The comparison is based on Human Development Index (HDI) data published in the UNDP Human Development Report 2023. Time-gap interpretations are illustrative only.</p>
+  </div>
+
+  <script>
+    const hdiData = {
+      "Iceland": 0.972, "Norway": 0.970, "Switzerland": 0.970,
+      "Denmark": 0.962, "Germany": 0.959, "Australia": 0.958,
+      "Hong Kong": 0.955, "Netherlands": 0.955, "Belgium": 0.951,
+      "Ireland": 0.949, "China": 0.775, "India": 0.672,
+      "Palestine": 0.674, "Taiwan": 0.926, "Afghanistan": 0.496,
+      "Albania": 0.810, "Algeria": 0.748, "South Sudan": 0.388,
+      "Somalia": 0.404, "Central African Republic": 0.414,
+      "Chad": 0.416, "Mali": 0.419, "Niger": 0.419,
+      "Burundi": 0.439, "Burkina Faso": 0.459,
+      "Sierra Leone": 0.467, "Yemen": 0.470,
+      "United States": 0.938, "Japan": 0.925,
+      "Armenia": 0.759, "Azerbaijan": 0.745, "Belarus": 0.808, "Estonia": 0.899,
+      "Georgia": 0.802, "Kazakhstan": 0.811, "Kyrgyzstan": 0.705,
+      "Latvia": 0.885, "Lithuania": 0.894, "Moldova": 0.767,
+      "Russia": 0.823, "Tajikistan": 0.700, "Turkmenistan": 0.721,
+      "Ukraine": 0.773, "Uzbekistan": 0.720
+    };
+
+    let hasCompared = false;
+
+    function init() {
+      const s1 = document.getElementById("country1"), s2 = document.getElementById("country2");
+      Object.keys(hdiData).sort().forEach(c => {
+        s1.add(new Option(c, c));
+        s2.add(new Option(c, c));
+      });
+    }
+
+    function compare() {
+      const c1 = country1.value, c2 = country2.value;
+      const result = document.getElementById("result");
+      if (c1 === c2) { result.innerText = "Please choose two different countries."; hasCompared = false; return; }
+      const v1 = hdiData[c1], v2 = hdiData[c2];
+      if (!v1 || !v2) { result.innerText = `No HDI data for ${!v1 ? c1 : c2}.`; hasCompared = false; return; }
+      const diff = (v2 - v1) * 100;
+      let msg = diff === 0
+        ? `${c1} and ${c2} have the same HDI.`
+        : diff > 0
+          ? `${c1} is approximately ${diff.toFixed(1)} years behind ${c2}.`
+          : `${c1} is approximately ${Math.abs(diff).toFixed(1)} years ahead of ${c2}.`;
+      result.innerText = msg;
+      hasCompared = true;
+    }
+
+    function saveImage() {
+      const box = document.getElementById("comparison-box");
+      const saveBtn = document.getElementById("saveBtn");
+      const c1 = country1.value, c2 = country2.value;
+      if (c1 === c2 || !hasCompared) {
+        alert("⚠️ Please select two different countries and compare first.");
+        return;
+      }
+      const watermark = document.getElementById("watermark");
+      watermark.style.display = "block";
+      saveBtn.style.display = "none";
+      html2canvas(box, { backgroundColor: null, scale: 2 }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `${c1}_vs_${c2}_HDI.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        watermark.style.display = "none";
+        saveBtn.style.display = "inline-block";
+      });
+    }
+
+    function toggleMode() {
+      document.body.classList.toggle('dark-mode');
+    }
+
+    function showInfo() {
+      alert("Light Sensitivity (or photophobia) is a condition where bright or flashing lights can cause discomfort, headaches, or migraines. This mode provides a calmer visual experience for sensitive viewers.");
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
