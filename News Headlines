@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HL World</title>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    body {
+        background: radial-gradient(circle at top, #0b3d2e, #021a13);
+        color: #e6fff4;
+        line-height: 1.6;
+        padding: 30px;
+    }
+
+    .container {
+        max-width: 1100px;
+        margin: auto;
+    }
+
+    h1, h2, h3 {
+        text-align: center;
+        letter-spacing: 1px;
+    }
+
+    h1 {
+        font-size: 3rem;
+        margin-bottom: 10px;
+        text-shadow: 0 0 15px rgba(0,255,170,0.6);
+    }
+
+    h2 {
+        font-size: 1.8rem;
+        margin: 30px 0 10px;
+        color: #9fffd8;
+    }
+
+    h3 {
+        font-size: 1.4rem;
+        margin-top: 20px;
+        color: #7cfac3;
+    }
+
+    .news-card {
+        background: rgba(255,255,255,0.05);
+        border-radius: 18px;
+        padding: 20px;
+        margin: 25px 0;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 0 25px rgba(0,255,170,0.15);
+        transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    .news-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 0 40px rgba(0,255,170,0.35);
+    }
+
+    marquee {
+        font-weight: bold;
+        font-size: 1.05rem;
+        color: #c8ffea;
+        margin-bottom: 15px;
+    }
+
+    img {
+        display: block;
+        margin: 20px auto;
+        border-radius: 14px;
+        max-width: 100%;
+        box-shadow: 0 0 25px rgba(0,0,0,0.6);
+    }
+
+    p {
+        text-align: center;
+        font-family: "Arial Black", Arial, sans-serif;
+        font-size: 1.05rem;
+        margin-top: 10px;
+        color: #eafff7;
+    }
+
+    .footer {
+        text-align: center;
+        margin-top: 50px;
+        opacity: 0.9;
+    }
+
+    .footer h1 {
+        font-size: 2.2rem;
+    }
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Welcome to HL World!</h1>
+    <h2>Today's News (as of 20th December 2025)</h2>
+
+    <h3>National News</h3>
+    <div class="news-card">
+        <marquee width="100%" direction="left" height="60">
+            Prime Minister Narendra Modi will visit West Bengal today to inaugurate and lay the foundation stone for two National Highway projects worth around Rs. 3,200 crore, aimed at improving road connectivity and supporting economic growth in the state.
+        </marquee>
+
+        <img src="https://static.toiimg.com/thumb/msid-126092646,imgsize-654226,width-400,resizemode-4/pm-modi-in-assam.jpg" width="400" height="300">
+
+        <p>PM Modi to visit West Bengal today; inaugurate National Highway projects worth ₹3,200 crore.</p>
+    </div>
+
+    <h2>International News</h2>
+    <div class="news-card">
+        <marquee width="100%" direction="left" height="60">
+            The gas will be delivered to Egypt over the next 15 years by U.S. energy giant Chevron, a key owner of the gas field off Israel's coast in the Mediterranean Sea.
+        </marquee>
+
+        <img src="https://th-i.thgim.com/public/incoming/i4mulb/article70409124.ece/alternates/LANDSCAPE_1200/2025-12-14T155351Z_1619718535_RC2QTHAXV3DQ_RTRMADP_3_AUSTRALIA-CRIME-NETANYAHU.JPG" width="400" height="300">
+
+        <p>Netanyahu approves $35 billion natural gas export deal to Egypt, biggest in Israeli history.</p>
+    </div>
+
+    <h2>Sports News</h2>
+    <div class="news-card">
+        <marquee width="100%" direction="left" height="60">
+            India have dropped Test and one-day international captain Shubman Gill from their 15-man squad for the men's T20 World Cup.
+        </marquee>
+
+        <img src="https://ichef.bbci.co.uk/ace/standard/976/cpsprodpb/f2ee/live/0fe36260-dd8e-11f0-884c-a5a45f8bc5ce.jpg.webp" width="400" height="300">
+
+        <p>Gill dropped by India from T20 World Cup squad.</p>
+    </div>
+
+    <h2>Weather Report</h2>
+    <div class="news-card">
+        <marquee width="100%" direction="left" height="60">
+            Delhi pollution: Several airlines like Air India, IndiGo and SpiceJet issued travel advisories for passengers warning that dense fog may hit flight schedules.
+        </marquee>
+
+        <img src="https://www.hindustantimes.com/ht-img/img/2025/12/19/550x309/delhi_pollution_1766117131050_1766117137886.jpg" width="400" height="300">
+
+        <p>Delhi's AQI Crisis</p>
+    </div>
+
+    <div class="footer">
+        <h1>So that's all for Today's News!</h1>
+
+        <img src="https://moinsheikh.wordpress.com/wp-content/uploads/2014/12/news-handing.gif?w=600" width="400" height="300">
+
+        <h1>Have a Nice Day Ahead!</h1>
+    </div>
+
+</div>
+
+</body>
+</html>
