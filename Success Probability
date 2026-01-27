@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Success Simulator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #4CAF50, #2196F3);
+            margin: 0;
+            perspective: 1000px;
+            color: #fff;
+            text-align: center;
+        }
+        .simulator {
+            width: 520px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.9);
+            transform: rotateY(10deg) rotateX(10deg);
+            transition: transform 0.5s ease-in-out;
+        }
+        .simulator:hover {
+            transform: rotateY(-10deg) rotateX(-10deg);
+        }
+        input[type=range] {
+            width: 80%;
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin-top: 20px;
+            border: none;
+            background: #ff9800;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #f57c00;
+        }
+        .warning {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+<div class="simulator">
+    <h1>Success Simulator</h1>
+
+    <div class="warning">
+        ⚠️ Content Warning: This is NOT designed by experts.  
+        This is a playful, math-based model and must NOT be taken seriously or followed in real life.  
+        Reality is messier. Updates may come in the future.
+    </div>
+
+    <label>Hardwork Level — <em>The Relentless Grinder</em></label><br>
+    <input type="range" min="0" max="100" value="50" id="hardwork" oninput="syncTimewaste()"><br>
+
+    <label>Intellect Level — <em>The Natural Thinker</em></label><br>
+    <input type="range" min="0" max="100" value="50" id="intellect"><br>
+
+    <label>Time-Wasting Level — <em>The Professional Procrastinator</em></label><br>
+    <input type="range" min="0" max="100" value="50" id="timewasting" oninput="syncHardwork()"><br>
+
+    <label>Luck / Chaos Factor — <em>The Dice Roll of Reality</em></label><br>
+    <input type="range" min="-20" max="20" value="0" id="luck"><br>
+
+    <button onclick="calculateResult()">Calculate Estimated Success Probability</button>
+    <p id="result"></p>
+</div>
+
+<script>
+    function syncTimewaste() {
+        let hardwork = document.getElementById('hardwork').value;
+        document.getElementById('timewasting').value = Math.max(0, 100 - hardwork);
+    }
+
+    function syncHardwork() {
+        let timewasting = document.getElementById('timewasting').value;
+        document.getElementById('hardwork').value = Math.max(0, 100 - timewasting);
+    }
+
+    function calculateResult() {
+        let hardwork = parseInt(document.getElementById('hardwork').value);
+        let intellect = parseInt(document.getElementById('intellect').value);
+        let timewasting = parseInt(document.getElementById('timewasting').value);
+        let luck = parseInt(document.getElementById('luck').value);
+
+        // Pareto-inspired curve: early hardwork gives disproportionate gains
+        let hardworkEffect = Math.pow(hardwork / 100, 0.35) * 80;
+
+        // Intellect matters, but cannot dominate without effort
+        let intellectEffect = Math.pow(intellect / 100, 0.6) * 30;
+
+        // Time wasting directly hurts
+        let distractionPenalty = Math.pow(timewasting / 100, 1.1) * 50;
+
+        let finalScore = hardworkEffect + intellectEffect - distractionPenalty + luck;
+
+        finalScore = Math.max(0, Math.min(100, finalScore));
+
+        document.getElementById('result').innerHTML =
+            `Estimated Success Probability: ${finalScore.toFixed(2)}%`;
+    }
+</script>
+</body>
+</html>
