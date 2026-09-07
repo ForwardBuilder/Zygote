@@ -1,838 +1,448 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Epistemic Loom — Zygote Builder</title>
-    <style>
-        :root {
-            --bg-primary: #030712;
-            --bg-surface: #0f172a;
-            --bg-glass: rgba(15, 23, 42, 0.75);
-            --border-glass: rgba(255, 255, 255, 0.08);
-            --accent-cyan: #06b6d4;
-            --accent-violet: #8b5cf6;
-            --accent-emerald: #10b981;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-        }
-
-        body {
-            background-color: var(--bg-primary);
-            color: var(--text-main);
-            font-family: var(--font-family);
-            overflow: hidden;
-            width: 100vw;
-            height: 100vh;
-        }
-
-        #canvas-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
-
-        /* UI Overlay Layer */
-        .ui-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-            pointer-events: none;
-            display: grid;
-            grid-template-rows: auto 1fr auto;
-            padding: 1.5rem;
-            gap: 1rem;
-        }
-
-        .interactive {
-            pointer-events: auto;
-        }
-
-        /* Top Navigation Bar */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--bg-glass);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--border-glass);
-            padding: 0.75rem 1.5rem;
-            border-radius: 1rem;
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .brand-icon {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 0.9rem;
-            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
-        }
-
-        .brand-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            letter-spacing: -0.025em;
-            background: linear-gradient(to right, #fff, var(--text-muted));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .header-controls {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-
-        .icon-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-glass);
-            color: var(--text-main);
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-
-        .icon-btn:hover {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-1px);
-        }
-
-        /* Minimizable Floating Windows / Panels */
-        .glass-panel {
-            background: var(--bg-glass);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--border-glass);
-            border-radius: 1rem;
-            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
-            transition: transform 0.3s ease, opacity 0.3s ease, height 0.3s ease;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .panel-header {
-            padding: 0.85rem 1.25rem;
-            background: rgba(255, 255, 255, 0.02);
-            border-bottom: 1px solid var(--border-glass);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-        }
-
-        .panel-title {
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .panel-body {
-            padding: 1.25rem;
-            overflow-y: auto;
-            max-height: 65vh;
-            transition: padding 0.3s ease;
-        }
-
-        .glass-panel.minimized .panel-body {
-            padding: 0;
-            max-height: 0;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        /* Layout Main Body */
-        .main-workspace {
-            display: grid;
-            grid-template-columns: 320px 1fr;
-            gap: 1.5rem;
-            align-items: start;
-            pointer-events: none;
-        }
-
-        .main-workspace > * {
-            pointer-events: auto;
-        }
-
-        /* Sidebar Controls */
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-        }
-
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .control-group:last-child {
-            margin-bottom: 0;
-        }
-
-        label {
-            font-size: 0.8rem;
-            font-weight: 500;
-            color: var(--text-muted);
-            display: flex;
-            justify-content: space-between;
-        }
-
-        input[type="text"] {
-            width: 100%;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-glass);
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
-            color: var(--text-main);
-            font-size: 0.95rem;
-            outline: none;
-            transition: all 0.2s;
-        }
-
-        input[type="text"]:focus {
-            border-color: var(--accent-cyan);
-            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
-        }
-
-        .btn-primary {
-            width: 100%;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
-            border: none;
-            padding: 0.8rem 1.25rem;
-            border-radius: 0.6rem;
-            color: white;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(6, 182, 212, 0.3);
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-
-        .btn-primary:hover {
-            opacity: 0.95;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(6, 182, 212, 0.5);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-glass);
-            padding: 0.6rem 1rem;
-            border-radius: 0.5rem;
-            color: var(--text-main);
-            font-weight: 500;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        /* Crystal Node Info Inspection Overlay */
-        .node-inspector {
-            position: absolute;
-            bottom: 2rem;
-            right: 2rem;
-            width: 320px;
-            transform: translateY(120%);
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            pointer-events: none;
-        }
-
-        .node-inspector.active {
-            transform: translateY(0);
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .resonance-meter {
-            height: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-            overflow: hidden;
-            margin-top: 0.5rem;
-        }
-
-        .resonance-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-emerald));
-            width: 0%;
-            transition: width 0.5s ease;
-        }
-
-        /* Welcome / Guide Modal */
-        .modal-backdrop {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(3, 7, 18, 0.8);
-            backdrop-filter: blur(8px);
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .modal-backdrop.visible {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .modal-card {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-glass);
-            width: 100%;
-            max-width: 550px;
-            border-radius: 1.25rem;
-            padding: 2rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            transform: scale(0.95);
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .modal-backdrop.visible .modal-card {
-            transform: scale(1);
-        }
-
-        .modal-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            letter-spacing: -0.03em;
-            background: linear-gradient(135deg, #fff, var(--text-muted));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .modal-steps {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .step-item {
-            display: flex;
-            gap: 1rem;
-            align-items: flex-start;
-        }
-
-        .step-number {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: rgba(6, 182, 212, 0.15);
-            color: var(--accent-cyan);
-            border: 1px solid rgba(6, 182, 212, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.85rem;
-            flex-shrink: 0;
-        }
-
-        .step-text h4 {
-            font-size: 0.95rem;
-            font-weight: 600;
-            margin-bottom: 0.2rem;
-        }
-
-        .step-text p {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            line-height: 1.4;
-        }
-
-        /* Responsive Mobile Layout */
-        @media (max-width: 768px) {
-            .ui-layer {
-                padding: 1rem;
-                gap: 0.75rem;
-            }
-            .main-workspace {
-                grid-template-columns: 1fr;
-            }
-            .sidebar {
-                max-height: 40vh;
-                overflow-y: auto;
-            }
-            .node-inspector {
-                width: calc(100% - 2rem);
-                left: 1rem;
-                bottom: 1rem;
-            }
-        }
-    </style>
-    <!-- Three.js Library CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-</head>
-<body>
-
-    <!-- 3D Canvas Container -->
-    <div id="canvas-container"></div>
-
-    <!-- UI Layer -->
-    <div class="ui-layer">
-        <!-- Top Nav -->
-        <header class="interactive">
-            <div class="brand">
-                <div class="brand-icon">Ω</div>
-                <div class="brand-title">The Epistemic Loom</div>
-            </div>
-            <div class="header-controls">
-                <button class="icon-btn" id="btn-guide" title="Guide & Purpose">?</button>
-                <button class="icon-btn" id="btn-reset" title="Reset Universe">↻</button>
-            </div>
-        </header>
-
-        <!-- Main Workspace Grid -->
-        <div class="main-workspace">
-            <!-- Sidebar Generator Panel -->
-            <div class="glass-panel interactive" id="panel-controls">
-                <div class="panel-header" onclick="togglePanel('panel-controls')">
-                    <span class="panel-title">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
-                        Concept Weaver
-                    </span>
-                    <span class="toggle-icon">−</span>
-                </div>
-                <div class="panel-body">
-                    <div class="control-group">
-                        <label>Synthesize Thought Node <span>Semantic Input</span></label>
-                        <input type="text" id="idea-input" placeholder="e.g., Entropy, Recursion, Harmony..." autocomplete="off">
-                    </div>
-                    <button class="btn-primary" id="btn-synthesize">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                        Crystallize Concept
-                    </button>
-
-                    <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
-                        <label>Resonance Protocols</label>
-                        <button class="btn-secondary" id="btn-auto-weave">Autonomously Weave Context</button>
-                        <button class="btn-secondary" id="btn-collapse">Entangle All Nodes</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Inspector Panel for Selected Nodes -->
-    <div class="glass-panel interactive node-inspector" id="node-inspector">
-        <div class="panel-header" onclick="togglePanel('node-inspector')">
-            <span class="panel-title" id="inspector-title-label">Thought Crystal</span>
-            <span class="toggle-icon">−</span>
-        </div>
-        <div class="panel-body">
-            <h3 id="node-name" style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem;">Node Name</h3>
-            <p id="node-desc" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 1rem;">Detailed philosophical or structural breakdown of this specific synthesis node.</p>
-            <label>Epistemic Resonance <span id="resonance-val">84%</span></label>
-            <div class="resonance-meter">
-                <div class="resonance-fill" id="resonance-bar"></div>
-            </div>
-            <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
-                <button class="btn-secondary" style="flex: 1;" id="btn-amplify">Amplify Signal</button>
-                <button class="btn-secondary" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3); flex: 1;" id="btn-dissolve">Dissolve</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Guide / Welcome Modal -->
-    <div class="modal-backdrop visible" id="guide-modal">
-        <div class="modal-card">
-            <div class="modal-title">Welcome to The Epistemic Loom</div>
-            <div class="modal-steps">
-                <div class="step-item">
-                    <div class="step-number">1</div>
-                    <div class="step-text">
-                        <h4>What is the purpose of this simulation?</h4>
-                        <p>The Epistemic Loom is an interactive 3D mental sandbox and semantic thought-mapper. It visualizes abstract ideas, concepts, or philosophical questions as a self-organizing constellation of glowing crystalline nodes, helping you map out complex connections between thoughts.</p>
-                    </div>
-                </div>
-                <div class="step-item">
-                    <div class="step-number">2</div>
-                    <div class="step-text">
-                        <h4>How to interact?</h4>
-                        <p>Type any keyword or concept into the <strong>Concept Weaver</strong> sidebar to manifest a new 3D crystal node. Click and drag in space to orbit the camera, scroll to zoom, and click directly on any crystal node to inspect its resonance and entanglements.</p>
-                    </div>
-                </div>
-                <div class="step-item">
-                    <div class="step-number">3</div>
-                    <div class="step-text">
-                        <h4>Window Controls</h4>
-                        <p>You can minimize or maximize any panel using the top header bars for an unobstructed view of your 3D thought universe.</p>
-                    </div>
-                </div>
-            </div>
-            <button class="btn-primary" id="btn-close-modal" style="width: 100%;">Enter Thought Universe</button>
-        </div>
-    </div>
-
+    <title>The Epistemic Loom | Zygote Builder Simulations</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        /* --- Panel Minimize / Maximize Logic --- */
-        function togglePanel(panelId) {
-            const panel = document.getElementById(panelId);
-            panel.classList.toggle('minimized');
-            const toggleIcon = panel.querySelector('.toggle-icon');
-            toggleIcon.textContent = panel.classList.contains('minimized') ? '+' : '−';
-        }
-
-        /* --- Modal Toggle Logic --- */
-        const guideModal = document.getElementById('guide-modal');
-        document.getElementById('btn-guide').addEventListener('click', () => {
-            guideModal.classList.add('visible');
-        });
-        document.getElementById('btn-close-modal').addEventListener('click', () => {
-            guideModal.classList.remove('visible');
-        });
-
-        /* --- Three.js 3D Thought Universe Engine --- */
-        const container = document.getElementById('canvas-container');
-        
-        const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x030712, 0.015);
-
-        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 10, 25);
-
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        container.appendChild(renderer.domElement);
-
-        const controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.05;
-        controls.maxDistance = 60;
-        controls.minDistance = 5;
-
-        /* Ambient & Directional Lighting */
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-        scene.add(ambientLight);
-
-        const dirLight = new THREE.DirectionalLight(0x06b6d4, 2);
-        dirLight.position.set(15, 25, 15);
-        scene.add(dirLight);
-
-        const pointLight = new THREE.PointLight(0x8b5cf6, 3, 40);
-        pointLight.position.set(-10, -5, -10);
-        scene.add(pointLight);
-
-        /* Starfield Background Particle Dust */
-        const particleCount = 600;
-        const particleGeometry = new THREE.BufferGeometry();
-        const particlePositions = new Float32Array(particleCount * 3);
-
-        for(let i = 0; i < particleCount * 3; i += 3) {
-            particlePositions[i] = (Math.random() - 0.5) * 100;
-            particlePositions[i+1] = (Math.random() - 0.5) * 100;
-            particlePositions[i+2] = (Math.random() - 0.5) * 100;
-        }
-
-        particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
-        const particleMaterial = new THREE.PointsMaterial({
-            color: 0x94a3b8,
-            size: 0.3,
-            transparent: true,
-            opacity: 0.5
-        });
-        const starField = new THREE.Points(particleGeometry, particleMaterial);
-        scene.add(starField);
-
-        /* Thought Nodes & Network Architecture */
-        let nodes = [];
-        let edges = [];
-        let selectedNode = null;
-
-        const raycaster = new THREE.Raycaster();
-        const mouse = new THREE.Vector2();
-
-        class ThoughtNode {
-            constructor(name, description, position) {
-                this.name = name;
-                this.description = description || "Synthesized thought crystal containing conceptual energy and systemic linkages.";
-                this.resonance = Math.floor(Math.random() * 40) + 60;
-                
-                // Geometry based on importance
-                const geometries = [
-                    new THREE.IcosahedronGeometry(1.2, 0),
-                    new THREE.OctahedronGeometry(1.3, 0),
-                    new THREE.DodecahedronGeometry(1.1, 0)
-                ];
-                const geom = geometries[Math.floor(Math.random() * geometries.length)];
-                
-                const colors = [0x06b6d4, 0x8b5cf6, 0x10b981, 0x3b82f6];
-                const col = colors[Math.floor(Math.random() * colors.length)];
-
-                const mat = new THREE.MeshPhysicalMaterial({
-                    color: col,
-                    emissive: col,
-                    emissiveIntensity: 0.3,
-                    roughness: 0.1,
-                    metalness: 0.2,
-                    transmission: 0.6,
-                    transparent: true,
-                    opacity: 0.9,
-                    wireframe: false
-                });
-
-                this.mesh = new THREE.Mesh(geom, mat);
-                this.mesh.position.copy(position || new THREE.Vector3(
-                    (Math.random() - 0.5) * 16,
-                    (Math.random() - 0.5) * 12,
-                    (Math.random() - 0.5) * 16
-                ));
-
-                // Outer wireframe halo
-                const wireGeom = geom.clone();
-                const wireMat = new THREE.MeshBasicMaterial({
-                    color: 0xffffff,
-                    wireframe: true,
-                    transparent: true,
-                    opacity: 0.15
-                });
-                this.halo = new THREE.Mesh(wireGeom, wireMat);
-                this.mesh.add(this.halo);
-
-                scene.add(this.mesh);
-
-                this.velocity = new THREE.Vector3(
-                    (Math.random() - 0.5) * 0.01,
-                    (Math.random() - 0.5) * 0.01,
-                    (Math.random() - 0.5) * 0.01
-                );
-
-                this.mesh.userData = { parentNode: this };
-            }
-
-            update() {
-                this.mesh.rotation.x += 0.005;
-                this.mesh.rotation.y += 0.008;
-                this.mesh.position.add(this.velocity);
-
-                // Boundary containment
-                if(Math.abs(this.mesh.position.x) > 20) this.velocity.x *= -1;
-                if(Math.abs(this.mesh.position.y) > 15) this.velocity.y *= -1;
-                if(Math.abs(this.mesh.position.z) > 20) this.velocity.z *= -1;
-            }
-
-            highlight(state) {
-                if(state) {
-                    this.mesh.material.emissiveIntensity = 0.9;
-                    this.halo.material.opacity = 0.6;
-                } else {
-                    this.mesh.material.emissiveIntensity = 0.3;
-                    this.halo.material.opacity = 0.15;
-                }
-            }
-        }
-
-        // Initialize default core thoughts
-        const initialThoughts = [
-            { name: "First Principles", desc: "Boiling problems down to fundamental truths and reasoning up from there." },
-            { name: "Recursion", desc: "Self-referential patterns echoing across scales in mathematics and nature." },
-            { name: "Entropy", desc: "The natural thermodynamic progression from order to disorder and complexity." }
-        ];
-
-        initialThoughts.forEach((t, idx) => {
-            const angle = (idx / initialThoughts.length) * Math.PI * 2;
-            const pos = new THREE.Vector3(Math.cos(angle) * 8, (idx - 1) * 3, Math.sin(angle) * 8);
-            nodes.push(new ThoughtNode(t.name, t.desc, pos));
-        });
-
-        rebuildNetworkEdges();
-
-        function rebuildNetworkEdges() {
-            // Remove old line meshes
-            edges.forEach(e => scene.remove(e));
-            edges = [];
-
-            // Connect nodes in a web
-            const material = new THREE.LineBasicMaterial({
-                color: 0x06b6d4,
-                transparent: true,
-                opacity: 0.2
-            });
-
-            for(let i = 0; i < nodes.length; i++) {
-                for(let j = i + 1; j < nodes.length; j++) {
-                    const dist = nodes[i].mesh.position.distanceTo(nodes[j].mesh.position);
-                    if(dist < 14) {
-                        const geometry = new THREE.BufferGeometry().setFromPoints([
-                            nodes[i].mesh.position,
-                            nodes[j].mesh.position
-                        ]);
-                        const line = new THREE.Line(geometry, material);
-                        scene.add(line);
-                        edges.push(line);
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        loom: {
+                            bg: '#030712',
+                            card: '#0f172a',
+                            border: '#1e293b',
+                            primary: '#38bdf8',
+                            accent: '#c084fc',
+                            glow: '#38bdf855'
+                        }
+                    },
+                    fontFamily: {
+                        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+                        sans: ['Inter', 'sans-serif']
                     }
                 }
             }
         }
+    </script>
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #030712;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #030712;
+            color: #f8fafc;
+            overflow: hidden;
+            user-select: none;
+        }
+        canvas {
+            display: block;
+            outline: none;
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(56, 189, 248, 0.15);
+        }
+        .glass-button {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-button:hover {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: rgba(56, 189, 248, 0.4);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+        }
+        .pulse-glow {
+            animation: pulseGlow 3s infinite ease-in-out;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.2); }
+            50% { box-shadow: 0 0 35px rgba(192, 132, 252, 0.4); }
+        }
+        .scanlines {
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0, 0, 0, 0.15) 50%,
+                rgba(0, 0, 0, 0.15)
+            );
+            background-size: 100% 4px;
+        }
+    </style>
+</head>
+<body class="w-screen h-screen flex flex-col relative overflow-hidden">
 
-        /* --- User Interactions & Controls Binding --- */
-        const ideaInput = document.getElementById('idea-input');
+    <!-- 3D Canvas Container -->
+    <div id="canvas-container" class="absolute inset-0 z-0"></div>
+    <div class="absolute inset-0 scanlines pointer-events-none z-10 opacity-30"></div>
+
+    <!-- Top Bar / Header -->
+    <header class="relative z-20 flex items-center justify-between px-6 py-4 glass-panel border-b border-sky-500/10">
+        <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-500 to-purple-500 flex items-center justify-center shadow-lg shadow-sky-500/20 pulse-glow">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+            </div>
+            <div>
+                <h1 class="font-mono font-bold tracking-wider text-base bg-gradient-to-r from-sky-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent">THE EPISTEMIC LOOM</h1>
+                <p class="text-xs text-slate-400 tracking-wide font-sans">Zygote Builder Neural Lattice v2.4</p>
+            </div>
+        </div>
+
+        <!-- Live Metrics HUD -->
+        <div class="hidden md:flex items-center space-x-6 px-5 py-2 rounded-xl glass-panel text-xs font-mono">
+            <div class="flex flex-col">
+                <span class="text-slate-500 text-[10px]">ENTROPY</span>
+                <span id="stat-entropy" class="text-sky-400 font-bold">14.2%</span>
+            </div>
+            <div class="w-px h-6 bg-slate-800"></div>
+            <div class="flex flex-col">
+                <span class="text-slate-500 text-[10px]">COHERENCE</span>
+                <span id="stat-coherence" class="text-emerald-400 font-bold">88.6%</span>
+            </div>
+            <div class="w-px h-6 bg-slate-800"></div>
+            <div class="flex flex-col">
+                <span class="text-slate-500 text-[10px]">STRUCTURAL INTEGRITY</span>
+                <span id="stat-integrity" class="text-purple-400 font-bold">94.1%</span>
+            </div>
+            <div class="w-px h-6 bg-slate-800"></div>
+            <div class="flex flex-col">
+                <span class="text-slate-500 text-[10px]">RESONANCE</span>
+                <span id="stat-resonance" class="text-amber-400 font-bold">1.618 Hz</span>
+            </div>
+        </div>
+
+        <!-- Header Actions -->
+        <div class="flex items-center space-x-2">
+            <button onclick="toggleAudio()" id="audio-btn" title="Toggle Ambient Generator" class="glass-button px-3 py-2 rounded-xl text-xs font-mono flex items-center space-x-1.5 text-slate-300 hover:text-sky-300">
+                <svg id="audio-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clip-rule="evenodd"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/></svg>
+                <span id="audio-text" class="hidden sm:inline">Audio OFF</span>
+            </button>
+            <button onclick="exportCrystalNote()" class="glass-button px-3 py-2 rounded-xl text-xs font-mono flex items-center space-x-1.5 text-sky-400 hover:text-sky-300">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+                <span class="hidden sm:inline">Export Note</span>
+            </button>
+            <button onclick="openHelpModal()" class="glass-button p-2.5 rounded-xl text-slate-300 hover:text-white" title="How to weave">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Workspace Layout -->
+    <main class="relative z-20 flex-1 flex flex-col md:flex-row overflow-hidden pointer-events-none p-4 gap-4">
         
-        document.getElementById('btn-synthesize').addEventListener('click', synthesizeNode);
-        ideaInput.addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') synthesizeNode();
-        });
+        <!-- Left Sidebar: Thought Node Streams -->
+        <aside class="w-full md:w-80 glass-panel rounded-2xl flex flex-col pointer-events-auto border border-sky-500/20 shadow-2xl overflow-hidden max-h-[40vh] md:max-h-full">
+            <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/40">
+                <div class="flex items-center space-x-2">
+                    <span class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
+                    <h2 class="font-mono text-xs font-bold tracking-wider text-slate-200">SEMANTIC STREAMS</h2>
+                </div>
+                <span id="node-count-badge" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20">6 Nodes Active</span>
+            </div>
 
-        function synthesizeNode() {
-            const text = ideaInput.value.trim();
-            if(!text) return;
+            <!-- Category filter tabs -->
+            <div class="flex border-b border-slate-800 text-[11px] font-mono overflow-x-auto bg-slate-950/40">
+                <button onclick="filterCategory('all')" id="cat-all" class="flex-1 py-2 px-3 text-sky-400 border-b-2 border-sky-400 font-semibold whitespace-nowrap">All</button>
+                <button onclick="filterCategory('tech')" id="cat-tech" class="flex-1 py-2 px-3 text-slate-400 hover:text-slate-200 whitespace-nowrap">Tech</button>
+                <button onclick="filterCategory('philosophy')" id="cat-philosophy" class="flex-1 py-2 px-3 text-slate-400 hover:text-slate-200 whitespace-nowrap">Mind</button>
+                <button onclick="filterCategory('emotion')" id="cat-emotion" class="flex-1 py-2 px-3 text-slate-400 hover:text-slate-200 whitespace-nowrap">Poem</button>
+            </div>
 
-            const newNode = new ThoughtNode(text, `Generated conceptual crystallization derived from user synthesis pipeline: "${text}".`);
-            nodes.push(newNode);
-            ideaInput.value = '';
-            rebuildNetworkEdges();
-            selectNode(newNode);
+            <!-- Stream List -->
+            <div id="stream-list" class="flex-1 overflow-y-auto p-3 space-y-2.5">
+                <!-- Populated dynamically by JS -->
+            </div>
+
+            <!-- Quick Spawn Controls -->
+            <div class="p-3 border-t border-slate-800 bg-slate-900/60 flex gap-2">
+                <button onclick="spawnRandomNode()" class="flex-1 glass-button py-2 px-3 rounded-xl text-xs font-mono font-medium text-sky-300 hover:bg-sky-500/20 flex items-center justify-center space-x-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <span>Spawn Random Node</span>
+                </button>
+                <button onclick="clearLattice()" title="Clear lattice" class="glass-button p-2 rounded-xl text-rose-400 hover:bg-rose-500/20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Spacer to allow mouse interaction with 3D viewport -->
+        <div class="flex-1 pointer-events-none"></div>
+
+        <!-- Right Sidebar: Inspection & Emergent Synthesis -->
+        <aside class="w-full md:w-80 glass-panel rounded-2xl flex flex-col pointer-events-auto border border-purple-500/20 shadow-2xl overflow-hidden max-h-[40vh] md:max-h-full">
+            <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/40">
+                <div class="flex items-center space-x-2">
+                    <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
+                    <h2 class="font-mono text-xs font-bold tracking-wider text-slate-200">EMERGENT SYNTHESIS</h2>
+                </div>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20">Live AI Logic</span>
+            </div>
+
+            <div class="p-4 flex-1 overflow-y-auto space-y-4">
+                <!-- Selected Node Inspection -->
+                <div class="space-y-2">
+                    <label class="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Active Node Inspection</label>
+                    <div id="inspector-card" class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-xs space-y-2">
+                        <div class="text-slate-400 italic">Click any 3D node in the crystal lattice to inspect semantic properties & connections.</div>
+                    </div>
+                </div>
+
+                <!-- Loom Synthesis Result Box -->
+                <div class="space-y-2">
+                    <label class="text-[10px] font-mono text-purple-400 uppercase tracking-wider">Neural Resonance Output</label>
+                    <div id="synthesis-box" class="p-3.5 rounded-xl bg-gradient-to-br from-purple-950/40 to-slate-900/80 border border-purple-500/30 text-xs font-mono text-slate-300 leading-relaxed space-y-2">
+                        <p class="text-purple-300 font-semibold">⚡ Lattice initialized.</p>
+                        <p class="text-slate-400 text-[11px]">Connect two or more cognitive nodes in 3D space to trigger emergent philosophical synthesis and crystallize new ideas.</p>
+                    </div>
+                </div>
+
+                <!-- Loom Controls -->
+                <div class="space-y-2 pt-2 border-t border-slate-800/80">
+                    <label class="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Lattice Controls</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="autoConnectNearest()" class="glass-button py-2 px-3 rounded-xl text-xs font-mono text-slate-300 hover:text-sky-300 flex items-center justify-center space-x-1.5">
+                            <svg class="w-3.5 h-3.5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            <span>Auto-Link</span>
+                        </button>
+                        <button onclick="randomizeLayout()" class="glass-button py-2 px-3 rounded-xl text-xs font-mono text-slate-300 hover:text-purple-300 flex items-center justify-center space-x-1.5">
+                            <svg class="w-3.5 h-3.5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                            <span>Re-Scatter</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Help / Intro Modal -->
+    <div id="help-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md transition-opacity duration-300">
+        <div class="glass-panel w-11/12 max-w-lg p-6 rounded-3xl border border-sky-500/30 shadow-2xl space-y-5 relative">
+            <button onclick="closeHelpModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-500 to-purple-500 flex items-center justify-center shadow-lg shadow-sky-500/20">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                </div>
+                <div>
+                    <h3 class="font-mono font-bold text-base text-slate-100">Welcome to The Epistemic Loom</h3>
+                    <p class="text-xs text-sky-400">Zygote Builder Cognitive Matrix</p>
+                </div>
+            </div>
+            <div class="text-xs text-slate-300 space-y-3 leading-relaxed">
+                <p>You are stepping into an interactive 3D thought-weaving laboratory. Here, abstract concepts, technical architectures, and introspective nodes form a living semantic crystal.</p>
+                <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 space-y-2">
+                    <div class="flex items-center space-x-2 text-sky-300 font-mono font-semibold">
+                        <span>✨ How to Interact</span>
+                    </div>
+                    <ul class="list-disc list-inside space-y-1 text-slate-400">
+                        <li><strong class="text-slate-200">Orbit & Zoom:</strong> Click and drag anywhere in 3D space to rotate the crystal matrix. Scroll to zoom.</li>
+                        <li><strong class="text-slate-200">Connect Nodes:</strong> Click on two different nodes in sequence to forge a neural link and trigger synthesis.</li>
+                        <li><strong class="text-slate-200">Spawn Thoughts:</strong> Use the left sidebar to add new conceptual nodes into the 3D lattice.</li>
+                        <li><strong class="text-slate-200">Export Note:</strong> Save your crystal structure as a structured markdown file for your GitHub blog.</li>
+                    </ul>
+                </div>
+            </div>
+            <button onclick="closeHelpModal()" class="w-full py-3 rounded-xl bg-gradient-to-r from-sky-500 to-purple-600 text-white font-mono text-xs font-semibold shadow-lg shadow-sky-500/25 hover:opacity-95 transition-opacity">
+                Initialize Loom Matrix →
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification Overlay -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="glass-panel px-4 py-3 rounded-xl border border-sky-500/40 shadow-2xl flex items-center space-x-3 text-xs font-mono text-slate-200">
+            <span id="toast-dot" class="w-2.5 h-2.5 rounded-full bg-sky-400 animate-ping"></span>
+            <span id="toast-msg">Action completed successfully.</span>
+        </div>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        // --- PRE-FABRICATED THOUGHT DATA REPOSITORY ---
+        const thoughtLibrary = [
+            { id: 1, title: "Recursive Neural Self-Correction", cat: "tech", color: 0x38bdf8, desc: "A system architecture capable of introspective gradient inspection and autonomous weights pruning without catastrophic forgetting." },
+            { id: 2, title: "Epistemic Solipsism in Distributed DBs", cat: "philosophy", color: 0xc084fc, desc: "If a node partitions in a forest and no observer queries it, did state consensus ever truly occur?" },
+            { id: 3, title: "Midnight Compilation Hum", cat: "emotion", color: 0xf43f5e, desc: "The quiet solace of fan bearings accelerating at 3 AM while compiling C++ templates under dim desk illumination." },
+            { id: 4, title: "Zero-Knowledge Proof of Consciousness", cat: "philosophy", color: 0xa855f7, desc: "Proving sentient awareness to an adversarial oracle without revealing the underlying qualia matrix." },
+            { id: 5, title: "Asynchronous Event Loop Topology", cat: "tech", color: 0x0ea5e9, desc: "Non-blocking event streams mimicking neural synaptic firing propagation across distributed workers." },
+            { id: 6, title: "The Weight of Undocumented Code", cat: "emotion", color: 0xfb7185, desc: "Ghost functions written by former lab mates whose deprecation warnings echo across generations." },
+            { id: 7, title: "Topological Data Analysis of Memory", cat: "tech", color: 0x2dd4bf, desc: "Persistent homology revealing multidimensional clusters hidden within noisy vector embeddings." },
+            { id: 8, title: "Metaphysical Determinism vs Free Will", cat: "philosophy", color: 0x818cf8, desc: "Evaluating if human volition is merely pre-computed bytecode executed on biological silicon." }
+        ];
+
+        // --- SYNTHESIS COMBINATORIAL TEMPLATES ---
+        const synthesisMatrix = {
+            "tech-philosophy": "Emergent Paradigm: The code is no longer just an instrument; it has become an epistemological lens rewriting how we define truth.",
+            "tech-emotion": "Algorithmic Resonance: Cold computational logic imbued with human nostalgia, creating software that feels alive and temporal.",
+            "philosophy-emotion": "Introspective Quanta: Abstract existential paradoxes anchored by visceral lived experience and creative melancholy.",
+            "tech-tech": "Hyper-Architecture: Unbreakable distributed synergy creating fault-tolerant self-sustaining computational matrices.",
+            "philosophy-philosophy": "Ontological Singularity: Infinite recursive loops of pure logic peeling back the veil of consensus reality.",
+            "emotion-emotion": "Deep Empathic Lattice: A resonant harmonic chord vibrating through human intuition and creative expression."
+        };
+
+        // --- GLOBAL APP STATE ---
+        let activeCategory = 'all';
+        let nodes = []; // 3D node objects { id, title, cat, color, desc, position, mesh, velocity }
+        let edges = []; // 3D line objects between nodes { from, to, line }
+        let selectedNodeA = null;
+        let selectedNodeB = null;
+        let hoveredNode = null;
+        let isAudioActive = false;
+        let audioCtx = null;
+
+        // --- STATS COUNTERS ---
+        let stats = {
+            entropy: 14.2,
+            coherence: 88.6,
+            integrity: 94.1,
+            resonance: 1.618
+        };
+
+        // --- THREE.JS SCENE SETUP ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x030712, 0.035);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 5, 18);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        container.appendChild(renderer.domElement);
+
+        // --- LIGHTING ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        scene.add(ambientLight);
+
+        const pointLight1 = new THREE.PointLight(0x38bdf8, 3, 50);
+        pointLight1.position.set(10, 15, 10);
+        scene.add(pointLight1);
+
+        const pointLight2 = new THREE.PointLight(0xc084fc, 3, 50);
+        pointLight2.position.set(-10, -10, -10);
+        scene.add(pointLight2);
+
+        // --- AMBIENT 3D BACKGROUND GRID & PARTICLES ---
+        const gridHelper = new THREE.GridHelper(40, 40, 0x1e293b, 0x0f172a);
+        gridHelper.position.y = -6;
+        scene.add(gridHelper);
+
+        // Background Starfield Particles
+        const particleCount = 600;
+        const particleGeo = new THREE.BufferGeometry();
+        const particlePos = new Float32Array(particleCount * 3);
+        for(let i=0; i<particleCount*3; i+=3) {
+            particlePos[i] = (Math.random() - 0.5) * 50;
+            particlePos[i+1] = (Math.random() - 0.5) * 50;
+            particlePos[i+2] = (Math.random() - 0.5) * 50;
         }
+        particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePos, 3));
+        const particleMat = new THREE.PointsMaterial({
+            size: 0.1,
+            color: 0x38bdf8,
+            transparent: true,
+            opacity: 0.5
+        });
+        const starField = new THREE.Points(particleGeo, particleMat);
+        scene.add(starField);
 
-        document.getElementById('btn-auto-weave').addEventListener('click', () => {
-            const autoConcepts = ["Synthesis", "Synergy", "Paradigm", "Quantum", "Topology", "Resonance", "Dynamics"];
-            const randomConcept = autoConcepts[Math.floor(Math.random() * autoConcepts.length)] + " " + Math.floor(Math.random() * 100);
-            const newNode = new ThoughtNode(randomConcept, "Autonomously woven concept node integrating into surrounding intellectual topology.");
-            nodes.push(newNode);
-            rebuildNetworkEdges();
+        // --- INTERACTION & ORBIT CONTROLS (CUSTOM SMOOTH ORBIT) ---
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+        let cameraAngles = { theta: 0, phi: Math.PI / 4, radius: 18 };
+
+        window.addEventListener('mousedown', (e) => {
+            if(e.target.closest('aside') || e.target.closest('header')) return;
+            isDragging = true;
+            previousMousePosition = { x: e.clientX, y: e.clientY };
         });
 
-        document.getElementById('btn-collapse').addEventListener('click', () => {
-            nodes.forEach(n => {
-                n.velocity.set(
-                    (Math.random() - 0.5) * 0.05,
-                    (Math.random() - 0.5) * 0.05,
-                    (Math.random() - 0.5) * 0.05
-                );
-            });
-            setTimeout(() => {
-                nodes.forEach(n => {
-                    n.velocity.set(
-                        (Math.random() - 0.5) * 0.01,
-                        (Math.random() - 0.5) * 0.01,
-                        (Math.random() - 0.5) * 0.01
-                    );
-                });
-            }, 1000);
+        window.addEventListener('mousemove', (e) => {
+            if(!isDragging) return;
+            const deltaX = e.clientX - previousMousePosition.x;
+            const deltaY = e.clientY - previousMousePosition.y;
+
+            cameraAngles.theta -= deltaX * 0.008;
+            cameraAngles.phi = Math.max(0.1, Math.min(Math.PI - 0.1, cameraAngles.phi - deltaY * 0.008));
+
+            previousMousePosition = { x: e.clientX, y: e.clientY };
+            updateCameraPosition();
         });
 
-        document.getElementById('btn-reset').addEventListener('click', () => {
-            nodes.forEach(n => scene.remove(n.mesh));
-            nodes = [];
-            edges.forEach(e => scene.remove(e));
-            edges = [];
-            initialThoughts.forEach((t, idx) => {
-                const angle = (idx / initialThoughts.length) * Math.PI * 2;
-                const pos = new THREE.Vector3(Math.cos(angle) * 8, (idx - 1) * 3, Math.sin(angle) * 8);
-                nodes.push(new ThoughtNode(t.name, t.desc, pos));
-            });
-            rebuildNetworkEdges();
-            deselectNode();
+        window.addEventListener('mouseup', () => { isDragging = false; });
+
+        window.addEventListener('wheel', (e) => {
+            cameraAngles.radius = Math.max(8, Math.min(35, cameraAngles.radius + e.deltaY * 0.02));
+            updateCameraPosition();
+        }, { passive: true });
+
+        // Touch support for mobile
+        let touchStartPos = { x: 0, y: 0 };
+        window.addEventListener('touchstart', (e) => {
+            if(e.target.closest('aside') || e.target.closest('header') || e.touches.length !== 1) return;
+            isDragging = true;
+            touchStartPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
         });
 
-        // Inspector Buttons
-        document.getElementById('btn-amplify').addEventListener('click', () => {
-            if(selectedNode) {
-                selectedNode.resonance = Math.min(100, selectedNode.resonance + 10);
-                updateInspectorUI();
-            }
+        window.addEventListener('touchmove', (e) => {
+            if(!isDragging || e.touches.length !== 1) return;
+            const deltaX = e.touches[0].clientX - touchStartPos.x;
+            const deltaY = e.touches[0].clientY - touchStartPos.y;
+
+            cameraAngles.theta -= deltaX * 0.008;
+            cameraAngles.phi = Math.max(0.1, Math.min(Math.PI - 0.1, cameraAngles.phi - deltaY * 0.008));
+
+            touchStartPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            updateCameraPosition();
         });
 
-        document.getElementById('btn-dissolve').addEventListener('click', () => {
-            if(selectedNode) {
-                scene.remove(selectedNode.mesh);
-                nodes = nodes.filter(n => n !== selectedNode);
-                rebuildNetworkEdges();
-                deselectNode();
-            }
-        });
+        window.addEventListener('touchend', () => { isDragging = false; });
 
-        function selectNode(node) {
-            if(selectedNode) selectedNode.highlight(false);
-            selectedNode = node;
-            selectedNode.highlight(true);
-
-            document.getElementById('node-name').textContent = selectedNode.name;
-            document.getElementById('node-desc').textContent = selectedNode.description;
-            updateInspectorUI();
-
-            document.getElementById('node-inspector').classList.add('active');
+        function updateCameraPosition() {
+            camera.position.x = cameraAngles.radius * Math.sin(cameraAngles.phi) * Math.sin(cameraAngles.theta);
+            camera.position.y = cameraAngles.radius * Math.cos(cameraAngles.phi);
+            camera.position.z = cameraAngles.radius * Math.sin(cameraAngles.phi) * Math.cos(cameraAngles.theta);
+            camera.lookAt(0, 0, 0);
         }
+        updateCameraPosition();
 
-        function deselectNode() {
-            if(selectedNode) selectedNode.highlight(false);
-            selectedNode = null;
-            document.getElementById('node-inspector').classList.remove('active');
-        }
+        // --- RAYCASTING FOR 3D NODE CLICKING ---
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
 
-        function updateInspectorUI() {
-            if(!selectedNode) return;
-            document.getElementById('resonance-val').textContent = selectedNode.resonance + '%';
-            document.getElementById('resonance-bar').style.width = selectedNode.resonance + '%';
-        }
-
-        // Raycasting click selection
-        window.addEventListener('pointerdown', (e) => {
-            // Ignore if clicking UI elements
-            if(e.target.closest('.interactive') || e.target.closest('header')) return;
+        window.addEventListener('click', (e) => {
+            if(e.target.closest('aside') || e.target.closest('header')) return;
 
             mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
@@ -840,52 +450,414 @@
             raycaster.setFromCamera(mouse, camera);
             const intersects = raycaster.intersectObjects(scene.children, true);
 
-            const clickedNodeMesh = intersects.find(hit => hit.object.userData && hit.object.userData.parentNode);
-
-            if(clickedNodeMesh) {
-                selectNode(clickedNodeMesh.object.userData.parentNode);
+            for(let hit of intersects) {
+                let foundNode = nodes.find(n => n.mesh === hit.object || n.mesh.children.includes(hit.object));
+                if(foundNode) {
+                    selectNode(foundNode);
+                    playTone(550, 'sine', 0.1);
+                    break;
+                }
             }
         });
 
-        /* --- Animation Loop --- */
+        // --- STREAMING_CHUNK:Implementing node generation & lattice physics simulation... ---
+        function createNodeMesh(thought) {
+            const group = new THREE.Group();
+
+            // Core Geometry based on category
+            let geometry;
+            if(thought.cat === 'tech') geometry = new THREE.OctahedronGeometry(0.7, 0);
+            else if(thought.cat === 'philosophy') geometry = new THREE.IcosahedronGeometry(0.7, 0);
+            else geometry = new THREE.DodecahedronGeometry(0.7, 0);
+
+            const material = new THREE.MeshPhysicalMaterial({
+                color: thought.color,
+                emissive: thought.color,
+                emissiveIntensity: 0.4,
+                roughness: 0.1,
+                metalness: 0.8,
+                clearcoat: 1.0,
+                clearcoatRoughness: 0.1,
+                transparent: true,
+                opacity: 0.9
+            });
+
+            const mesh = new THREE.Mesh(geometry, material);
+            group.add(mesh);
+
+            // Outer glowing wireframe cage
+            const wireGeo = geometry.clone();
+            const wireMat = new THREE.MeshBasicMaterial({
+                color: thought.color,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.3
+            });
+            const wireMesh = new THREE.Mesh(wireGeo, wireMat);
+            wireMesh.scale.set(1.2, 1.2, 1.2);
+            group.add(wireMesh);
+
+            // Random position in spherical lattice
+            const u = Math.random();
+            const v = Math.random();
+            const theta = u * 2.0 * Math.PI;
+            const phi = Math.acos(2.0 * v - 1.0);
+            const r = 3 + Math.random() * 5;
+
+            group.position.x = r * Math.sin(phi) * Math.cos(theta);
+            group.position.y = (Math.random() - 0.5) * 6;
+            group.position.z = r * Math.sin(phi) * Math.sin(theta);
+
+            scene.add(group);
+
+            return {
+                ...thought,
+                mesh: group,
+                wireMesh: wireMesh,
+                velocity: new THREE.Vector3(
+                    (Math.random() - 0.5) * 0.01,
+                    (Math.random() - 0.5) * 0.01,
+                    (Math.random() - 0.5) * 0.01
+                )
+            };
+        }
+
+        // Initialize default nodes
+        function initLattice() {
+            thoughtLibrary.slice(0, 6).forEach(t => {
+                nodes.push(createNodeMesh(t));
+            });
+            renderStreamList();
+            autoConnectNearest();
+            updateStats();
+        }
+
+        // Spawn a random node
+        window.spawnRandomNode = function() {
+            const randomThought = {
+                ...thoughtLibrary[Math.floor(Math.random() * thoughtLibrary.length)],
+                id: Date.now() + Math.floor(Math.random()*1000),
+                title: "Synthetic Node #" + Math.floor(Math.random() * 900 + 100)
+            };
+            const newNode = createNodeMesh(randomThought);
+            nodes.push(newNode);
+            renderStreamList();
+            showToast(`Spawned node: ${newNode.title}`);
+            playTone(700, 'triangle', 0.15);
+            updateStats();
+        }
+
+        // --- STREAMING_CHUNK:Implementing edge connection & synthesis logic... ---
+        window.connectNodes = function(nodeA, nodeB) {
+            // Check if edge already exists
+            const exists = edges.some(e => (e.from === nodeA && e.to === nodeB) || (e.from === nodeB && e.to === nodeA));
+            if(exists || nodeA === nodeB) return;
+
+            const material = new THREE.LineBasicMaterial({
+                color: 0x38bdf8,
+                transparent: true,
+                opacity: 0.6,
+                linewidth: 2
+            });
+
+            const points = [nodeA.mesh.position, nodeB.mesh.position];
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            const line = new THREE.Line(geometry, material);
+            scene.add(line);
+
+            edges.push({ from: nodeA, to: nodeB, line: line });
+
+            // Trigger synthesis message
+            triggerSynthesis(nodeA, nodeB);
+            updateStats();
+        }
+
+        function triggerSynthesis(a, b) {
+            const key1 = `${a.cat}-${b.cat}`;
+            const key2 = `${b.cat}-${a.cat}`;
+            let synthesisText = synthesisMatrix[key1] || synthesisMatrix[key2] || "Emergent Resonance: Cross-domain conceptual synthesis established successfully.";
+
+            const synthBox = document.getElementById('synthesis-box');
+            synthBox.innerHTML = `
+                <p class="text-sky-300 font-semibold">🔗 Link: <span class="text-white">${a.title}</span> ⟷ <span class="text-white">${b.title}</span></p>
+                <p class="text-slate-300 text-[11px] leading-relaxed">${synthesisText}</p>
+            `;
+            playTone(880, 'sine', 0.2);
+            showToast("Neural link forged & synthesized!");
+        }
+
+        window.autoConnectNearest = function() {
+            if(nodes.length < 2) return;
+            for(let i=0; i<nodes.length; i++) {
+                let nearest = null;
+                let minDist = Infinity;
+                for(let j=0; j<nodes.length; j++) {
+                    if(i === j) continue;
+                    const dist = nodes[i].mesh.position.distanceTo(nodes[j].mesh.position);
+                    if(dist < minDist) {
+                        minDist = dist;
+                        nearest = nodes[j];
+                    }
+                }
+                if(nearest) {
+                    connectNodes(nodes[i], nearest);
+                }
+            }
+        }
+
+        window.clearLattice = function() {
+            nodes.forEach(n => scene.remove(n.mesh));
+            edges.forEach(e => scene.remove(e.line));
+            nodes = [];
+            edges = [];
+            renderStreamList();
+            document.getElementById('inspector-card').innerHTML = `<div class="text-slate-400 italic">Lattice cleared. Spawn nodes to begin weaving.</div>`;
+            document.getElementById('synthesis-box').innerHTML = `<p class="text-purple-300 font-semibold">⚡ Lattice cleared.</p><p class="text-slate-400 text-[11px]">Spawn new nodes to build a fresh crystal structure.</p>`;
+            updateStats();
+            showToast("Lattice reset.");
+        }
+
+        window.randomizeLayout = function() {
+            nodes.forEach(n => {
+                const u = Math.random();
+                const v = Math.random();
+                const theta = u * 2.0 * Math.PI;
+                const phi = Math.acos(2.0 * v - 1.0);
+                const r = 3 + Math.random() * 6;
+                n.mesh.position.set(
+                    r * Math.sin(phi) * Math.cos(theta),
+                    (Math.random() - 0.5) * 6,
+                    r * Math.sin(phi) * Math.sin(theta)
+                );
+            });
+            showToast("Crystal matrix re-scattered.");
+        }
+
+        // --- STREAMING_CHUNK:Implementing UI sidebar rendering & inspector logic... ---
+        window.filterCategory = function(cat) {
+            activeCategory = cat;
+            ['all', 'tech', 'philosophy', 'emotion'].forEach(c => {
+                const btn = document.getElementById(`cat-${c}`);
+                if(c === cat) {
+                    btn.className = "flex-1 py-2 px-3 text-sky-400 border-b-2 border-sky-400 font-semibold whitespace-nowrap";
+                } else {
+                    btn.className = "flex-1 py-2 px-3 text-slate-400 hover:text-slate-200 whitespace-nowrap";
+                }
+            });
+            renderStreamList();
+        }
+
+        function renderStreamList() {
+            const listContainer = document.getElementById('stream-list');
+            listContainer.innerHTML = '';
+
+            const filtered = activeCategory === 'all' ? nodes : nodes.filter(n => n.cat === activeCategory);
+
+            document.getElementById('node-count-badge.innerText') // skip
+            document.getElementById('node-count-badge').innerText = `${nodes.length} Nodes Active`;
+
+            if(filtered.length === 0) {
+                listContainer.innerHTML = `<div class="text-center py-8 text-xs text-slate-500 font-mono">No nodes match current filter.</div>`;
+                return;
+            }
+
+            filtered.forEach(node => {
+                const badgeColor = node.cat === 'tech' ? 'bg-sky-500/10 text-sky-400 border-sky-500/20' :
+                                   node.cat === 'philosophy' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' :
+                                   'bg-rose-500/10 text-rose-400 border-rose-500/20';
+
+                const card = document.createElement('div');
+                card.className = "p-3 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-sky-500/40 transition-all cursor-pointer group";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-[10px] font-mono px-2 py-0.5 rounded-full border ${badgeColor}">${node.cat.toUpperCase()}</span>
+                        <span class="text-[10px] font-mono text-slate-500">ID #${node.id.toString().slice(-3)}</span>
+                    </div>
+                    <div class="font-mono text-xs font-semibold text-slate-200 group-hover:text-sky-300 transition-colors">${node.title}</div>
+                    <div class="text-[11px] text-slate-400 mt-1 line-clamp-2">${node.desc}</div>
+                `;
+                card.onclick = () => {
+                    selectNode(node);
+                    // Smoothly animate camera towards node
+                    cameraAngles.theta = Math.atan2(node.mesh.position.z, node.mesh.position.x);
+                    updateCameraPosition();
+                };
+                listContainer.appendChild(card);
+            });
+        }
+
+        function selectNode(node) {
+            if(!selectedNodeA) {
+                selectedNodeA = node;
+                showToast(`Selected Node A: ${node.title}`);
+            } else if(selectedNodeA === node) {
+                selectedNodeA = null;
+                showToast("Selection cleared.");
+            } else {
+                selectedNodeB = node;
+                connectNodes(selectedNodeA, selectedNodeB);
+                selectedNodeA = null;
+                selectedNodeB = null;
+            }
+
+            // Update Inspector
+            const badgeColor = node.cat === 'tech' ? 'text-sky-400' : node.cat === 'philosophy' ? 'text-purple-400' : 'text-rose-400';
+            document.getElementById('inspector-card').innerHTML = `
+                <div class="flex items-center justify-between">
+                    <span class="font-mono font-bold text-slate-200">${node.title}</span>
+                    <span class="font-mono text-[10px] ${badgeColor}">[${node.cat.toUpperCase()}]</span>
+                </div>
+                <p class="text-slate-400 text-[11px] leading-relaxed">${node.desc}</p>
+                <div class="pt-2 border-t border-slate-800 flex items-center justify-between font-mono text-[10px] text-slate-500">
+                    <span>POS: (${node.mesh.position.x.toFixed(1)}, ${node.mesh.position.y.toFixed(1)}, ${node.mesh.position.z.toFixed(1)})</span>
+                    <span class="text-sky-400">Click second node to link</span>
+                </div>
+            `;
+        }
+
+        function updateStats() {
+            stats.entropy = Math.max(5, Math.min(40, (20 - nodes.length * 1.2 + edges.length * 0.5))).toFixed(1);
+            stats.coherence = Math.min(99.9, (75 + nodes.length * 1.5 + edges.length * 2)).toFixed(1);
+            stats.integrity = Math.min(99.9, (80 + edges.length * 2.2)).toFixed(1);
+            stats.resonance = (1.2 + edges.length * 0.105).toFixed(3);
+
+            document.getElementById('stat-entropy').innerText = `${stats.entropy}%`;
+            document.getElementById('stat-coherence').innerText = `${stats.coherence}%`;
+            document.getElementById('stat-integrity').innerText = `${stats.integrity}%`;
+            document.getElementById('stat-resonance').innerText = `${stats.resonance} Hz`;
+        }
+
+        // --- STREAMING_CHUNK:Implementing Web Audio API generative synthesizer... ---
+        window.toggleAudio = function() {
+            isAudioActive = !isAudioActive;
+            const btnText = document.getElementById('audio-text');
+            const icon = document.getElementById('audio-btn');
+            if(isAudioActive) {
+                if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if(audioCtx.state === 'suspended') audioCtx.resume();
+                btnText.innerText = "Audio ON";
+                icon.classList.add('border-sky-400', 'text-sky-400');
+                showToast("Generative Ambient Synth Activated");
+            } else {
+                btnText.innerText = "Audio OFF";
+                icon.classList.remove('border-sky-400', 'text-sky-400');
+                showToast("Ambient Synth Muted");
+            }
+        }
+
+        function playTone(freq, type = 'sine', duration = 0.1) {
+            if(!isAudioActive || !audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
+        }
+
+        // --- STREAMING_CHUNK:Implementing export markdown / JSON functionality... ---
+        window.exportCrystalNote = function() {
+            const markdown = `# The Epistemic Loom — Crystal Matrix Export
+Generated via Zygote Builder (zygotebuilder.github.io)
+Date: ${new Date().toISOString().split('T')[0]}
+
+## Metrics Summary
+- **Nodes Active:** ${nodes.length}
+- **Neural Edges:** ${edges.length}
+- **Coherence:** ${stats.coherence}%
+- **Structural Integrity:** ${stats.integrity}%
+- **Resonance:** ${stats.resonance} Hz
+
+## Node Manifest
+${nodes.map(n => `- **[${n.cat.toUpperCase()}] ${n.title}**: ${n.desc} (Coords: ${n.mesh.position.x.toFixed(1)}, ${n.mesh.position.y.toFixed(1)}, ${n.mesh.position.z.toFixed(1)})`).join('\n')}
+
+## Neural Connections
+${edges.map(e => `- ${e.from.title} ⟷ ${e.to.title}`).join('\n')}
+`;
+
+            const blob = new Blob([markdown], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `epistemic-loom-crystal-${Date.now()}.md`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showToast("Crystal matrix exported as Markdown note!");
+        }
+
+        window.openHelpModal = function() {
+            document.getElementById('help-modal').classList.remove('opacity-0', 'pointer-events-none');
+        }
+        window.closeHelpModal = function() {
+            document.getElementById('help-modal').classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // --- ANIMATION LOOP ---
+        let clock = new THREE.Clock();
+
         function animate() {
             requestAnimationFrame(animate);
 
-            nodes.forEach(n => n.update());
+            const elapsedTime = clock.getElapsedTime();
 
-            // Update edge line geometries dynamically
-            let edgeIdx = 0;
-            for(let i = 0; i < nodes.length; i++) {
-                for(let j = i + 1; j < nodes.length; j++) {
-                    const dist = nodes[i].mesh.position.distanceTo(nodes[j].mesh.position);
-                    if(dist < 14 && edges[edgeIdx]) {
-                        const positions = edges[edgeIdx].geometry.attributes.position.array;
-                        positions[0] = nodes[i].mesh.position.x;
-                        positions[1] = nodes[i].mesh.position.y;
-                        positions[2] = nodes[i].mesh.position.z;
-                        positions[3] = nodes[j].mesh.position.x;
-                        positions[4] = nodes[j].mesh.position.y;
-                        positions[5] = nodes[j].mesh.position.z;
-                        edges[edgeIdx].geometry.attributes.position.needsUpdate = true;
-                        edgeIdx++;
-                    }
+            // Rotate starfield slowly
+            starField.rotation.y = elapsedTime * 0.02;
+
+            // Animate nodes gently in space (floating physics)
+            nodes.forEach((node, idx) => {
+                node.mesh.position.add(node.velocity);
+                node.mesh.rotation.x += 0.005;
+                node.mesh.rotation.y += 0.008;
+
+                // Boundary bounce
+                if(node.mesh.position.length() > 12) {
+                    node.velocity.negate();
                 }
-            }
+            });
 
-            starField.rotation.y += 0.0005;
+            // Update edge line geometries
+            edges.forEach(edge => {
+                const positions = edge.line.geometry.attributes.position.array;
+                positions[0] = edge.from.mesh.position.x;
+                positions[1] = edge.from.mesh.position.y;
+                positions[2] = edge.from.mesh.position.z;
+                positions[3] = edge.to.mesh.position.x;
+                positions[4] = edge.to.mesh.position.y;
+                positions[5] = edge.to.mesh.position.z;
+                edge.line.geometry.attributes.position.needsUpdate = true;
+            });
 
-            controls.update();
             renderer.render(scene, camera);
         }
 
-        animate();
-
-        /* --- Window Resize Handling --- */
+        // --- WINDOW RESIZE ---
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
+
+        // --- INITIALIZATION ---
+        window.onload = function() {
+            initLattice();
+            animate();
+        };
     </script>
 </body>
 </html>
