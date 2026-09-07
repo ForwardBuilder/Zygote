@@ -3,44 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Epistemic Loom | Zygote Builder</title>
+    <title>The Epistemic Loom — Zygote Builder</title>
     <style>
         :root {
-            --bg-deep: #030712;
-            --panel-bg: rgba(15, 23, 42, 0.75);
-            --border-glow: rgba(56, 189, 248, 0.3);
-            --accent-cyan: #38bdf8;
-            --accent-purple: #c084fc;
+            --bg-primary: #030712;
+            --bg-surface: #0f172a;
+            --bg-glass: rgba(15, 23, 42, 0.75);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --accent-cyan: #06b6d4;
+            --accent-violet: #8b5cf6;
+            --accent-emerald: #10b981;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
+            --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             user-select: none;
         }
 
-        body, html {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: var(--bg-deep);
+        body {
+            background-color: var(--bg-primary);
             color: var(--text-main);
+            font-family: var(--font-family);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
         }
 
         #canvas-container {
-            width: 100%;
-            height: 100%;
             position: absolute;
             top: 0;
             left: 0;
+            width: 100%;
+            height: 100%;
             z-index: 1;
         }
 
-        /* UI Overlays */
+        /* UI Overlay Layer */
         .ui-layer {
             position: absolute;
             top: 0;
@@ -49,692 +52,840 @@
             height: 100%;
             z-index: 10;
             pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 24px;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            padding: 1.5rem;
+            gap: 1rem;
         }
 
         .interactive {
             pointer-events: auto;
         }
 
+        /* Top Navigation Bar */
         header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            width: 100%;
-        }
-
-        .title-card {
-            background: var(--panel-bg);
+            align-items: center;
+            background: var(--bg-glass);
             backdrop-filter: blur(12px);
-            border: 1px solid var(--border-glow);
-            padding: 16px 24px;
-            border-radius: 12px;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
-            max-width: 360px;
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            padding: 0.75rem 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        h1 {
-            font-size: 1.2rem;
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.9rem;
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+        }
+
+        .brand-title {
+            font-size: 1.1rem;
             font-weight: 700;
-            letter-spacing: 0.05em;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            letter-spacing: -0.025em;
+            background: linear-gradient(to right, #fff, var(--text-muted));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 4px;
         }
 
-        p.subtitle {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            line-height: 1.3;
-        }
-
-        .controls-hint {
+        .header-controls {
             display: flex;
-            gap: 8px;
-            margin-top: 8px;
-        }
-
-        .badge {
-            font-size: 0.7rem;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 2px 6px;
-            border-radius: 4px;
-            color: var(--text-muted);
-        }
-
-        .hud-stats {
-            display: flex;
-            gap: 16px;
-        }
-
-        .stat-box {
-            background: var(--panel-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border-glow);
-            padding: 12px 18px;
-            border-radius: 10px;
-            text-align: right;
-        }
-
-        .stat-value {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--accent-cyan);
-        }
-
-        .stat-label {
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--text-muted);
-        }
-
-        /* Bottom Toolbox */
-        footer {
-            display: flex;
-            justify-content: center;
+            gap: 0.5rem;
             align-items: center;
-            gap: 12px;
-            width: 100%;
         }
 
-        .tool-panel {
-            background: var(--panel-bg);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--border-glow);
-            padding: 12px 20px;
-            border-radius: 16px;
-            display: flex;
-            gap: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-        }
-
-        .btn {
+        .icon-btn {
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            border: 1px solid var(--border-glass);
             color: var(--text-main);
-            padding: 10px 18px;
-            border-radius: 10px;
-            font-size: 0.85rem;
-            font-weight: 500;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
-            gap: 8px;
-        }
-
-        .btn:hover {
-            background: rgba(56, 189, 248, 0.15);
-            border-color: var(--accent-cyan);
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(192, 132, 252, 0.2));
-            border-color: rgba(56, 189, 248, 0.4);
-        }
-
-        /* Intro Guide Overlay */
-        #intro-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(3, 7, 18, 0.85);
-            backdrop-filter: blur(20px);
-            z-index: 100;
-            display: flex;
             justify-content: center;
-            align-items: center;
-            transition: opacity 0.4s ease, visibility 0.4s ease;
+            transition: all 0.2s;
         }
 
-        #intro-modal.hidden {
+        .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        /* Minimizable Floating Windows / Panels */
+        .glass-panel {
+            background: var(--bg-glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: 1rem;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+            transition: transform 0.3s ease, opacity 0.3s ease, height 0.3s ease;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            padding: 0.85rem 1.25rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid var(--border-glass);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .panel-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .panel-body {
+            padding: 1.25rem;
+            overflow-y: auto;
+            max-height: 65vh;
+            transition: padding 0.3s ease;
+        }
+
+        .glass-panel.minimized .panel-body {
+            padding: 0;
+            max-height: 0;
             opacity: 0;
-            visibility: hidden;
             pointer-events: none;
         }
 
-        .modal-card {
-            background: rgba(15, 23, 42, 0.9);
-            border: 1px solid var(--border-glow);
-            border-radius: 20px;
-            padding: 36px;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-            text-align: left;
+        /* Layout Main Body */
+        .main-workspace {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 1.5rem;
+            align-items: start;
+            pointer-events: none;
         }
 
-        .modal-card h2 {
+        .main-workspace > * {
+            pointer-events: auto;
+        }
+
+        /* Sidebar Controls */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-glass);
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+            border: none;
+            padding: 0.8rem 1.25rem;
+            border-radius: 0.6rem;
+            color: white;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(6, 182, 212, 0.3);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.95;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(6, 182, 212, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            padding: 0.6rem 1rem;
+            border-radius: 0.5rem;
+            color: var(--text-main);
+            font-weight: 500;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Crystal Node Info Inspection Overlay */
+        .node-inspector {
+            position: absolute;
+            bottom: 2rem;
+            right: 2rem;
+            width: 320px;
+            transform: translateY(120%);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+        }
+
+        .node-inspector.active {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .resonance-meter {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .resonance-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-emerald));
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        /* Welcome / Guide Modal */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(3, 7, 18, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-backdrop.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-glass);
+            width: 100%;
+            max-width: 550px;
+            border-radius: 1.25rem;
+            padding: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            transform: scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .modal-backdrop.visible .modal-card {
+            transform: scale(1);
+        }
+
+        .modal-title {
             font-size: 1.5rem;
             font-weight: 700;
-            margin-bottom: 12px;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #fff, var(--text-muted));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .modal-card p {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            line-height: 1.5;
-            margin-bottom: 20px;
-        }
-
-        .instruction-steps {
+        .modal-steps {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-bottom: 28px;
+            gap: 1rem;
         }
 
         .step-item {
             display: flex;
+            gap: 1rem;
             align-items: flex-start;
-            gap: 12px;
-            font-size: 0.85rem;
-            color: var(--text-main);
         }
 
-        .step-num {
-            background: rgba(56, 189, 248, 0.15);
-            color: var(--accent-cyan);
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            width: 24px;
-            height: 24px;
+        .step-number {
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(6, 182, 212, 0.3);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
+            font-size: 0.85rem;
             flex-shrink: 0;
-            font-size: 0.75rem;
         }
 
-        .modal-btn {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
-            color: var(--bg-deep);
-            border: none;
-            border-radius: 12px;
-            font-weight: 700;
+        .step-text h4 {
             font-size: 0.95rem;
-            cursor: pointer;
-            transition: opacity 0.2s, transform 0.2s;
-            box-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
+            font-weight: 600;
+            margin-bottom: 0.2rem;
         }
 
-        .modal-btn:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
+        .step-text p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.4;
         }
 
-        /* Floating Thought Notification */
-        #thought-banner {
-            position: absolute;
-            top: 24px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-20px);
-            background: var(--panel-bg);
-            border: 1px solid var(--accent-cyan);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            color: var(--accent-cyan);
-            box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
-            opacity: 0;
-            transition: all 0.3s ease;
-            pointer-events: none;
-        }
-
-        #thought-banner.visible {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
+        /* Responsive Mobile Layout */
+        @media (max-width: 768px) {
+            .ui-layer {
+                padding: 1rem;
+                gap: 0.75rem;
+            }
+            .main-workspace {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                max-height: 40vh;
+                overflow-y: auto;
+            }
+            .node-inspector {
+                width: calc(100% - 2rem);
+                left: 1rem;
+                bottom: 1rem;
+            }
         }
     </style>
-    <!-- Three.js and OrbitControls via CDN -->
+    <!-- Three.js Library CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
 
-    <!-- Intro Guide Modal -->
-    <div id="intro-modal">
-        <div class="modal-card">
-            <h2>The Epistemic Loom</h2>
-            <p>Welcome to a sandbox for growing thoughts and spatial crystallizations. Weave ideas, stabilize resonance nodes, and decompress your mind into a structured 3D architecture.</p>
-            
-            <div class="instruction-steps">
-                <div class="step-item">
-                    <div class="step-num">1</div>
-                    <div><strong>Click Space:</strong> Click anywhere on the dark void or crystal mesh to spawn new thought-nodes.</div>
-                </div>
-                <div class="step-item">
-                    <div class="step-num">2</div>
-                    <div><strong>Weave Resonances:</strong> Click two nodes consecutively to form a dynamic energy tether between them.</div>
-                </div>
-                <div class="step-item">
-                    <div class="step-num">3</div>
-                    <div><strong>Harmonize & Collapse:</strong> Use the bottom toolbar to crystallize insights, clear entropy, or shift states.</div>
-                </div>
-            </div>
-
-            <button class="modal-btn" onclick="closeIntro()">Enter The Loom</button>
-        </div>
-    </div>
-
+    <!-- 3D Canvas Container -->
     <div id="canvas-container"></div>
 
+    <!-- UI Layer -->
     <div class="ui-layer">
-        <header>
-            <div class="title-card interactive">
-                <h1>The Epistemic Loom</h1>
-                <p class="subtitle">Recursive 3D thought crystallization & structural stress solver.</p>
-                <div class="controls-hint">
-                    <span class="badge">Click: Spawn Node</span>
-                    <span class="badge">Drag: Orbit View</span>
-                </div>
+        <!-- Top Nav -->
+        <header class="interactive">
+            <div class="brand">
+                <div class="brand-icon">Ω</div>
+                <div class="brand-title">The Epistemic Loom</div>
             </div>
-
-            <div class="hud-stats interactive">
-                <div class="stat-box">
-                    <div class="stat-value" id="node-count">0</div>
-                    <div class="stat-label">Nodes</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="tether-count">0</div>
-                    <div class="stat-label">Tethers</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="coherence-val">100%</div>
-                    <div class="stat-label">Coherence</div>
-                </div>
+            <div class="header-controls">
+                <button class="icon-btn" id="btn-guide" title="Guide & Purpose">?</button>
+                <button class="icon-btn" id="btn-reset" title="Reset Universe">↻</button>
             </div>
         </header>
 
-        <div id="thought-banner">Insight stabilized: Node connection reinforced.</div>
+        <!-- Main Workspace Grid -->
+        <div class="main-workspace">
+            <!-- Sidebar Generator Panel -->
+            <div class="glass-panel interactive" id="panel-controls">
+                <div class="panel-header" onclick="togglePanel('panel-controls')">
+                    <span class="panel-title">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+                        Concept Weaver
+                    </span>
+                    <span class="toggle-icon">−</span>
+                </div>
+                <div class="panel-body">
+                    <div class="control-group">
+                        <label>Synthesize Thought Node <span>Semantic Input</span></label>
+                        <input type="text" id="idea-input" placeholder="e.g., Entropy, Recursion, Harmony..." autocomplete="off">
+                    </div>
+                    <button class="btn-primary" id="btn-synthesize">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        Crystallize Concept
+                    </button>
 
-        <footer>
-            <div class="tool-panel interactive">
-                <button class="btn btn-primary" onclick="spawnCluster()">✨ Seed Cluster</button>
-                <button class="btn" onclick="pulseResonance()">⚡ Pulse Coherence</button>
-                <button class="btn" onclick="openIntroModal()">❓ Guide</button>
-                <button class="btn" onclick="clearLoom()" style="color: #fca5a5; border-color: rgba(252, 165, 165, 0.2);">🗑️ Purge Entropy</button>
+                    <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                        <label>Resonance Protocols</label>
+                        <button class="btn-secondary" id="btn-auto-weave">Autonomously Weave Context</button>
+                        <button class="btn-secondary" id="btn-collapse">Entangle All Nodes</button>
+                    </div>
+                </div>
             </div>
-        </footer>
+        </div>
+    </div>
+
+    <!-- Inspector Panel for Selected Nodes -->
+    <div class="glass-panel interactive node-inspector" id="node-inspector">
+        <div class="panel-header" onclick="togglePanel('node-inspector')">
+            <span class="panel-title" id="inspector-title-label">Thought Crystal</span>
+            <span class="toggle-icon">−</span>
+        </div>
+        <div class="panel-body">
+            <h3 id="node-name" style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem;">Node Name</h3>
+            <p id="node-desc" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 1rem;">Detailed philosophical or structural breakdown of this specific synthesis node.</p>
+            <label>Epistemic Resonance <span id="resonance-val">84%</span></label>
+            <div class="resonance-meter">
+                <div class="resonance-fill" id="resonance-bar"></div>
+            </div>
+            <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                <button class="btn-secondary" style="flex: 1;" id="btn-amplify">Amplify Signal</button>
+                <button class="btn-secondary" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3); flex: 1;" id="btn-dissolve">Dissolve</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Guide / Welcome Modal -->
+    <div class="modal-backdrop visible" id="guide-modal">
+        <div class="modal-card">
+            <div class="modal-title">Welcome to The Epistemic Loom</div>
+            <div class="modal-steps">
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <div class="step-text">
+                        <h4>What is the purpose of this simulation?</h4>
+                        <p>The Epistemic Loom is an interactive 3D mental sandbox and semantic thought-mapper. It visualizes abstract ideas, concepts, or philosophical questions as a self-organizing constellation of glowing crystalline nodes, helping you map out complex connections between thoughts.</p>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <div class="step-text">
+                        <h4>How to interact?</h4>
+                        <p>Type any keyword or concept into the <strong>Concept Weaver</strong> sidebar to manifest a new 3D crystal node. Click and drag in space to orbit the camera, scroll to zoom, and click directly on any crystal node to inspect its resonance and entanglements.</p>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <div class="step-text">
+                        <h4>Window Controls</h4>
+                        <p>You can minimize or maximize any panel using the top header bars for an unobstructed view of your 3D thought universe.</p>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-primary" id="btn-close-modal" style="width: 100%;">Enter Thought Universe</button>
+        </div>
     </div>
 
     <script>
-        let scene, camera, renderer, controls;
+        /* --- Panel Minimize / Maximize Logic --- */
+        function togglePanel(panelId) {
+            const panel = document.getElementById(panelId);
+            panel.classList.toggle('minimized');
+            const toggleIcon = panel.querySelector('.toggle-icon');
+            toggleIcon.textContent = panel.classList.contains('minimized') ? '+' : '−';
+        }
+
+        /* --- Modal Toggle Logic --- */
+        const guideModal = document.getElementById('guide-modal');
+        document.getElementById('btn-guide').addEventListener('click', () => {
+            guideModal.classList.add('visible');
+        });
+        document.getElementById('btn-close-modal').addEventListener('click', () => {
+            guideModal.classList.remove('visible');
+        });
+
+        /* --- Three.js 3D Thought Universe Engine --- */
+        const container = document.getElementById('canvas-container');
+        
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x030712, 0.015);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 10, 25);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        container.appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.maxDistance = 60;
+        controls.minDistance = 5;
+
+        /* Ambient & Directional Lighting */
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0x06b6d4, 2);
+        dirLight.position.set(15, 25, 15);
+        scene.add(dirLight);
+
+        const pointLight = new THREE.PointLight(0x8b5cf6, 3, 40);
+        pointLight.position.set(-10, -5, -10);
+        scene.add(pointLight);
+
+        /* Starfield Background Particle Dust */
+        const particleCount = 600;
+        const particleGeometry = new THREE.BufferGeometry();
+        const particlePositions = new Float32Array(particleCount * 3);
+
+        for(let i = 0; i < particleCount * 3; i += 3) {
+            particlePositions[i] = (Math.random() - 0.5) * 100;
+            particlePositions[i+1] = (Math.random() - 0.5) * 100;
+            particlePositions[i+2] = (Math.random() - 0.5) * 100;
+        }
+
+        particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+        const particleMaterial = new THREE.PointsMaterial({
+            color: 0x94a3b8,
+            size: 0.3,
+            transparent: true,
+            opacity: 0.5
+        });
+        const starField = new THREE.Points(particleGeometry, particleMaterial);
+        scene.add(starField);
+
+        /* Thought Nodes & Network Architecture */
         let nodes = [];
-        let tethers = [];
-        let raycaster, mouse;
+        let edges = [];
         let selectedNode = null;
-        let coherence = 100;
 
-        const concepts = [
-            "Recursive Loop", "First Principles", "Entropy Vector", "Signal / Noise",
-            "Axiomatic Seed", "Emergent Property", "Deterministic Flow", "Semantic Bridge"
-        ];
-
-        function init() {
-            const container = document.getElementById('canvas-container');
-
-            // Scene setup
-            scene = new THREE.Scene();
-            scene.fog = new THREE.FogExp2(0x030712, 0.025);
-
-            // Camera setup
-            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 15, 30);
-
-            // Renderer setup
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            container.appendChild(renderer.domElement);
-
-            // Controls
-            controls = new THREE.OrbitControls(camera, renderer.domElement);
-            controls.enableDamping = true;
-            controls.dampingFactor = 0.05;
-            controls.maxDistance = 80;
-            controls.minDistance = 5;
-
-            // Lighting
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-            scene.add(ambientLight);
-
-            const pointLight1 = new THREE.PointLight(0x38bdf8, 3, 50);
-            pointLight1.position.set(10, 20, 10);
-            scene.add(pointLight1);
-
-            const pointLight2 = new THREE.PointLight(0xc084fc, 3, 50);
-            pointLight2.position.set(-10, -20, -10);
-            scene.add(pointLight2);
-
-            // Background Grid Starfield / Dust
-            createDustField();
-
-            // Raycasting setup
-            raycaster = new THREE.Raycaster();
-            mouse = new THREE.Vector2();
-
-            window.addEventListener('resize', onWindowResize);
-            window.addEventListener('pointerdown', onPointerDown);
-
-            // Spawn initial starter nodes
-            spawnCluster();
-
-            animate();
-        }
-
-        function createDustField() {
-            const particleCount = 400;
-            const geometry = new THREE.BufferGeometry();
-            const positions = new Float32Array(particleCount * 3);
-
-            for (let i = 0; i < particleCount * 3; i += 3) {
-                positions[i] = (Math.random() - 0.5) * 80;
-                positions[i + 1] = (Math.random() - 0.5) * 80;
-                positions[i + 2] = (Math.random() - 0.5) * 80;
-            }
-
-            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            const material = new THREE.PointsMaterial({
-                color: 0x38bdf8,
-                size: 0.3,
-                transparent: true,
-                opacity: 0.4
-            });
-
-            const particles = new THREE.Points(geometry, material);
-            scene.add(particles);
-        }
-
-        function closeIntro() {
-            const modal = document.getElementById('intro-modal');
-            modal.classList.add('hidden');
-        }
-
-        function openIntroModal() {
-            const modal = document.getElementById('intro-modal');
-            modal.classList.remove('hidden');
-        }
-
-        function showThoughtBanner(text) {
-            const banner = document.getElementById('thought-banner');
-            banner.textContent = text;
-            banner.classList.add('visible');
-            setTimeout(() => {
-                banner.classList.remove('visible');
-            }, 3000);
-        }
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
 
         class ThoughtNode {
-            constructor(x, y, z, label) {
-                this.id = Math.random().toString(36).substr(2, 9);
-                this.label = label || concepts[Math.floor(Math.random() * concepts.length)];
+            constructor(name, description, position) {
+                this.name = name;
+                this.description = description || "Synthesized thought crystal containing conceptual energy and systemic linkages.";
+                this.resonance = Math.floor(Math.random() * 40) + 60;
                 
-                const geometry = new THREE.IcosahedronGeometry(0.8, 0);
-                const material = new THREE.MeshPhysicalMaterial({
-                    color: Math.random() > 0.5 ? 0x38bdf8 : 0xc084fc,
-                    metalness: 0.2,
+                // Geometry based on importance
+                const geometries = [
+                    new THREE.IcosahedronGeometry(1.2, 0),
+                    new THREE.OctahedronGeometry(1.3, 0),
+                    new THREE.DodecahedronGeometry(1.1, 0)
+                ];
+                const geom = geometries[Math.floor(Math.random() * geometries.length)];
+                
+                const colors = [0x06b6d4, 0x8b5cf6, 0x10b981, 0x3b82f6];
+                const col = colors[Math.floor(Math.random() * colors.length)];
+
+                const mat = new THREE.MeshPhysicalMaterial({
+                    color: col,
+                    emissive: col,
+                    emissiveIntensity: 0.3,
                     roughness: 0.1,
+                    metalness: 0.2,
                     transmission: 0.6,
-                    thickness: 1.2,
                     transparent: true,
-                    opacity: 0.9
+                    opacity: 0.9,
+                    wireframe: false
                 });
 
-                this.mesh = new THREE.Mesh(geometry, material);
-                this.mesh.position.set(x, y, z);
-                this.mesh.userData = { parentNode: this };
+                this.mesh = new THREE.Mesh(geom, mat);
+                this.mesh.position.copy(position || new THREE.Vector3(
+                    (Math.random() - 0.5) * 16,
+                    (Math.random() - 0.5) * 12,
+                    (Math.random() - 0.5) * 16
+                ));
+
+                // Outer wireframe halo
+                const wireGeom = geom.clone();
+                const wireMat = new THREE.MeshBasicMaterial({
+                    color: 0xffffff,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.15
+                });
+                this.halo = new THREE.Mesh(wireGeom, wireMat);
+                this.mesh.add(this.halo);
+
                 scene.add(this.mesh);
 
-                // Glow ring
-                const ringGeo = new THREE.RingGeometry(1.0, 1.2, 32);
-                const ringMat = new THREE.MeshBasicMaterial({ 
-                    color: 0x38bdf8, 
-                    side: THREE.DoubleSide,
-                    transparent: true,
-                    opacity: 0.3
-                });
-                this.ring = new THREE.Mesh(ringGeo, ringMat);
-                this.ring.position.copy(this.mesh.position);
-                this.ring.lookAt(camera.position);
-                scene.add(this.ring);
+                this.velocity = new THREE.Vector3(
+                    (Math.random() - 0.5) * 0.01,
+                    (Math.random() - 0.5) * 0.01,
+                    (Math.random() - 0.5) * 0.01
+                );
 
-                nodes.push(this);
-                updateHUD();
+                this.mesh.userData = { parentNode: this };
             }
 
-            pulse() {
-                let scale = 1.6;
-                let startTime = Date.now();
-                const animatePulse = () => {
-                    let elapsed = (Date.now() - startTime) / 400;
-                    if (elapsed < 1) {
-                        let currentScale = 1 + (scale - 1) * Math.sin(elapsed * Math.PI);
-                        this.mesh.scale.set(currentScale, currentScale, currentScale);
-                        requestAnimationFrame(animatePulse);
-                    } else {
-                        this.mesh.scale.set(1, 1, 1);
+            update() {
+                this.mesh.rotation.x += 0.005;
+                this.mesh.rotation.y += 0.008;
+                this.mesh.position.add(this.velocity);
+
+                // Boundary containment
+                if(Math.abs(this.mesh.position.x) > 20) this.velocity.x *= -1;
+                if(Math.abs(this.mesh.position.y) > 15) this.velocity.y *= -1;
+                if(Math.abs(this.mesh.position.z) > 20) this.velocity.z *= -1;
+            }
+
+            highlight(state) {
+                if(state) {
+                    this.mesh.material.emissiveIntensity = 0.9;
+                    this.halo.material.opacity = 0.6;
+                } else {
+                    this.mesh.material.emissiveIntensity = 0.3;
+                    this.halo.material.opacity = 0.15;
+                }
+            }
+        }
+
+        // Initialize default core thoughts
+        const initialThoughts = [
+            { name: "First Principles", desc: "Boiling problems down to fundamental truths and reasoning up from there." },
+            { name: "Recursion", desc: "Self-referential patterns echoing across scales in mathematics and nature." },
+            { name: "Entropy", desc: "The natural thermodynamic progression from order to disorder and complexity." }
+        ];
+
+        initialThoughts.forEach((t, idx) => {
+            const angle = (idx / initialThoughts.length) * Math.PI * 2;
+            const pos = new THREE.Vector3(Math.cos(angle) * 8, (idx - 1) * 3, Math.sin(angle) * 8);
+            nodes.push(new ThoughtNode(t.name, t.desc, pos));
+        });
+
+        rebuildNetworkEdges();
+
+        function rebuildNetworkEdges() {
+            // Remove old line meshes
+            edges.forEach(e => scene.remove(e));
+            edges = [];
+
+            // Connect nodes in a web
+            const material = new THREE.LineBasicMaterial({
+                color: 0x06b6d4,
+                transparent: true,
+                opacity: 0.2
+            });
+
+            for(let i = 0; i < nodes.length; i++) {
+                for(let j = i + 1; j < nodes.length; j++) {
+                    const dist = nodes[i].mesh.position.distanceTo(nodes[j].mesh.position);
+                    if(dist < 14) {
+                        const geometry = new THREE.BufferGeometry().setFromPoints([
+                            nodes[i].mesh.position,
+                            nodes[j].mesh.position
+                        ]);
+                        const line = new THREE.Line(geometry, material);
+                        scene.add(line);
+                        edges.push(line);
                     }
-                };
-                animatePulse();
-            }
-
-            destroy() {
-                scene.remove(this.mesh);
-                scene.remove(this.ring);
-                this.mesh.geometry.dispose();
-                this.mesh.material.dispose();
-                this.ring.geometry.dispose();
-                this.ring.material.dispose();
+                }
             }
         }
 
-        class Tether {
-            constructor(nodeA, nodeB) {
-                this.nodeA = nodeA;
-                this.nodeB = nodeB;
+        /* --- User Interactions & Controls Binding --- */
+        const ideaInput = document.getElementById('idea-input');
+        
+        document.getElementById('btn-synthesize').addEventListener('click', synthesizeNode);
+        ideaInput.addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') synthesizeNode();
+        });
 
-                const geometry = new THREE.BufferGeometry();
-                const material = new THREE.LineBasicMaterial({
-                    color: 0x38bdf8,
-                    transparent: true,
-                    opacity: 0.6,
-                    linewidth: 2
+        function synthesizeNode() {
+            const text = ideaInput.value.trim();
+            if(!text) return;
+
+            const newNode = new ThoughtNode(text, `Generated conceptual crystallization derived from user synthesis pipeline: "${text}".`);
+            nodes.push(newNode);
+            ideaInput.value = '';
+            rebuildNetworkEdges();
+            selectNode(newNode);
+        }
+
+        document.getElementById('btn-auto-weave').addEventListener('click', () => {
+            const autoConcepts = ["Synthesis", "Synergy", "Paradigm", "Quantum", "Topology", "Resonance", "Dynamics"];
+            const randomConcept = autoConcepts[Math.floor(Math.random() * autoConcepts.length)] + " " + Math.floor(Math.random() * 100);
+            const newNode = new ThoughtNode(randomConcept, "Autonomously woven concept node integrating into surrounding intellectual topology.");
+            nodes.push(newNode);
+            rebuildNetworkEdges();
+        });
+
+        document.getElementById('btn-collapse').addEventListener('click', () => {
+            nodes.forEach(n => {
+                n.velocity.set(
+                    (Math.random() - 0.5) * 0.05,
+                    (Math.random() - 0.5) * 0.05,
+                    (Math.random() - 0.5) * 0.05
+                );
+            });
+            setTimeout(() => {
+                nodes.forEach(n => {
+                    n.velocity.set(
+                        (Math.random() - 0.5) * 0.01,
+                        (Math.random() - 0.5) * 0.01,
+                        (Math.random() - 0.5) * 0.01
+                    );
                 });
+            }, 1000);
+        });
 
-                this.line = new THREE.Line(geometry, material);
-                scene.add(this.line);
-                this.updatePosition();
+        document.getElementById('btn-reset').addEventListener('click', () => {
+            nodes.forEach(n => scene.remove(n.mesh));
+            nodes = [];
+            edges.forEach(e => scene.remove(e));
+            edges = [];
+            initialThoughts.forEach((t, idx) => {
+                const angle = (idx / initialThoughts.length) * Math.PI * 2;
+                const pos = new THREE.Vector3(Math.cos(angle) * 8, (idx - 1) * 3, Math.sin(angle) * 8);
+                nodes.push(new ThoughtNode(t.name, t.desc, pos));
+            });
+            rebuildNetworkEdges();
+            deselectNode();
+        });
 
-                tethers.push(this);
-                updateHUD();
+        // Inspector Buttons
+        document.getElementById('btn-amplify').addEventListener('click', () => {
+            if(selectedNode) {
+                selectedNode.resonance = Math.min(100, selectedNode.resonance + 10);
+                updateInspectorUI();
             }
+        });
 
-            updatePosition() {
-                const positions = new Float32Array([
-                    this.nodeA.mesh.position.x, this.nodeA.mesh.position.y, this.nodeA.mesh.position.z,
-                    this.nodeB.mesh.position.x, this.nodeB.mesh.position.y, this.nodeB.mesh.position.z
-                ]);
-                this.line.geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-                this.line.geometry.attributes.position.needsUpdate = true;
+        document.getElementById('btn-dissolve').addEventListener('click', () => {
+            if(selectedNode) {
+                scene.remove(selectedNode.mesh);
+                nodes = nodes.filter(n => n !== selectedNode);
+                rebuildNetworkEdges();
+                deselectNode();
             }
+        });
 
-            destroy() {
-                scene.remove(this.line);
-                this.line.geometry.dispose();
-                this.line.material.dispose();
-            }
+        function selectNode(node) {
+            if(selectedNode) selectedNode.highlight(false);
+            selectedNode = node;
+            selectedNode.highlight(true);
+
+            document.getElementById('node-name').textContent = selectedNode.name;
+            document.getElementById('node-desc').textContent = selectedNode.description;
+            updateInspectorUI();
+
+            document.getElementById('node-inspector').classList.add('active');
         }
 
-        function onPointerDown(event) {
-            // Ignore if clicking UI elements
-            if (event.clientY < 80 || event.clientY > window.innerHeight - 80 || event.clientX < 20 || event.clientX > window.innerWidth - 20) {
-                // Check if inside footer or header boxes
-                if (event.target.closest('.interactive')) return;
-            }
+        function deselectNode() {
+            if(selectedNode) selectedNode.highlight(false);
+            selectedNode = null;
+            document.getElementById('node-inspector').classList.remove('active');
+        }
 
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        function updateInspectorUI() {
+            if(!selectedNode) return;
+            document.getElementById('resonance-val').textContent = selectedNode.resonance + '%';
+            document.getElementById('resonance-bar').style.width = selectedNode.resonance + '%';
+        }
+
+        // Raycasting click selection
+        window.addEventListener('pointerdown', (e) => {
+            // Ignore if clicking UI elements
+            if(e.target.closest('.interactive') || e.target.closest('header')) return;
+
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
             raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(scene.children);
+            const intersects = raycaster.intersectObjects(scene.children, true);
 
-            let hitNode = null;
-            for (let hit of intersects) {
-                if (hit.object.userData && hit.object.userData.parentNode) {
-                    hitNode = hit.object.userData.parentNode;
-                    break;
-                }
+            const clickedNodeMesh = intersects.find(hit => hit.object.userData && hit.object.userData.parentNode);
+
+            if(clickedNodeMesh) {
+                selectNode(clickedNodeMesh.object.userData.parentNode);
             }
+        });
 
-            if (hitNode) {
-                hitNode.pulse();
-                if (selectedNode && selectedNode !== hitNode) {
-                    // Create tether
-                    new Tether(selectedNode, hitNode);
-                    selectedNode.mesh.material.emissive.setHex(0x000000);
-                    selectedNode = null;
-                    showThoughtBanner("Resonance tether established successfully.");
-                } else if (selectedNode === hitNode) {
-                    selectedNode.mesh.material.emissive.setHex(0x000000);
-                    selectedNode = null;
-                } else {
-                    selectedNode = hitNode;
-                    selectedNode.mesh.material.emissive.setHex(0x38bdf8);
-                    showThoughtBanner(`Node selected: "${hitNode.label}". Pick target.`);
-                }
-            } else {
-                // Spawn new node on an imaginary plane facing camera
-                const vector = new THREE.Vector3(mouse.x, mouse.y, 0.5).unproject(camera);
-                const dir = vector.sub(camera.position).normalize();
-                const distance = 15;
-                const pos = camera.position.clone().add(dir.multiplyScalar(distance));
-
-                const newNode = new ThoughtNode(pos.x, pos.y, pos.z);
-                newNode.pulse();
-
-                if (nodes.length > 1 && Math.random() > 0.3) {
-                    // Automatically connect to nearest node
-                    let nearest = nodes[0];
-                    let minDist = Infinity;
-                    for (let n of nodes) {
-                        if (n === newNode) continue;
-                        let dist = n.mesh.position.distanceTo(newNode.mesh.position);
-                        if (dist < minDist) {
-                            minDist = dist;
-                            nearest = n;
-                        }
-                    }
-                    if (nearest) {
-                        new Tether(newNode, nearest);
-                    }
-                }
-                showThoughtBanner("New thought node crystallized in space.");
-            }
-        }
-
-        function spawnCluster() {
-            const count = 4;
-            const center = new THREE.Vector3(
-                (Math.random() - 0.5) * 10,
-                (Math.random() - 0.5) * 10,
-                (Math.random() - 0.5) * 10
-            );
-
-            let firstNew = null;
-            for (let i = 0; i < count; i++) {
-                const offset = new THREE.Vector3(
-                    (Math.random() - 0.5) * 8,
-                    (Math.random() - 0.5) * 8,
-                    (Math.random() - 0.5) * 8
-                );
-                const n = new ThoughtNode(center.x + offset.x, center.y + offset.y, center.z + offset.z);
-                if (!firstNew) firstNew = n;
-                if (nodes.length > 1) {
-                    const target = nodes[Math.floor(Math.random() * nodes.length)];
-                    if (target !== n) new Tether(n, target);
-                }
-            }
-            showThoughtBanner("Seed cluster deployed into the epistemic lattice.");
-        }
-
-        function pulseResonance() {
-            nodes.forEach((n, idx) => {
-                setTimeout(() => n.pulse(), idx * 80);
-            });
-            coherence = Math.min(100, coherence + 15);
-            updateHUD();
-            showThoughtBanner("System coherence wave initiated.");
-        }
-
-        function clearLoom() {
-            tethers.forEach(t => t.destroy());
-            tethers = [];
-            nodes.forEach(n => n.destroy());
-            nodes = [];
-            selectedNode = null;
-            coherence = 100;
-            updateHUD();
-            showThoughtBanner("Entropy purged. Loom reset.");
-        }
-
-        function updateHUD() {
-            document.getElementById('node-count').textContent = nodes.length;
-            document.getElementById('tether-count').textContent = tethers.length;
-            document.getElementById('coherence-val').textContent = coherence + '%';
-        }
-
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
-
-        let clock = new THREE.Clock();
+        /* --- Animation Loop --- */
         function animate() {
             requestAnimationFrame(animate);
-            const elapsedTime = clock.getElapsedTime();
 
-            // Gently rotate nodes and align rings
-            nodes.forEach((node, index) => {
-                node.mesh.rotation.x += 0.005;
-                node.mesh.rotation.y += 0.008;
-                node.ring.lookAt(camera.position);
+            nodes.forEach(n => n.update());
 
-                // Floating sine bob
-                node.mesh.position.y += Math.sin(elapsedTime * 2 + index) * 0.002;
-                node.ring.position.copy(node.mesh.position);
-            });
+            // Update edge line geometries dynamically
+            let edgeIdx = 0;
+            for(let i = 0; i < nodes.length; i++) {
+                for(let j = i + 1; j < nodes.length; j++) {
+                    const dist = nodes[i].mesh.position.distanceTo(nodes[j].mesh.position);
+                    if(dist < 14 && edges[edgeIdx]) {
+                        const positions = edges[edgeIdx].geometry.attributes.position.array;
+                        positions[0] = nodes[i].mesh.position.x;
+                        positions[1] = nodes[i].mesh.position.y;
+                        positions[2] = nodes[i].mesh.position.z;
+                        positions[3] = nodes[j].mesh.position.x;
+                        positions[4] = nodes[j].mesh.position.y;
+                        positions[5] = nodes[j].mesh.position.z;
+                        edges[edgeIdx].geometry.attributes.position.needsUpdate = true;
+                        edgeIdx++;
+                    }
+                }
+            }
 
-            // Update tether lines
-            tethers.forEach(t => t.updatePosition());
+            starField.rotation.y += 0.0005;
 
             controls.update();
             renderer.render(scene, camera);
         }
 
-        window.onload = init;
+        animate();
+
+        /* --- Window Resize Handling --- */
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
     </script>
 </body>
 </html>
