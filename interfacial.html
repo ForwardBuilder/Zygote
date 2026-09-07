@@ -3,23 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Zygote Builder — Cosmic Interactive 3D Sandbox</title>
+<title>Zygote Builder — Cosmic & Biological Interactive 3D Sandbox</title>
 
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-<!-- Three.js for immersive 3D background & particle physics -->
+<!-- Three.js for immersive 3D background & particle/microorganism physics -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
 <style>
 /* =========================================================
-   ZYGOTE BUILDER — COSMOS × BIOLOGY (V2 ULTIMATE GAMIFIED)
-   - Interactive 3D particle physics background (Three.js)
-   - Gamified HUD, sound effects (synthesized via Web Audio API)
-   - Infinite expandable grid / card matrix (fixes vertical stacking issues)
-   - Preserves all 12 projects, URLs, indexes, and existing comments
+   ZYGOTE BUILDER — COSMOS × BIOLOGY (V3 ULTIMATE EDITION)
+   - Dark Mode: Astronomy & Futuristic Cosmos
+   - Light Mode: Biological Microscope & Moving Microorganisms / DNA Strands
+   - Dynamic Web Audio Ambient Soundscapes (Space vs Laboratory)
+   - Interactive Mitosis / Cell Stimulation Flash & Purpose
    ========================================================= */
 
 :root{
@@ -46,22 +46,22 @@
 }
 
 body.light{
-  --bg:#edf5fd;
-  --bg2:#dbe8f7;
-  --panel:rgba(255,255,255,.72);
-  --panel-strong:rgba(255,255,255,.88);
-  --text:#152033;
-  --muted:#5e6d83;
-  --line:rgba(40,65,100,.18);
+  --bg:#f4f9fd;
+  --bg2:#e3eef8;
+  --panel:rgba(255,255,255,.82);
+  --panel-strong:rgba(255,255,255,.94);
+  --text:#101a2b;
+  --muted:#4f627d;
+  --line:rgba(25,75,120,.16);
 
-  --cyan:#1182b8;
-  --cyan2:#3ba9d5;
-  --violet:#6754ca;
-  --mint:#198d6c;
-  --pink:#c94e77;
-  --gold:#b57a00;
+  --cyan:#0077b6;
+  --cyan2:#0096c7;
+  --violet:#5a4fcf;
+  --mint:#00875a;
+  --pink:#d93873;
+  --gold:#b8860b;
 
-  --shadow:rgba(52,75,110,.22);
+  --shadow:rgba(40,75,115,.15);
 }
 
 *{
@@ -100,6 +100,20 @@ button{ font:inherit; cursor:pointer; background:none; border:none; }
   height: 100%;
   pointer-events: none;
   z-index: 0;
+}
+
+/* Light mode glass plate laboratory vignette overlay */
+.lab-vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.7s ease;
+  background: radial-gradient(circle at 50% 50%, transparent 40%, rgba(0, 150, 200, 0.08) 80%, rgba(0, 100, 150, 0.18) 100%);
+}
+body.light .lab-vignette {
+  opacity: 1;
 }
 
 /* Atmospheric Scanlines */
@@ -281,10 +295,10 @@ header .eyebrow {
   opacity: .86;
 }
 
-/* Interactive Zygote Nucleus Core (Clickable for Easter Egg) */
+/* ---------- Enhanced Biological / Cosmic Nucleus Core ---------- */
 .zygote-system {
-  width: 320px;
-  height: 320px;
+  width: 340px;
+  height: 340px;
   position: relative;
   margin-bottom: 24px;
   display: grid;
@@ -294,53 +308,84 @@ header .eyebrow {
 }
 
 .zygote-system:hover {
-  transform: scale(1.05);
+  transform: scale(1.06);
 }
 
 .cell {
   position: relative;
-  width: 150px;
-  height: 150px;
+  width: 170px;
+  height: 170px;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.98) 0%, rgba(115,216,255,.5) 40%, rgba(115,216,255,.08) 75%, transparent 80%);
-  border: 1px solid rgba(205,244,255,.6);
-  box-shadow: 0 0 40px rgba(115,216,255,.3), inset 0 0 35px rgba(255,255,255,.2);
-  animation: cellPulse 5s ease-in-out infinite;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.98) 0%, rgba(115,216,255,.6) 35%, rgba(115,216,255,.12) 70%, transparent 80%);
+  border: 2px solid rgba(205,244,255,.7);
+  box-shadow: 0 0 50px rgba(115,216,255,.35), inset 0 0 40px rgba(255,255,255,.4);
+  animation: cellPulse 4.5s ease-in-out infinite;
+}
+
+body.light .cell {
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,1) 0%, rgba(0,180,216,.45) 40%, rgba(0,119,182,.15) 75%, transparent 85%);
+  border-color: rgba(0,119,182,.5);
+  box-shadow: 0 0 45px rgba(0,150,200,.3), inset 0 0 35px rgba(255,255,255,.8);
 }
 
 @keyframes cellPulse {
-  0%,100%{ box-shadow: 0 0 35px rgba(115,216,255,.25), inset 0 0 30px rgba(255,255,255,.15); transform: scale(1); }
-  50%{ box-shadow: 0 0 75px rgba(115,216,255,.5), inset 0 0 50px rgba(255,255,255,.3); transform: scale(1.03); }
+  0%,100%{ box-shadow: 0 0 40px rgba(115,216,255,.3), inset 0 0 35px rgba(255,255,255,.3); transform: scale(1); }
+  50%{ box-shadow: 0 0 85px rgba(115,216,255,.6), inset 0 0 55px rgba(255,255,255,.6); transform: scale(1.04); }
 }
 
 .nucleus {
   position: absolute;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 33% 28%, #fff 0%, #a995ff 50%, rgba(159,140,255,.3) 80%);
-  box-shadow: 0 0 30px rgba(169,149,255,.8);
-  animation: nucleusDrift 6s ease-in-out infinite;
+  width: 75px;
+  height: 75px;
+  border-radius: 40% 60% 50% 50% / 50% 40% 60% 50%;
+  background: radial-gradient(circle at 33% 28%, #fff 0%, var(--violet) 45%, rgba(120,90,220,.6) 80%);
+  box-shadow: 0 0 35px rgba(159,140,255,.9);
+  animation: nucleusMorph 7s ease-in-out infinite;
 }
 
-@keyframes nucleusDrift {
-  0%,100%{ transform: translate(-5px,-5px); }
-  50%{ transform: translate(5px,5px); }
+body.light .nucleus {
+  background: radial-gradient(circle at 33% 28%, #fff 0%, #0077b6 45%, rgba(0,119,182,.6) 80%);
+  box-shadow: 0 0 35px rgba(0,119,182,.6);
 }
+
+@keyframes nucleusMorph {
+  0%,100%{ border-radius: 40% 60% 50% 50% / 50% 40% 60% 50%; transform: translate(-3px,-3px) rotate(0deg); }
+  33%{ border-radius: 55% 45% 60% 40% / 40% 55% 45% 60%; transform: translate(4px,-2px) rotate(120deg); }
+  66%{ border-radius: 50% 50% 40% 60% / 60% 40% 50% 50%; transform: translate(-2px,4px) rotate(240deg); }
+}
+
+/* Floating Organelles inside the central cell */
+.organelle {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.7;
+  pointer-events: none;
+}
+.org-1 { width: 14px; height: 14px; background: var(--mint); top: 30px; left: 35px; animation: floatOrg1 5s ease-in-out infinite; }
+.org-2 { width: 10px; height: 18px; border-radius: 40%; background: var(--gold); bottom: 35px; right: 40px; animation: floatOrg2 6s ease-in-out infinite; }
+.org-3 { width: 12px; height: 12px; background: var(--pink); top: 45px; right: 30px; animation: floatOrg3 4s ease-in-out infinite; }
+
+@keyframes floatOrg1 { 0%,100%{ transform: translate(0,0); } 50%{ transform: translate(6px, -4px); } }
+@keyframes floatOrg2 { 0%,100%{ transform: translate(0,0); } 50%{ transform: translate(-5px, 5px) rotate(45deg); } }
+@keyframes floatOrg3 { 0%,100%{ transform: translate(0,0); } 50%{ transform: translate(-4px, -6px); } }
 
 .shell {
   position: absolute;
   left: 50%;
   top: 50%;
-  border: 1px dashed rgba(115,216,255,.25);
+  border: 1px dashed rgba(115,216,255,.3);
   border-radius: 50%;
   pointer-events: none;
 }
 
-.shell.s1 { width: 220px; height: 220px; margin-left: -110px; margin-top: -110px; animation: spin 20s linear infinite; }
-.shell.s2 { width: 300px; height: 300px; margin-left: -150px; margin-top: -150px; border-color: rgba(159,140,255,.25); animation: spinRev 30s linear infinite; }
+body.light .shell {
+  border-color: rgba(0,119,182,.25);
+}
+
+.shell.s1 { width: 230px; height: 230px; margin-left: -115px; margin-top: -115px; animation: spin 22s linear infinite; }
+.shell.s2 { width: 320px; height: 320px; margin-left: -160px; margin-top: -160px; border-color: rgba(159,140,255,.25); animation: spinRev 32s linear infinite; }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes spinRev { to { transform: rotate(-360deg); } }
@@ -452,7 +497,7 @@ header p.hero-description {
 
 .filter-btn.active, .filter-btn:hover {
   background: var(--cyan);
-  color: #03050b;
+  color: var(--bg);
   border-color: var(--cyan);
   box-shadow: 0 0 15px rgba(115,216,255,.4);
 }
@@ -479,7 +524,7 @@ header p.hero-description {
   background: rgba(159,140,255,.15);
 }
 
-/* ---------- Infinite Responsive Grid (Fixes vertical stacking) ---------- */
+/* ---------- Infinite Responsive Grid ---------- */
 main {
   width: min(1200px, 92vw);
   margin: 0 auto;
@@ -491,7 +536,6 @@ main {
   padding-bottom: 100px;
 }
 
-/* List view mode override */
 main.list-view {
   grid-template-columns: 1fr;
 }
@@ -613,7 +657,7 @@ main.list-view {
   transform: translateX(6px);
 }
 
-/* ---------- Gamified Achievement Toast ---------- */
+/* ---------- Gamified Achievement / Purpose Toast ---------- */
 #toast {
   position: fixed;
   bottom: 30px;
@@ -621,26 +665,49 @@ main.list-view {
   transform: translateX(-50%) translateY(100px);
   background: var(--panel-strong);
   border: 1px solid var(--cyan);
-  padding: 14px 24px;
-  border-radius: 12px;
+  padding: 16px 28px;
+  border-radius: 16px;
   backdrop-filter: blur(20px);
-  box-shadow: 0 10px 30px rgba(0,0,0,.5), 0 0 20px rgba(115,216,255,.3);
+  box-shadow: 0 15px 40px rgba(0,0,0,.4), 0 0 25px rgba(115,216,255,.35);
   font-family: var(--mono);
   font-size: .8rem;
   color: var(--text);
   z-index: 2000;
   transition: transform .4s cubic-bezier(.34,1.56,.64,1);
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 480px;
+  text-align: center;
 }
 
 #toast.show {
   transform: translateX(-50%) translateY(0);
 }
 
-#toast span {
+#toast .toast-title {
   color: var(--term-green);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+#toast .toast-desc {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+/* Shiny Screen Flash Overlay */
+#screenFlash {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255,255,255,0.85) 0%, rgba(115,216,255,0.4) 60%, transparent 100%);
+  z-index: 1500;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease-out;
+}
+#screenFlash.active {
+  opacity: 1;
 }
 
 /* ---------- Footer ---------- */
@@ -695,17 +762,20 @@ footer {
 
 <div id="scrollProgress"></div>
 <canvas id="webglCanvas" aria-hidden="true"></canvas>
-<div class="atmosphere"></div>
+<div class="lab-vignette" aria-hidden="true"></div>
+<div class="atmosphere" aria-hidden="true"></div>
+<div id="screenFlash" aria-hidden="true"></div>
 
-<!-- Gamified Achievement Toast -->
+<!-- Gamified Purpose Toast -->
 <div id="toast">
-  <span>[ACHIEVEMENT UNLOCKED]</span> <p id="toastText">Cosmic Explorer initialized.</p>
+  <span class="toast-title" id="toastTitle">[PURPOSE: MITOSIS TRIGGERED]</span>
+  <span class="toast-desc" id="toastText">Cellular resonance achieved. Biological matrix energized.</span>
 </div>
 
 <!-- Top HUD -->
 <div class="top-controls">
-  <button class="game-hud-btn" id="soundToggle" title="Toggle Synthesized Audio">
-    <span>🔊 Audio: OFF</span>
+  <button class="game-hud-btn" id="soundToggle" title="Toggle Ambient Soundscape">
+    <span>🎵 Audio: OFF</span>
   </button>
 
   <div class="visit-counter-fixed" id="visitCounter">
@@ -714,33 +784,36 @@ footer {
     <span class="vcf-number" id="visitNumber">------</span>
   </div>
 
-  <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark/light mode" title="Toggle theme">
+  <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark/light mode" title="Toggle Cosmos / Biology Mode">
     <span class="toggle-knob"></span>
   </button>
 </div>
 
 <!-- Hero Section -->
 <header>
-  <p class="eyebrow">
+  <p class="eyebrow" id="eyebrowText">
     <span class="status-dot"></span>
-    Experimental Lab v2.5 — Interactive Cosmos
+    Cosmic Observatory v3.0 — Astronomy & Physics
   </p>
 
-  <div class="zygote-system" id="zygoteCore" title="Click to stimulate nucleus!">
+  <div class="zygote-system" id="zygoteCore" title="Click to stimulate nucleus & trigger biological glow!">
     <div class="shell s1"></div>
     <div class="shell s2"></div>
     <div class="cell">
+      <div class="organelle org-1"></div>
+      <div class="organelle org-2"></div>
+      <div class="organelle org-3"></div>
       <div class="nucleus"></div>
     </div>
   </div>
 
   <h1>Zygote Builder</h1>
-  <p class="hero-description">
+  <p class="hero-description" id="heroDesc">
     A collection of thought experiments disguised as simulations.<br>
     Not finished. Not optimized. Fully immersive, interactive 3D universe.
   </p>
 
-  <p class="build-tag">
+  <p class="build-tag" id="buildTag">
     // stack: three.js + web audio api · status: <span class="status-ok">hyper-operational</span>
   </p>
 
@@ -773,7 +846,6 @@ footer {
 
 <!-- =====================================================
      PROJECTS MATRIX — ALL 12 PROJECTS & URLS PRESERVED
-     Categorized via data-category for dynamic filtering
 ===================================================== -->
 <main id="projectsGrid">
 
@@ -1057,13 +1129,32 @@ footer {
 
 <script>
 /* =========================================================
-   1. THEME MANAGEMENT
+   1. THEME MANAGEMENT & MODE ADAPTATION
 ========================================================= */
 const themeToggle = document.getElementById("themeToggle");
+const eyebrowText = document.getElementById("eyebrowText");
+const heroDesc = document.getElementById("heroDesc");
+const buildTag = document.getElementById("buildTag");
 
 function applyTheme(theme){
-  document.body.classList.toggle("light", theme === "light");
+  const isLight = (theme === "light");
+  document.body.classList.toggle("light", isLight);
   localStorage.setItem("zygote-theme", theme);
+
+  if(isLight){
+    eyebrowText.innerHTML = '<span class="status-dot" style="background:var(--mint);box-shadow:0 0 10px var(--mint)"></span> Biological Microscope v3.0 — Cellular Lab';
+    heroDesc.innerHTML = 'An interactive glass slide simulation of living microorganisms.<br>Observe moving bacteria, pulsing cells, and intertwining DNA strands under magnification.';
+    buildTag.innerHTML = '// stack: three.js microorganisms + laboratory ambient · status: <span class="status-ok">active slide</span>';
+  } else {
+    eyebrowText.innerHTML = '<span class="status-dot"></span> Cosmic Observatory v3.0 — Astronomy & Physics';
+    heroDesc.innerHTML = 'A collection of thought experiments disguised as simulations.<br>Not finished. Not optimized. Fully immersive, interactive 3D universe.';
+    buildTag.innerHTML = '// stack: three.js cosmos + ambient drone · status: <span class="status-ok">hyper-operational</span>';
+  }
+
+  // Update background particle system geometry/colors if initialized
+  if(typeof updateSceneMode === 'function'){
+    updateSceneMode(isLight);
+  }
 }
 
 const savedTheme = localStorage.getItem("zygote-theme");
@@ -1075,36 +1166,97 @@ if(savedTheme){
 
 themeToggle.addEventListener("click", () => {
   const isLight = document.body.classList.contains("light");
-  applyTheme(isLight ? "dark" : "light");
-  triggerSound(440, 0.1);
+  const nextTheme = isLight ? "dark" : "light";
+  applyTheme(nextTheme);
+  
+  // Re-trigger sound ambiance if audio is enabled
+  if(soundEnabled) {
+    stopAmbientSound();
+    startAmbientSound();
+  }
+  triggerSound(523.25, 0.15);
 });
 
 /* =========================================================
-   2. SYNTHESIZED WEB AUDIO (Gamified Clicks & Easter Eggs)
-   No external audio files required!
+   2. DYNAMIC WEB AUDIO API (Ambient Music + Interactive Clicks)
+   - Dark Mode: Futuristic Space Drone & Sci-fi Chords
+   - Light Mode: Biological Laboratory Hum & Harmonic Chimes
 ========================================================= */
 let audioCtx = null;
 let soundEnabled = false;
+let ambientInterval = null;
 
 const soundToggleBtn = document.getElementById("soundToggle");
 soundToggleBtn.addEventListener("click", () => {
   soundEnabled = !soundEnabled;
-  if(soundEnabled && !audioCtx){
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if(soundEnabled){
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    startAmbientSound();
+    soundToggleBtn.innerHTML = "🎵 Audio: ON";
+    showToast("[AUDIO ENGAGED]", "Ambient soundscape active.");
+    triggerSound(659.25, 0.2);
+  } else {
+    stopAmbientSound();
+    soundToggleBtn.innerHTML = "🎵 Audio: OFF";
+    showToast("[AUDIO MUTED]", "Soundscape deactivated.");
   }
-  soundToggleBtn.innerHTML = soundEnabled ? "🔊 Audio: ON" : "🔇 Audio: OFF";
-  showToast(soundEnabled ? "Audio synthesizer engaged." : "Audio muted.");
-  if(soundEnabled) triggerSound(587.33, 0.15);
 });
+
+function startAmbientSound(){
+  if(!soundEnabled || !audioCtx) return;
+  
+  const isLight = document.body.classList.contains("light");
+  
+  // Play recurring ambient chords
+  const playChord = () => {
+    if(!soundEnabled || !audioCtx) return;
+    const now = audioCtx.currentTime;
+    
+    // Different base frequencies for Space (dark) vs Lab (light)
+    const baseFreqs = isLight ? [220, 277.18, 329.63] : [110, 164.81, 220, 246.94];
+    
+    baseFreqs.forEach((freq, idx) => {
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        
+        osc.type = isLight ? "triangle" : "sine";
+        osc.frequency.setValueAtTime(freq + (Math.random() * 2 - 1), now);
+        
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(isLight ? 0.035 : 0.04, now + 1.5);
+        gain.gain.linearRampToValueAtTime(0.0001, now + 5.5);
+        
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        osc.start(now);
+        osc.stop(now + 6);
+      } catch(e){}
+    });
+  };
+
+  playChord();
+  ambientInterval = setInterval(playChord, 5000);
+}
+
+function stopAmbientSound(){
+  if(ambientInterval){
+    clearInterval(ambientInterval);
+    ambientInterval = null;
+  }
+}
 
 function triggerSound(freq, duration){
   if(!soundEnabled || !audioCtx) return;
   try {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-    osc.type = "sine";
+    const isLight = document.body.classList.contains("light");
+    osc.type = isLight ? "triangle" : "sine";
     osc.frequency.value = freq;
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
     osc.connect(gain);
     gain.connect(audioCtx.destination);
@@ -1114,29 +1266,51 @@ function triggerSound(freq, duration){
 }
 
 /* =========================================================
-   3. TOAST NOTIFICATION ENGINE
+   3. PURPOSE TOAST & MITOSIS SCREEN FLASH ENGINE
 ========================================================= */
 const toast = document.getElementById("toast");
+const toastTitle = document.getElementById("toastTitle");
 const toastText = document.getElementById("toastText");
+const screenFlash = document.getElementById("screenFlash");
 let toastTimeout = null;
 
-function showToast(msg){
+function showToast(title, msg){
+  toastTitle.textContent = title;
   toastText.textContent = msg;
   toast.classList.add("show");
   clearTimeout(toastTimeout);
   toastTimeout = setTimeout(() => {
     toast.classList.remove("show");
-  }, 3000);
+  }, 3500);
 }
 
-// Nucleus Easter Egg
+// Nucleus Stimulation & Purpose Trigger (Works in both Dark and Light mode)
 document.getElementById("zygoteCore").addEventListener("click", () => {
-  triggerSound(880, 0.3);
-  showToast("Biological core stimulated! Cosmic flux increased.");
+  triggerSound(880, 0.4);
+  if(soundEnabled) {
+    setTimeout(() => triggerSound(1174.66, 0.4), 150);
+  }
+
+  // Flash screen shiny
+  screenFlash.classList.add("active");
+  setTimeout(() => screenFlash.classList.remove("active"), 600);
+
+  const isLight = document.body.classList.contains("light");
+  if(isLight){
+    showToast(
+      "[PURPOSE: CELLULAR MITOSIS & MULTIPLICATION]",
+      "Biological stimulus received! Microorganism activity amplified across the glass slide matrix."
+    );
+  } else {
+    showToast(
+      "[PURPOSE: STELLAR IGNITION & QUANTUM FLUX]",
+      "Cosmic core stimulated! Intergalactic particle density increased across the deep space matrix."
+    );
+  }
 });
 
 /* =========================================================
-   4. THREE.JS 3D COSMIC PARTICLE BACKGROUND
+   4. THREE.JS 3D BACKGROUND (Cosmos vs Microorganisms / DNA)
 ========================================================= */
 const canvas = document.getElementById("webglCanvas");
 const scene = new THREE.Scene();
@@ -1146,30 +1320,97 @@ const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialia
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-// Create Starfield & Floating Nebula Particles
-const particleCount = 600;
-const geometry = new THREE.BufferGeometry();
-const positions = new Float32Array(particleCount * 3);
+// Particle Groups for Cosmos (Dark) and Microorganisms/DNA (Light)
+let cosmicParticles, organismGroup, dnaStrandGroup;
+const cosmosCount = 600;
+const organismCount = 80;
 
-for(let i = 0; i < particleCount * 3; i += 3){
-  positions[i] = (Math.random() - 0.5) * 40;
-  positions[i+1] = (Math.random() - 0.5) * 40;
-  positions[i+2] = (Math.random() - 0.5) * 40;
+// 1. Cosmic Starfield
+const cosmicGeo = new THREE.BufferGeometry();
+const cosmicPos = new Float32Array(cosmosCount * 3);
+for(let i = 0; i < cosmosCount * 3; i += 3){
+  cosmicPos[i] = (Math.random() - 0.5) * 45;
+  cosmicPos[i+1] = (Math.random() - 0.5) * 45;
+  cosmicPos[i+2] = (Math.random() - 0.5) * 45;
 }
-
-geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-const material = new THREE.PointsMaterial({
+cosmicGeo.setAttribute('position', new THREE.BufferAttribute(cosmicPos, 3));
+const cosmicMat = new THREE.PointsMaterial({
   size: 0.08,
   color: 0x73d8ff,
   transparent: true,
   opacity: 0.8,
   blending: THREE.AdditiveBlending
 });
+cosmicParticles = new THREE.Points(cosmicGeo, cosmicMat);
+scene.add(cosmicParticles);
 
-const particleSystem = new THREE.Points(geometry, material);
-scene.add(particleSystem);
+// 2. Biological Microorganisms (Moving Rods, Cysts, and Floating Cells)
+organismGroup = new THREE.Group();
+const orgMaterials = [
+  new THREE.MeshBasicMaterial({ color: 0x0077b6, wireframe: true, transparent: true, opacity: 0.35 }),
+  new THREE.MeshBasicMaterial({ color: 0x00b4d8, wireframe: true, transparent: true, opacity: 0.3 }),
+  new THREE.MeshBasicMaterial({ color: 0x00875a, wireframe: true, transparent: true, opacity: 0.3 })
+];
+
+const organismMeshes = [];
+for(let i = 0; i < organismCount; i++){
+  let geo;
+  const randType = Math.random();
+  if(randType < 0.4) geo = new THREE.SphereGeometry(0.3 + Math.random() * 0.4, 8, 8);
+  else if(randType < 0.7) geo = new THREE.CapsuleGeometry(0.2, 0.6, 4, 8);
+  else geo = new THREE.IcosahedronGeometry(0.4, 0);
+
+  const mat = orgMaterials[Math.floor(Math.random() * orgMaterials.length)];
+  const mesh = new THREE.Mesh(geo, mat);
+
+  mesh.position.set(
+    (Math.random() - 0.5) * 35,
+    (Math.random() - 0.5) * 25,
+    (Math.random() - 0.5) * 20
+  );
+  
+  // Custom velocity for moving microorganisms
+  mesh.userData = {
+    vx: (Math.random() - 0.5) * 0.015,
+    vy: (Math.random() - 0.5) * 0.015,
+    vz: (Math.random() - 0.5) * 0.01,
+    rotSpeedX: (Math.random() - 0.5) * 0.01,
+    rotSpeedY: (Math.random() - 0.5) * 0.01
+  };
+
+  organismGroup.add(mesh);
+  organismMeshes.push(mesh);
+}
+scene.add(organismGroup);
+
+// 3. DNA Strands (Double helix floating structures in light mode)
+dnaStrandGroup = new THREE.Group();
+const dnaNodesCount = 30;
+for(let i = 0; i < 2; i++){
+  const strandLine = new THREE.Group();
+  for(let j = 0; j < dnaNodesCount; j++){
+    const sphereGeo = new THREE.SphereGeometry(0.12, 6, 6);
+    const sphereMat = new THREE.MeshBasicMaterial({ color: i === 0 ? 0x0077b6 : 0xd93873, wireframe: true });
+    const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+    sphere.position.set((j - dnaNodesCount/2) * 0.5, Math.sin(j * 0.4 + i * Math.PI) * 1.5, Math.cos(j * 0.4 + i * Math.PI) * 1.5);
+    strandLine.add(sphere);
+  }
+  strandLine.position.set((i - 0.5) * 15, (i - 0.5) * 8, -5);
+  strandLine.rotation.z = 0.3;
+  dnaStrandGroup.add(strandLine);
+}
+scene.add(dnaStrandGroup);
+
 camera.position.z = 15;
+
+function updateSceneMode(isLight){
+  cosmicParticles.visible = !isLight;
+  organismGroup.visible = isLight;
+  dnaStrandGroup.visible = isLight;
+}
+
+// Initial set based on body class
+updateSceneMode(document.body.classList.contains("light"));
 
 // Mouse Parallax
 let mouseX = 0, mouseY = 0;
@@ -1181,8 +1422,32 @@ window.addEventListener("pointermove", (e) => {
 function animate3D(time){
   requestAnimationFrame(animate3D);
 
-  particleSystem.rotation.y = time * 0.0001;
-  particleSystem.rotation.x = time * 0.00007;
+  const isLight = document.body.classList.contains("light");
+
+  if(!isLight){
+    // Rotate cosmos starfield
+    cosmicParticles.rotation.y = time * 0.0001;
+    cosmicParticles.rotation.x = time * 0.00007;
+  } else {
+    // Animate microorganisms floating & moving on glass slide
+    organismMeshes.forEach(mesh => {
+      mesh.position.x += mesh.userData.vx;
+      mesh.position.y += mesh.userData.vy;
+      mesh.position.z += mesh.userData.vz;
+
+      mesh.rotation.x += mesh.userData.rotSpeedX;
+      mesh.rotation.y += mesh.userData.rotSpeedY;
+
+      // Boundary wrap around
+      if(mesh.position.x > 18) mesh.position.x = -18;
+      if(mesh.position.x < -18) mesh.position.x = 18;
+      if(mesh.position.y > 14) mesh.position.y = -14;
+      if(mesh.position.y < -14) mesh.position.y = 14;
+    });
+
+    // Rotate DNA strands gently
+    dnaStrandGroup.rotation.y = time * 0.0003;
+  }
 
   camera.position.x += (mouseX * 2 - camera.position.x) * 0.05;
   camera.position.y += (-mouseY * 2 - camera.position.y) * 0.05;
