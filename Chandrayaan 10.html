@@ -1,0 +1,1774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CHANDRAYAAN 10 — A Trip to the Moon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#03050a;
+    --panel:#070c14;
+    --panel-edge: rgba(120,180,220,0.18);
+    --orange:#ff7a1a;
+    --orange-dim:#a3521a;
+    --cyan:#4fd8ff;
+    --green:#4be08a;
+    --red:#ff4d4d;
+    --text:#dce8f0;
+    --dim:#7590a3;
+    --mono:'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#000;font-family:var(--mono);color:var(--text);}
+  #c{position:fixed;inset:0;display:block;outline:none;}
+
+  /* ---------- generic HUD chrome ---------- */
+  .hud{position:fixed;pointer-events:none;z-index:10;}
+  .panel{
+    background:linear-gradient(180deg, rgba(9,16,26,0.86), rgba(4,8,14,0.86));
+    border:1px solid var(--panel-edge);
+    border-radius:2px;
+    box-shadow:0 0 0 1px rgba(0,0,0,0.4), 0 8px 30px rgba(0,0,0,0.5);
+    backdrop-filter: blur(3px);
+  }
+  .corner-tl{position:absolute;top:-1px;left:-1px;width:10px;height:10px;border-top:2px solid var(--cyan);border-left:2px solid var(--cyan);}
+  .corner-tr{position:absolute;top:-1px;right:-1px;width:10px;height:10px;border-top:2px solid var(--cyan);border-right:2px solid var(--cyan);}
+  .corner-bl{position:absolute;bottom:-1px;left:-1px;width:10px;height:10px;border-bottom:2px solid var(--cyan);border-left:2px solid var(--cyan);}
+  .corner-br{position:absolute;bottom:-1px;right:-1px;width:10px;height:10px;border-bottom:2px solid var(--cyan);border-right:2px solid var(--cyan);}
+  .bracket{position:relative;}
+
+  button.btn{
+    pointer-events:auto;
+    font-family:var(--mono);
+    background:rgba(10,18,28,0.85);
+    color:var(--cyan);
+    border:1px solid rgba(79,216,255,0.45);
+    padding:10px 18px;
+    font-size:12.5px;
+    letter-spacing:0.06em;
+    cursor:pointer;
+    border-radius:2px;
+    transition:background 0.15s, color 0.15s, border-color .15s, transform .08s;
+    text-transform:uppercase;
+  }
+  button.btn:hover{background:rgba(79,216,255,0.14);border-color:var(--cyan);}
+  button.btn:active{transform:scale(0.97);}
+  button.btn.primary{color:var(--orange);border-color:rgba(255,122,26,0.55);}
+  button.btn.primary:hover{background:rgba(255,122,26,0.14);border-color:var(--orange);}
+  button.btn.big{padding:16px 34px;font-size:15px;}
+  button.btn:disabled{opacity:0.3;cursor:not-allowed;}
+  button.btn.ghost{color:var(--dim);border-color:rgba(117,144,163,0.3);}
+
+  #boot{
+    position:fixed;inset:0;background:#000;z-index:1000;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
+    transition:opacity .8s ease;
+  }
+  #boot .logo{font-size:15px;letter-spacing:0.4em;color:var(--dim);}
+  #boot .title{font-size:clamp(28px,6vw,58px);font-weight:800;letter-spacing:0.05em;color:var(--text);text-shadow:0 0 30px rgba(79,216,255,0.35);}
+  #boot .title span{color:var(--orange);}
+  #boot .sub{font-size:12px;color:var(--dim);letter-spacing:0.15em;}
+  #boot .bar{width:280px;height:2px;background:rgba(255,255,255,0.08);position:relative;overflow:hidden;}
+  #boot .bar i{position:absolute;left:0;top:0;bottom:0;width:0%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);}
+  #boot button{margin-top:10px;}
+
+  /* ---------- prelaunch ---------- */
+  #prelaunch-ui{position:fixed;inset:0;z-index:5;pointer-events:none;}
+  .mission-tag{position:absolute;top:22px;left:26px;pointer-events:none;}
+  .mission-tag .mline1{font-size:11px;color:var(--dim);letter-spacing:0.28em;}
+  .mission-tag .mline2{font-size:22px;font-weight:800;color:var(--text);letter-spacing:0.04em;}
+  .mission-tag .mline2 em{color:var(--orange);font-style:normal;}
+
+  #prelaunch-panel{
+    position:absolute;bottom:28px;left:50%;transform:translateX(-50%);
+    padding:16px 22px;min-width:340px;text-align:center;
+  }
+  #prelaunch-panel .info{font-size:11.5px;color:var(--dim);line-height:1.7;margin-bottom:12px;}
+  #prelaunch-panel .info b{color:var(--cyan);}
+
+  /* ---------- countdown ---------- */
+  #countdown-screen{
+    position:fixed;inset:0;z-index:30;display:none;
+    align-items:center;justify-content:center;flex-direction:column;pointer-events:none;
+    background:radial-gradient(ellipse at center, rgba(255,120,20,0.06), rgba(0,0,0,0) 60%);
+  }
+  #countdown-num{font-size:min(28vw,240px);font-weight:800;color:var(--orange);text-shadow:0 0 60px rgba(255,122,26,0.55);line-height:1;}
+  #countdown-label{font-size:13px;letter-spacing:0.35em;color:var(--dim);margin-top:6px;}
+
+  /* ---------- cockpit / flight HUD ---------- */
+  #cockpit-frame{position:fixed;inset:0;z-index:8;pointer-events:none;display:none;}
+  .cockpit-vignette{position:absolute;inset:0;
+    background:
+      radial-gradient(ellipse at center, rgba(0,0,0,0) 46%, rgba(0,0,0,0.55) 100%);
+    box-shadow:inset 0 0 140px 40px rgba(0,0,0,0.75);
+  }
+  .cockpit-frame-bar{position:absolute;background:linear-gradient(180deg,#0b0e13,#04060a);box-shadow:0 0 20px rgba(0,0,0,0.6);}
+  .cf-top{top:0;left:0;right:0;height:8vh;border-bottom:2px solid rgba(79,216,255,0.25);}
+  .cf-bottom{bottom:0;left:0;right:0;height:11vh;border-top:2px solid rgba(79,216,255,0.25);}
+  .cf-left{top:0;bottom:0;left:0;width:4vw;}
+  .cf-right{top:0;bottom:0;right:0;width:4vw;}
+  .cf-pillar{position:absolute;top:8vh;bottom:11vh;width:14px;background:linear-gradient(180deg,#0b0e13,#04060a);box-shadow:0 0 12px rgba(0,0,0,0.6);}
+
+  #telemetry{position:fixed;top:22px;left:26px;z-index:11;padding:12px 16px;min-width:200px;display:none;}
+  #telemetry .row{display:flex;justify-content:space-between;gap:18px;font-size:12px;margin:3px 0;}
+  #telemetry .row .k{color:var(--dim);letter-spacing:0.08em;}
+  #telemetry .row .v{color:var(--cyan);font-weight:700;}
+  #telemetry .stage-name{font-size:11px;color:var(--orange);letter-spacing:0.15em;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);}
+
+  #mission-clock{position:fixed;top:22px;right:26px;z-index:11;padding:10px 18px;display:none;text-align:right;}
+  #mission-clock .t{font-size:20px;font-weight:800;color:var(--text);letter-spacing:0.05em;}
+  #mission-clock .lbl{font-size:10px;color:var(--dim);letter-spacing:0.25em;}
+
+  #event-banner{position:fixed;top:90px;left:50%;transform:translateX(-50%);z-index:12;
+    padding:8px 22px;font-size:12.5px;letter-spacing:0.14em;color:var(--orange);
+    opacity:0;transition:opacity .4s, transform .4s;pointer-events:none;white-space:nowrap;}
+  #event-banner.show{opacity:1;}
+
+  #flight-controls{position:fixed;bottom:22px;left:0;right:0;z-index:11;display:none;
+    align-items:center;justify-content:center;gap:14px;pointer-events:none;flex-wrap:wrap;padding:0 20px;}
+  #flight-controls button{pointer-events:auto;}
+
+  #timewarp-btn{position:fixed;bottom:24px;right:26px;z-index:13;display:none;}
+
+  #trajectory-panel{position:fixed;bottom:100px;right:26px;z-index:14;display:none;padding:10px;}
+  #trajectory-panel canvas{display:block;background:radial-gradient(circle at 50% 50%, #030507, #000103);}
+  #trajectory-panel .tlabel{font-size:10px;color:var(--dim);letter-spacing:0.2em;text-align:center;margin-top:6px;}
+
+  /* ---------- timewarp overlay ---------- */
+  #timewarp-overlay{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;flex-direction:column;background:#000;}
+  #timewarp-overlay canvas{position:absolute;inset:0;}
+  #timewarp-overlay .tw-text{position:relative;font-size:22px;letter-spacing:0.3em;color:var(--cyan);text-shadow:0 0 20px var(--cyan);z-index:2;}
+  #timewarp-overlay .tw-sub{position:relative;font-size:11px;letter-spacing:0.2em;color:var(--dim);margin-top:10px;z-index:2;}
+
+  /* ---------- cabin sequence (after landing) ---------- */
+  #cabin-panel{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:20;display:none;
+    padding:16px 24px;text-align:center;min-width:360px;}
+  #cabin-panel .step-text{font-size:12px;color:var(--dim);margin-bottom:12px;line-height:1.6;}
+  #cabin-panel .step-text b{color:var(--green);}
+
+  /* ---------- EVA (surface) ---------- */
+  #eva-hud{position:fixed;inset:0;z-index:9;pointer-events:none;display:none;}
+  #eva-topbar{position:absolute;top:22px;left:50%;transform:translateX(-50%);padding:8px 20px;text-align:center;}
+  #eva-topbar .l1{font-size:11px;color:var(--dim);letter-spacing:0.2em;}
+  #eva-topbar .l2{font-size:14px;color:var(--green);letter-spacing:0.1em;font-weight:700;}
+  #eva-controls-hint{position:absolute;bottom:22px;left:26px;padding:10px 16px;font-size:10.5px;color:var(--dim);line-height:1.8;}
+  #eva-controls-hint b{color:var(--cyan);}
+  #eva-actions{position:absolute;bottom:22px;right:26px;display:flex;flex-direction:column;gap:10px;pointer-events:auto;}
+  #eva-gravity-readout{position:absolute;top:22px;right:26px;padding:8px 16px;text-align:right;font-size:11px;}
+  #eva-gravity-readout .k{color:var(--dim);}
+  #eva-gravity-readout .v{color:var(--orange);font-weight:700;}
+
+  /* ---------- generic bottom-center action bar ---------- */
+  #action-bar{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:15;display:flex;gap:12px;pointer-events:none;}
+  #action-bar button{pointer-events:auto;}
+
+  /* ---------- end screen ---------- */
+  #end-screen{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:rgba(2,4,8,0.86);backdrop-filter:blur(6px);}
+  #end-screen .card{width:min(560px,90vw);padding:36px 40px;text-align:center;}
+  #end-screen h1{font-size:26px;margin:0 0 6px;color:var(--text);letter-spacing:0.03em;}
+  #end-screen h1 span{color:var(--green);}
+  #end-screen p.sub{color:var(--dim);font-size:12.5px;margin:0 0 22px;letter-spacing:0.06em;}
+  #end-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px 20px;margin-bottom:26px;text-align:left;}
+  #end-stats .stat .k{font-size:10px;color:var(--dim);letter-spacing:0.15em;}
+  #end-stats .stat .v{font-size:16px;color:var(--cyan);font-weight:700;}
+
+  /* ---------- reentry heat readout ---------- */
+  #reentry-hud{position:fixed;top:22px;left:26px;z-index:14;display:none;padding:12px 16px;min-width:190px;}
+  #reentry-hud .row{display:flex;justify-content:space-between;font-size:12px;margin:3px 0;}
+  #reentry-hud .k{color:var(--dim);}
+  #reentry-hud .v{color:var(--red);font-weight:700;}
+
+  .fade-black{position:fixed;inset:0;background:#000;z-index:60;pointer-events:none;opacity:0;transition:opacity 1s ease;}
+
+  ::selection{background:rgba(79,216,255,0.3);}
+  @media (max-width:700px){
+    #telemetry{font-size:11px;min-width:150px;}
+    #boot .title{font-size:9vw;}
+  }
+</style>
+</head>
+<body>
+
+<canvas id="c"></canvas>
+
+<!-- ============ BOOT / TITLE ============ -->
+<div id="boot">
+  <div class="logo">ISRO · ZYGOTE MISSIONS PRESENTS</div>
+  <div class="title">CHANDRAYAAN <span>10</span></div>
+  <div class="sub">A TRIP TO THE MOON</div>
+  <div class="bar"><i id="boot-bar"></i></div>
+  <button class="btn primary big" id="boot-start" style="display:none;">Begin Mission</button>
+</div>
+
+<!-- ============ PRE-LAUNCH ============ -->
+<div id="prelaunch-ui">
+  <div class="mission-tag panel bracket" style="padding:10px 16px;">
+    <div class="corner-tl"></div><div class="corner-br"></div>
+    <div class="mline1">LAUNCH VEHICLE</div>
+    <div class="mline2">HLVM3 <em>· Chandrayaan-10</em></div>
+  </div>
+  <div id="prelaunch-panel" class="panel bracket">
+    <div class="corner-tl"></div><div class="corner-tr"></div><div class="corner-bl"></div><div class="corner-br"></div>
+    <div class="info">Drag to look around · Scroll to zoom<br>Launchpad <b>SDSC-SHAR, Sriharikota</b> · All systems <b>NOMINAL</b> · Night launch window</div>
+    <button class="btn primary big" id="launch-btn">Launch</button>
+  </div>
+</div>
+
+<!-- ============ COUNTDOWN ============ -->
+<div id="countdown-screen">
+  <div id="countdown-num">10</div>
+  <div id="countdown-label">IGNITION SEQUENCE</div>
+</div>
+
+<!-- ============ COCKPIT FRAME ============ -->
+<div id="cockpit-frame">
+  <div class="cockpit-vignette"></div>
+  <div class="cockpit-frame-bar cf-top"></div>
+  <div class="cockpit-frame-bar cf-bottom"></div>
+  <div class="cockpit-frame-bar cf-left"></div>
+  <div class="cockpit-frame-bar cf-right"></div>
+  <div class="cf-pillar" style="left:30%;"></div>
+  <div class="cf-pillar" style="right:30%;"></div>
+</div>
+
+<!-- ============ TELEMETRY ============ -->
+<div id="telemetry" class="panel bracket">
+  <div class="corner-tl"></div><div class="corner-br"></div>
+  <div class="row"><span class="k">ALTITUDE</span><span class="v" id="tm-alt">0 km</span></div>
+  <div class="row"><span class="k">VELOCITY</span><span class="v" id="tm-vel">0.00 km/s</span></div>
+  <div class="row"><span class="k">DOWNRANGE</span><span class="v" id="tm-range">0 km</span></div>
+  <div class="row"><span class="k">FUEL</span><span class="v" id="tm-fuel">100%</span></div>
+  <div class="stage-name" id="tm-stage">STAGE: S200 BOOSTERS + L110 CORE</div>
+</div>
+
+<div id="mission-clock" class="panel">
+  <div class="t" id="mc-time">T+00:00:00</div>
+  <div class="lbl" id="mc-phase">ASCENT</div>
+</div>
+
+<div id="event-banner" class="panel"></div>
+
+<div id="flight-controls">
+  <button class="btn" id="view-toggle-btn">View from Outside</button>
+  <button class="btn" id="trajectory-btn">Trajectory</button>
+</div>
+
+<button class="btn primary big" id="timewarp-btn">⏩ Timewarp to Moon</button>
+
+<div id="trajectory-panel" class="panel bracket">
+  <div class="corner-tl"></div><div class="corner-br"></div>
+  <canvas id="traj-canvas" width="220" height="220"></canvas>
+  <div class="tlabel" id="traj-label">EARTH → MOON TRANSFER</div>
+</div>
+
+<!-- ============ TIMEWARP OVERLAY ============ -->
+<div id="timewarp-overlay">
+  <canvas id="tw-canvas"></canvas>
+  <div class="tw-text">TIME WARP ENGAGED</div>
+  <div class="tw-sub" id="tw-sub">Fast-forwarding trans-lunar coast…</div>
+</div>
+
+<!-- ============ CABIN SEQUENCE ============ -->
+<div id="cabin-panel" class="panel bracket">
+  <div class="corner-tl"></div><div class="corner-tr"></div><div class="corner-bl"></div><div class="corner-br"></div>
+  <div class="step-text" id="cabin-step-text">Touchdown confirmed. <b>Lunar Module — SHAKTI</b> is stable and level.</div>
+  <button class="btn primary big" id="cabin-action-btn">Approach Spacesuit</button>
+</div>
+
+<!-- ============ EVA HUD ============ -->
+<div id="eva-hud">
+  <div id="eva-topbar" class="panel bracket">
+    <div class="corner-tl"></div><div class="corner-br"></div>
+    <div class="l1">EXTRAVEHICULAR ACTIVITY</div>
+    <div class="l2" id="eva-status">SURFACE OPERATIONS NOMINAL</div>
+  </div>
+  <div id="eva-gravity-readout" class="panel">
+    <div><span class="k">SURFACE GRAVITY </span><span class="v">1.62 m/s²</span></div>
+    <div><span class="k">EARTH-EQUIV </span><span class="v">16.6%</span></div>
+  </div>
+  <div id="eva-controls-hint" class="panel">
+    <b>W A S D</b> — walk &nbsp;·&nbsp; <b>SPACE</b> — low-g jump<br><b>DRAG</b> — look around
+  </div>
+  <div id="eva-actions">
+    <button class="btn primary" id="flag-btn" style="display:none;">Install Flag of India</button>
+    <button class="btn" id="return-btn" style="display:none;">Go Back to Earth</button>
+  </div>
+</div>
+
+<div id="reentry-hud" class="panel bracket">
+  <div class="corner-tl"></div><div class="corner-br"></div>
+  <div class="row"><span class="k">HEAT SHIELD TEMP</span><span class="v" id="re-temp">120°C</span></div>
+  <div class="row"><span class="k">G-FORCE</span><span class="v" id="re-g">1.0 G</span></div>
+  <div class="row"><span class="k">ALTITUDE</span><span class="v" id="re-alt">120 km</span></div>
+</div>
+
+<!-- ============ END SCREEN ============ -->
+<div id="end-screen">
+  <div class="card panel bracket">
+    <div class="corner-tl"></div><div class="corner-tr"></div><div class="corner-bl"></div><div class="corner-br"></div>
+    <h1>Splashdown <span>Confirmed</span></h1>
+    <p class="sub">Chandrayaan-10 crew module recovered · Bay of Bengal</p>
+    <div id="end-stats">
+      <div class="stat"><div class="k">MISSION DURATION</div><div class="v" id="end-time">--</div></div>
+      <div class="stat"><div class="k">MAX ALTITUDE</div><div class="v">384,400 km</div></div>
+      <div class="stat"><div class="k">FLAG PLANTED</div><div class="v" id="end-flag">No</div></div>
+      <div class="stat"><div class="k">TOUCHDOWN SITE</div><div class="v">Shiv Shakti Point</div></div>
+    </div>
+    <button class="btn primary big" id="restart-btn">Fly Again</button>
+  </div>
+</div>
+
+<div class="fade-black" id="fade"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+"use strict";
+
+/* =========================================================================
+   CHANDRAYAAN 10 — A TRIP TO THE MOON
+   Single-file Three.js game. All physics below are simplified / stylised
+   for playability, but every motion is driven by continuous, differentiable
+   kinematic functions (not random), so telemetry stays internally consistent:
+    - Ascent: scripted gravity-turn profile (altitude/velocity/downrange
+      derived from smooth easing curves, matching real GSLV-Mk3-class figures)
+    - Trans-lunar / trans-earth coast: Bezier interpolation, Timewarp-able
+    - Lunar descent & ascent: analytic soft-landing braking curve
+      (position & velocity both -> 0 at touchdown)
+    - EVA: real integrated projectile motion under g = 1.62 m/s² (scaled)
+   ========================================================================= */
+
+/* ---------------------------------------------------------------------
+   0. RENDERER / SCENE / CAMERA BOOTSTRAP
+   --------------------------------------------------------------------- */
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true, powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(55, window.innerWidth/window.innerHeight, 0.05, 200000);
+
+window.addEventListener('resize', ()=>{
+  camera.aspect = window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+const clock = new THREE.Clock();
+
+/* ---------------------------------------------------------------------
+   1. UTILITIES
+   --------------------------------------------------------------------- */
+function lerp(a,b,t){return a+(b-a)*t;}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+function easeInOutQuad(t){return t<0.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2;}
+function easeOutCubic(t){return 1-Math.pow(1-t,3);}
+function easeInCubic(t){return t*t*t;}
+function easeOutQuad(t){return 1-(1-t)*(1-t);}
+function vec2FromPolar(r, theta){ return new THREE.Vector2(r*Math.sin(theta), r*Math.cos(theta)); }
+
+function makeStarfield(count, radius){
+  const g = new THREE.BufferGeometry();
+  const positions = new Float32Array(count*3);
+  const colors = new Float32Array(count*3);
+  const sizes = new Float32Array(count);
+  for(let i=0;i<count;i++){
+    const r = radius*(0.7+Math.random()*0.3);
+    const theta = Math.random()*Math.PI*2;
+    const phi = Math.acos((Math.random()*2)-1);
+    positions[i*3]   = r*Math.sin(phi)*Math.cos(theta);
+    positions[i*3+1] = r*Math.cos(phi);
+    positions[i*3+2] = r*Math.sin(phi)*Math.sin(theta);
+    const c = 0.7+Math.random()*0.3;
+    const tint = Math.random();
+    colors[i*3] = c*(tint>0.85?1:0.85);
+    colors[i*3+1] = c*(tint>0.85?0.9:0.92);
+    colors[i*3+2] = c*(tint<0.15?0.8:1);
+    sizes[i] = Math.random()*2+0.4;
+  }
+  g.setAttribute('position', new THREE.BufferAttribute(positions,3));
+  g.setAttribute('color', new THREE.BufferAttribute(colors,3));
+  g.setAttribute('size', new THREE.BufferAttribute(sizes,1));
+  const m = new THREE.PointsMaterial({size:1.6, vertexColors:true, transparent:true, opacity:0.95, depthWrite:false, sizeAttenuation:true});
+  const pts = new THREE.Points(g,m);
+  pts.renderOrder = -10;
+  return pts;
+}
+
+function makeFlagTexture(){
+  const cv = document.createElement('canvas'); cv.width=300; cv.height=200;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#FF9933'; ctx.fillRect(0,0,300,67);
+  ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0,67,300,66);
+  ctx.fillStyle = '#138808'; ctx.fillRect(0,133,300,67);
+  // ashoka chakra (simplified)
+  const cx=150, cy=100, R=22;
+  ctx.strokeStyle = '#000080'; ctx.lineWidth = 2.4;
+  ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.stroke();
+  for(let i=0;i<24;i++){
+    const a = (i/24)*Math.PI*2;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+Math.cos(a)*R, cy+Math.sin(a)*R);
+    ctx.stroke();
+  }
+  ctx.fillStyle = '#000080'; ctx.beginPath(); ctx.arc(cx,cy,3,0,Math.PI*2); ctx.fill();
+  const tex = new THREE.CanvasTexture(cv);
+  tex.needsUpdate = true;
+  return tex;
+}
+
+function fadeToBlackAndBack(mid, duration){
+  const el = document.getElementById('fade');
+  el.style.transition = 'opacity '+(duration*0.45)+'s ease';
+  el.style.opacity = '1';
+  setTimeout(()=>{ if(mid) mid(); }, duration*450);
+  setTimeout(()=>{ el.style.opacity = '0'; }, duration*500);
+}
+
+function showBanner(text, ms){
+  const b = document.getElementById('event-banner');
+  b.textContent = text;
+  b.classList.add('show');
+  clearTimeout(showBanner._t);
+  showBanner._t = setTimeout(()=>b.classList.remove('show'), ms||3200);
+}
+
+function el(id){ return document.getElementById(id); }
+function fmt(n, d){ return Number(n).toFixed(d===undefined?1:d); }
+
+/* ---------------------------------------------------------------------
+   2. WORLD CONSTANTS (visual-scale, not literal metres)
+   --------------------------------------------------------------------- */
+const EARTH_R = 620;        // visual radius of Earth sphere
+const MOON_R  = 168;        // visual radius of Moon sphere
+const MOON_DIST = 9200;     // visual distance from Earth centre to Moon centre
+const G_MOON_VIS = 2.1;     // units/s^2 -- tuned for a satisfying low-g jump feel
+
+/* ---------------------------------------------------------------------
+   3. LIGHTING RIGS (separate per-environment, swapped on state change)
+   --------------------------------------------------------------------- */
+const ambientLight = new THREE.AmbientLight(0x2a3550, 0.55);
+scene.add(ambientLight);
+const sunLight = new THREE.DirectionalLight(0xffffff, 1.0);
+sunLight.position.set(500, 300, 200);
+sunLight.castShadow = true;
+sunLight.shadow.mapSize.set(2048,2048);
+sunLight.shadow.camera.near = 1;
+sunLight.shadow.camera.far = 3000;
+sunLight.shadow.camera.left = -400; sunLight.shadow.camera.right = 400;
+sunLight.shadow.camera.top = 400; sunLight.shadow.camera.bottom = -400;
+scene.add(sunLight);
+
+/* =========================================================================
+   4. GEOMETRY BUILDERS
+   ========================================================================= */
+
+/* ---- 4a. Launch pad + rocket (HLVM3-style) ---- */
+const padGroup = new THREE.Group();
+const rocketGroup = new THREE.Group();
+const stageParts = {}; // named references we detach during ascent
+let flameLight, flameMesh;
+let floodLights = [];
+
+function buildLaunchPad(){
+  // ground
+  const groundMat = new THREE.MeshStandardMaterial({color:0x0c1016, roughness:0.95, metalness:0.05});
+  const ground = new THREE.Mesh(new THREE.CircleGeometry(1400, 64), groundMat);
+  ground.rotation.x = -Math.PI/2;
+  ground.receiveShadow = true;
+  padGroup.add(ground);
+
+  // faint concrete apron under pad
+  const apron = new THREE.Mesh(new THREE.CircleGeometry(70,48), new THREE.MeshStandardMaterial({color:0x1b2027, roughness:0.9}));
+  apron.rotation.x = -Math.PI/2; apron.position.y = 0.05;
+  padGroup.add(apron);
+
+  // launch mount / flame trench
+  const mount = new THREE.Mesh(new THREE.CylinderGeometry(14,16,4,24), new THREE.MeshStandardMaterial({color:0x2a2f36, roughness:0.7, metalness:0.4}));
+  mount.position.y = 2; mount.castShadow = true; mount.receiveShadow = true;
+  padGroup.add(mount);
+
+  // gantry tower
+  const towerMat = new THREE.MeshStandardMaterial({color:0x445062, roughness:0.6, metalness:0.5});
+  const tower = new THREE.Group();
+  const towerHeight = 95;
+  for(let i=0;i<4;i++){
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(1.4,towerHeight,1.4), towerMat);
+    const a = (i/4)*Math.PI*2;
+    leg.position.set(Math.cos(a)*13+34, towerHeight/2, Math.sin(a)*13);
+    leg.castShadow = true;
+    tower.add(leg);
+  }
+  for(let h=6; h<towerHeight; h+=10){
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(13.3*1.02,0.35,6,4), towerMat);
+    ring.rotation.x = Math.PI/2;
+    ring.position.set(34, h, 0);
+    tower.add(ring);
+  }
+  padGroup.add(tower);
+
+  // floodlights on tower + ring around pad
+  const floodPositions = [
+    [34,70,13],[34,70,-13],[20,20,20],[20,20,-20],[-15,15,25],[-15,15,-25]
+  ];
+  floodPositions.forEach(p=>{
+    const spot = new THREE.SpotLight(0xfff3d6, 6, 260, Math.PI/6, 0.5, 1.2);
+    spot.position.set(p[0],p[1],p[2]);
+    spot.target.position.set(0,10,0);
+    spot.castShadow = false;
+    padGroup.add(spot); padGroup.add(spot.target);
+    floodLights.push(spot);
+    const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.6,8,8), new THREE.MeshBasicMaterial({color:0xfff6dd}));
+    bulb.position.copy(spot.position);
+    padGroup.add(bulb);
+  });
+
+  scene.add(padGroup);
+}
+
+function buildRocket(){
+  const g = new THREE.Group();
+
+  const coreMat = new THREE.MeshStandardMaterial({color:0xff7a1a, roughness:0.55, metalness:0.35}); // orange cryo insulation
+  const whiteMat = new THREE.MeshStandardMaterial({color:0xe9edf1, roughness:0.4, metalness:0.35});
+  const darkMat = new THREE.MeshStandardMaterial({color:0x23262b, roughness:0.5, metalness:0.6});
+
+  // core stage (L110 + C25 stack, simplified as one tapered body)
+  const core = new THREE.Group();
+  const coreLower = new THREE.Mesh(new THREE.CylinderGeometry(4.0,4.0,34,20), coreMat);
+  coreLower.position.y = 17; coreLower.castShadow = true;
+  const coreUpper = new THREE.Mesh(new THREE.CylinderGeometry(4.0,4.0,20,20), whiteMat);
+  coreUpper.position.y = 34+10; coreUpper.castShadow = true;
+  core.add(coreLower, coreUpper);
+  stageParts.coreLower = coreLower;
+  stageParts.core = core;
+
+  // fairing (two halves) + capsule nose
+  const fairing = new THREE.Group();
+  const noseCone = new THREE.Mesh(new THREE.ConeGeometry(4.0,14,20), whiteMat);
+  noseCone.position.y = 34+20+7; noseCone.castShadow = true;
+  fairing.add(noseCone);
+  stageParts.fairing = fairing;
+
+  // crew module (small cone on very top, visually nested; used as our "capsule")
+  const capsule = new THREE.Group();
+  capsule.position.y = 34+20+14+1.2;
+  const capsuleBody = new THREE.Mesh(new THREE.ConeGeometry(2.6,6,16), new THREE.MeshStandardMaterial({color:0xd7dde3, roughness:0.4,metalness:0.5}));
+  capsuleBody.rotation.x = Math.PI; capsuleBody.position.y = 0;
+  capsule.add(capsuleBody);
+  capsule.visible = false; // hidden inside fairing until jettison
+  stageParts.capsule = capsule;
+  g.add(capsule);
+
+  // strap-on boosters (S200, x2)
+  const boosterGeo = new THREE.CylinderGeometry(2.1,2.1,30,16);
+  const boosterL = new THREE.Mesh(boosterGeo, whiteMat.clone());
+  boosterL.position.set(-6.6, 15, 0); boosterL.castShadow = true;
+  const noseL = new THREE.Mesh(new THREE.ConeGeometry(2.1,5,16), whiteMat);
+  noseL.position.set(0,17.5,0); boosterL.add(noseL);
+  const boosterR = boosterL.clone(); boosterR.position.x = 6.6;
+  stageParts.boosterL = boosterL; stageParts.boosterR = boosterR;
+
+  // engine nozzles
+  const nozzleMat = darkMat;
+  function addNozzle(parent, x, y, z, s){
+    const n = new THREE.Mesh(new THREE.ConeGeometry(1.3*s,2.4*s,12), nozzleMat);
+    n.position.set(x,y,z); n.rotation.x = Math.PI;
+    parent.add(n);
+  }
+  addNozzle(core, 0, -1.2, 0, 1.6);
+  addNozzle(boosterL, 0, -1.4, 0, 1.1);
+  addNozzle(boosterR, 0, -1.4, 0, 1.1);
+
+  g.add(core, fairing, boosterL, boosterR);
+
+  // flame group (visible while thrusting)
+  const flameGeo = new THREE.ConeGeometry(1.4,8,12);
+  const flameMat = new THREE.MeshBasicMaterial({color:0xffb347, transparent:true, opacity:0.9});
+  flameMesh = new THREE.Group();
+  const f1 = new THREE.Mesh(flameGeo, flameMat); f1.position.set(0,-4,0); f1.rotation.x=Math.PI;
+  const f2 = f1.clone(); f2.position.x=-6.6; const f3 = f1.clone(); f3.position.x=6.6;
+  flameMesh.add(f1,f2,f3);
+  flameMesh.visible = false;
+  g.add(flameMesh);
+
+  flameLight = new THREE.PointLight(0xff9d3d, 0, 140);
+  flameLight.position.set(0,-2,0);
+  g.add(flameLight);
+
+  g.position.y = 2; // sits on mount
+  rocketGroup.add(g);
+  rocketGroup.userData.body = g;
+  scene.add(rocketGroup);
+}
+
+/* ---- 4b. Night sky (Earth, pre-launch through orbit) ---- */
+let nightSky, earthGlobe, moonInSky, starsNear;
+function buildNightSky(){
+  const skyGeo = new THREE.SphereGeometry(3000, 32, 32);
+  const skyMat = new THREE.MeshBasicMaterial({color:0x02040a, side:THREE.BackSide, fog:false});
+  nightSky = new THREE.Mesh(skyGeo, skyMat);
+  scene.add(nightSky);
+
+  starsNear = makeStarfield(3200, 2800);
+  scene.add(starsNear);
+
+  moonInSky = new THREE.Mesh(new THREE.SphereGeometry(28,20,20), new THREE.MeshStandardMaterial({color:0xd8d8d0, emissive:0x333330, roughness:1}));
+  moonInSky.position.set(600, 380, -900);
+  scene.add(moonInSky);
+
+  ambientLight.color.set(0x223050); ambientLight.intensity = 0.35;
+  sunLight.intensity = 0.15; // faint moonlight
+  sunLight.position.set(600,380,-900);
+}
+
+/* ---- 4c. Big-scale Earth (used during ascent/coast against the visual-scale sim) ---- */
+let earthBig, earthAtmo;
+function buildBigEarth(){
+  const tex = null;
+  const mat = new THREE.MeshStandardMaterial({color:0x14406b, emissive:0x03142a, emissiveIntensity:0.6, roughness:0.85, metalness:0.1});
+  earthBig = new THREE.Mesh(new THREE.SphereGeometry(EARTH_R, 64, 64), mat);
+  earthBig.position.set(0,0,0);
+  earthBig.receiveShadow = false;
+  scene.add(earthBig);
+
+  // simple continent-ish blobs via vertex color noise (cheap, no texture load needed)
+  const geo = earthBig.geometry;
+  const pos = geo.attributes.position;
+  const colors = new Float32Array(pos.count*3);
+  for(let i=0;i<pos.count;i++){
+    const x=pos.getX(i), y=pos.getY(i), z=pos.getZ(i);
+    const n = Math.sin(x*0.05)*Math.cos(y*0.06)+Math.sin(z*0.04+y*0.03);
+    const land = n>0.15;
+    const c = land ? new THREE.Color(0x1c5c3a) : new THREE.Color(0x0c3866);
+    colors[i*3]=c.r; colors[i*3+1]=c.g; colors[i*3+2]=c.b;
+  }
+  geo.setAttribute('color', new THREE.BufferAttribute(colors,3));
+  mat.vertexColors = true;
+
+  const atmoMat = new THREE.MeshBasicMaterial({color:0x4fd8ff, transparent:true, opacity:0.13, side:THREE.BackSide});
+  earthAtmo = new THREE.Mesh(new THREE.SphereGeometry(EARTH_R*1.04, 48,48), atmoMat);
+  scene.add(earthAtmo);
+
+  earthBig.visible = false; earthAtmo.visible = false;
+}
+
+/* ---- 4d. Big-scale Moon (destination) ---- */
+let moonBig;
+function buildBigMoon(){
+  const mat = new THREE.MeshStandardMaterial({color:0xaaa79f, roughness:1, metalness:0});
+  moonBig = new THREE.Mesh(new THREE.SphereGeometry(MOON_R, 48,48), mat);
+  const geo = moonBig.geometry, pos = geo.attributes.position;
+  const colors = new Float32Array(pos.count*3);
+  for(let i=0;i<pos.count;i++){
+    const shade = 0.75+Math.random()*0.25;
+    colors[i*3]=shade*0.68; colors[i*3+1]=shade*0.66; colors[i*3+2]=shade*0.63;
+  }
+  geo.setAttribute('color', new THREE.BufferAttribute(colors,3));
+  mat.vertexColors = true;
+  moonBig.position.set(MOON_DIST, 0, 0);
+  moonBig.visible = false;
+  scene.add(moonBig);
+}
+
+/* ---- 4e. Lunar surface (EVA scene) ---- */
+let lunarSurfaceGroup;
+function buildLunarSurface(){
+  lunarSurfaceGroup = new THREE.Group();
+  lunarSurfaceGroup.visible = false;
+
+  const skyGeo = new THREE.SphereGeometry(4000,32,32);
+  const skyMat = new THREE.MeshBasicMaterial({color:0x000000, side:THREE.BackSide});
+  const sky = new THREE.Mesh(skyGeo, skyMat);
+  lunarSurfaceGroup.add(sky);
+  lunarSurfaceGroup.add(makeStarfield(4000, 3500));
+
+  const earthInSky = new THREE.Mesh(new THREE.SphereGeometry(46,32,32), new THREE.MeshStandardMaterial({color:0x2a6fb0, emissive:0x0c2c4d, emissiveIntensity:0.9, roughness:0.6}));
+  earthInSky.position.set(-260, 220, -700);
+  lunarSurfaceGroup.add(earthInSky);
+  const earthGlow = new THREE.Mesh(new THREE.SphereGeometry(50,24,24), new THREE.MeshBasicMaterial({color:0x4fd8ff, transparent:true, opacity:0.18}));
+  earthGlow.position.copy(earthInSky.position);
+  lunarSurfaceGroup.add(earthGlow);
+
+  // ground with crater-ish bumps
+  const groundGeo = new THREE.PlaneGeometry(1400,1400,90,90);
+  const gp = groundGeo.attributes.position;
+  for(let i=0;i<gp.count;i++){
+    const x = gp.getX(i), y = gp.getY(i);
+    let h = (Math.sin(x*0.05)*Math.cos(y*0.04))*0.6;
+    // craters
+    for(let c=0;c<10;c++){
+      const cx = (c*137 % 700)-350, cy=(c*271 % 700)-350, cr= 20+ (c*53%40);
+      const d = Math.hypot(x-cx,y-cy);
+      if(d<cr){ h -= (1-d/cr)*3.2; }
+      if(d<cr*1.15 && d>cr*0.85){ h += (1-Math.abs(d-cr)/(cr*0.15))*0.8; }
+    }
+    gp.setZ(i,h);
+  }
+  groundGeo.computeVertexNormals();
+  const groundMat = new THREE.MeshStandardMaterial({color:0x8c8478, roughness:1, metalness:0});
+  const ground = new THREE.Mesh(groundGeo, groundMat);
+  ground.rotation.x = -Math.PI/2;
+  ground.receiveShadow = true;
+  lunarSurfaceGroup.add(ground);
+
+  const sun = new THREE.DirectionalLight(0xfff4e0, 1.4);
+  sun.position.set(300,220,120);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(1024,1024);
+  sun.shadow.camera.left=-150; sun.shadow.camera.right=150; sun.shadow.camera.top=150; sun.shadow.camera.bottom=-150;
+  lunarSurfaceGroup.add(sun);
+  const fill = new THREE.AmbientLight(0x223244, 0.35);
+  lunarSurfaceGroup.add(fill);
+
+  scene.add(lunarSurfaceGroup);
+}
+
+// lander (descent stage stays on surface, ascent stage leaves)
+let landerGroup, landerAscentStage, landerDescentStage;
+function buildLander(){
+  landerGroup = new THREE.Group();
+  landerDescentStage = new THREE.Group();
+  const legMat = new THREE.MeshStandardMaterial({color:0xc7ccd1, metalness:0.6, roughness:0.5});
+  for(let i=0;i<4;i++){
+    const a = (i/4)*Math.PI*2 + Math.PI/4;
+    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.18,4.6,8), legMat);
+    leg.position.set(Math.cos(a)*3.2, 2.1, Math.sin(a)*3.2);
+    leg.rotation.z = Math.cos(a)*0.5; leg.rotation.x = Math.sin(a)*0.5;
+    const pad = new THREE.Mesh(new THREE.CylinderGeometry(0.6,0.6,0.15,10), legMat);
+    pad.position.set(Math.cos(a)*4.1, 0.05, Math.sin(a)*4.1);
+    landerDescentStage.add(leg,pad);
+  }
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(2.6,2.6,2.2,8), new THREE.MeshStandardMaterial({color:0xf2e9c9, metalness:0.4, roughness:0.6}));
+  base.position.y = 3.3;
+  landerDescentStage.add(base);
+  const descentEngine = new THREE.Mesh(new THREE.ConeGeometry(0.9,1.6,10), new THREE.MeshStandardMaterial({color:0x2b2d31, metalness:0.7}));
+  descentEngine.rotation.x = Math.PI; descentEngine.position.y = 2.2;
+  landerDescentStage.add(descentEngine);
+
+  landerAscentStage = new THREE.Group();
+  const cabin = new THREE.Mesh(new THREE.BoxGeometry(2.6,2.4,2.6), new THREE.MeshStandardMaterial({color:0xe7e2d3, metalness:0.3,roughness:0.6}));
+  cabin.position.y = 5.6;
+  landerAscentStage.add(cabin);
+  const window1 = new THREE.Mesh(new THREE.CircleGeometry(0.4,16), new THREE.MeshStandardMaterial({color:0x0a1622, emissive:0x0a1622}));
+  window1.position.set(0,5.9,1.31);
+  landerAscentStage.add(window1);
+  const antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,2,6), new THREE.MeshStandardMaterial({color:0xcccccc}));
+  antenna.position.set(0.9,7.4,0.9);
+  landerAscentStage.add(antenna);
+  const hatchGlow = new THREE.Mesh(new THREE.PlaneGeometry(0.9,1.4), new THREE.MeshBasicMaterial({color:0xffcf8a, transparent:true, opacity:0}));
+  hatchGlow.position.set(0,4.6,1.32);
+  landerGroup.userData.hatchGlow = hatchGlow;
+  landerAscentStage.add(hatchGlow);
+
+  landerGroup.add(landerDescentStage, landerAscentStage);
+  landerGroup.visible = false;
+  scene.add(landerGroup);
+}
+
+// astronaut (EVA controllable figure)
+let astronaut, astronautVel = {y:0}, astronautGrounded = true;
+function buildAstronaut(){
+  astronaut = new THREE.Group();
+  const suitMat = new THREE.MeshStandardMaterial({color:0xf3f0e8, roughness:0.75});
+  const visorMat = new THREE.MeshStandardMaterial({color:0x1b2430, metalness:0.7, roughness:0.2, emissive:0x0a2a3a, emissiveIntensity:0.3});
+  // (CapsuleGeometry needs three.js r142+; this build targets r128, so the
+  // astronaut is built from cylinders + sphere caps for broad compatibility)
+  function limb(radius,length){
+    const grp = new THREE.Group();
+    const cyl = new THREE.Mesh(new THREE.CylinderGeometry(radius,radius,length,8), suitMat);
+    const capTop = new THREE.Mesh(new THREE.SphereGeometry(radius,8,8), suitMat); capTop.position.y = length/2;
+    const capBot = new THREE.Mesh(new THREE.SphereGeometry(radius,8,8), suitMat); capBot.position.y = -length/2;
+    grp.add(cyl, capTop, capBot);
+    grp.traverse(o=>{ if(o.isMesh) o.castShadow = true; });
+    return grp;
+  }
+  const torso = limb(0.4, 0.9); torso.position.y = 1.05;
+  const backpack = new THREE.Mesh(new THREE.BoxGeometry(0.55,0.75,0.32), new THREE.MeshStandardMaterial({color:0xd9d4c6, roughness:0.8}));
+  backpack.position.set(0,1.05,-0.42); backpack.castShadow = true;
+  const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.32,16,16), suitMat);
+  helmet.position.y = 1.68; helmet.castShadow = true;
+  const visor = new THREE.Mesh(new THREE.SphereGeometry(0.24,16,16,0,Math.PI*2,0,Math.PI/1.6), visorMat);
+  visor.position.set(0,1.66,0.12); visor.rotation.x = -0.2;
+  const legL = limb(0.16,0.55); legL.position.set(-0.18,0.35,0);
+  const legR = limb(0.16,0.55); legR.position.set(0.18,0.35,0);
+  const armL = limb(0.13,0.55); armL.position.set(-0.52,1.05,0); armL.rotation.z = 0.25;
+  const armR = limb(0.13,0.55); armR.position.set(0.52,1.05,0); armR.rotation.z = -0.25;
+  astronaut.add(torso, backpack, helmet, visor, legL, legR, armL, armR);
+  astronaut.position.set(0,0,10);
+  astronaut.castShadow = true;
+  astronaut.visible = false;
+  scene.add(astronaut);
+}
+
+// flag
+let flagGroup, flagInstalled = false;
+function buildFlagAsset(){
+  flagGroup = new THREE.Group();
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.045,3.2,8), new THREE.MeshStandardMaterial({color:0xcccccc, metalness:0.7,roughness:0.3}));
+  pole.position.y = 1.6;
+  const clothTex = makeFlagTexture();
+  const cloth = new THREE.Mesh(new THREE.PlaneGeometry(1.3,0.87,8,6), new THREE.MeshStandardMaterial({map:clothTex, side:THREE.DoubleSide, roughness:0.8}));
+  cloth.position.set(0.68,2.75,0);
+  flagGroup.add(pole, cloth);
+  flagGroup.userData.cloth = cloth;
+  flagGroup.visible = false;
+  flagGroup.scale.set(0.001,0.001,0.001);
+  scene.add(flagGroup);
+}
+
+/* ---- 4f. Re-entry / splashdown scene near the pad ---- */
+let ocean, heatGlowMesh, chuteGroup, reentryParticles, reentryParticleData;
+function buildReentryAssets(){
+  ocean = new THREE.Mesh(new THREE.CircleGeometry(2200,64), new THREE.MeshStandardMaterial({color:0x03263f, roughness:0.35, metalness:0.4}));
+  ocean.rotation.x = -Math.PI/2;
+  ocean.position.set(0,-0.3,900);
+  ocean.visible = false;
+  scene.add(ocean);
+
+  heatGlowMesh = new THREE.Mesh(new THREE.SphereGeometry(3.4,16,16), new THREE.MeshBasicMaterial({color:0xff6a2a, transparent:true, opacity:0}));
+  scene.add(heatGlowMesh);
+
+  chuteGroup = new THREE.Group();
+  for(let i=0;i<3;i++){
+    const cGeo = new THREE.ConeGeometry(6,7,16,1,true);
+    const cMat = new THREE.MeshStandardMaterial({color: i===1?0xff7a1a:0xf2f2f2, side:THREE.DoubleSide, roughness:0.9});
+    const cm = new THREE.Mesh(cGeo, cMat);
+    cm.position.set((i-1)*8, 14, (i-1)*3);
+    chuteGroup.add(cm);
+  }
+  chuteGroup.visible = false;
+  scene.add(chuteGroup);
+
+  const pGeo = new THREE.BufferGeometry();
+  const N = 400;
+  const pos = new Float32Array(N*3);
+  reentryParticleData = [];
+  for(let i=0;i<N;i++){ pos[i*3]=0;pos[i*3+1]=0;pos[i*3+2]=0; reentryParticleData.push({life:0}); }
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  const pMat = new THREE.PointsMaterial({color:0xffaa55, size:1.4, transparent:true, opacity:0.85, depthWrite:false});
+  reentryParticles = new THREE.Points(pGeo, pMat);
+  reentryParticles.visible = false;
+  scene.add(reentryParticles);
+}
+
+buildLaunchPad();
+buildRocket();
+buildNightSky();
+buildBigEarth();
+buildBigMoon();
+buildLunarSurface();
+buildLander();
+buildAstronaut();
+buildFlagAsset();
+buildReentryAssets();
+
+/* =========================================================================
+   5. CAMERA RIGS  (orbit-drag helper shared by multiple modes)
+   ========================================================================= */
+const orbitState = { theta:0.5, phi:1.15, radius:60, target:new THREE.Vector3(0,10,0), dragging:false, lastX:0,lastY:0 };
+function updateOrbitFromDrag(dx,dy){
+  orbitState.theta -= dx*0.0055;
+  orbitState.phi = clamp(orbitState.phi - dy*0.0045, 0.25, Math.PI-0.2);
+}
+function orbitCameraPosition(target, radius, theta, phi){
+  const x = target.x + radius*Math.sin(phi)*Math.sin(theta);
+  const y = target.y + radius*Math.cos(phi);
+  const z = target.z + radius*Math.sin(phi)*Math.cos(theta);
+  return new THREE.Vector3(x,y,z);
+}
+canvas.addEventListener('pointerdown', e=>{ orbitState.dragging = true; orbitState.lastX=e.clientX; orbitState.lastY=e.clientY; });
+window.addEventListener('pointerup', ()=> orbitState.dragging=false);
+window.addEventListener('pointermove', e=>{
+  if(!orbitState.dragging) return;
+  const dx = e.clientX-orbitState.lastX, dy = e.clientY-orbitState.lastY;
+  orbitState.lastX=e.clientX; orbitState.lastY=e.clientY;
+  updateOrbitFromDrag(dx,dy);
+});
+canvas.addEventListener('wheel', e=>{
+  orbitState.radius = clamp(orbitState.radius + e.deltaY*0.05, 8, 400);
+}, {passive:true});
+
+/* =========================================================================
+   6. GAME STATE MACHINE
+   ========================================================================= */
+const STATE = {
+  PRELAUNCH:'PRELAUNCH', COUNTDOWN:'COUNTDOWN', ASCENT:'ASCENT', COAST_OUT:'COAST_OUT',
+  LUNAR_DESCENT:'LUNAR_DESCENT', CABIN_OUT:'CABIN_OUT', EVA:'EVA', LUNAR_ASCENT:'LUNAR_ASCENT',
+  COAST_BACK:'COAST_BACK', REENTRY:'REENTRY', SPLASHDOWN:'SPLASHDOWN', END:'END'
+};
+let state = STATE.PRELAUNCH;
+let cameraMode = 'external'; // 'cockpit' | 'external'
+let missionStartTime = null;
+let missionElapsed = 0;
+
+const flight = {
+  ascentT:0,
+  ascentDur: 62,          // seconds of real time to reach LEO
+  boosterSepT: 13,
+  stage1SepT: 27,
+  fairingSepT: 33,
+  leoAltKm: 200,
+  leoVelKms: 7.8,
+  coastProg: 0,           // 0..1 trans-lunar
+  coastDur: 240,          // seconds if not warped
+  descentT: 0,
+  descentDur: 20,
+  descentStartAltKm: 15,
+  ascentMoonT: 0,
+  ascentMoonDur: 26,
+  coastBackProg: 0,
+  coastBackDur: 240,
+  reentryT: 0,
+  reentryDur: 26,
+};
+
+function setUIForState(){
+  const hide = ids => ids.forEach(id=>el(id).style.display='none');
+  const show = (id, disp) => el(id).style.display = disp||'flex';
+
+  hide(['prelaunch-ui','countdown-screen','cockpit-frame','telemetry','mission-clock','flight-controls',
+        'timewarp-btn','trajectory-panel','timewarp-overlay','cabin-panel','eva-hud','reentry-hud','end-screen']);
+  el('prelaunch-ui').style.display = 'none';
+
+  if(state===STATE.PRELAUNCH){ el('prelaunch-ui').style.display='block'; }
+  if(state===STATE.COUNTDOWN){ el('countdown-screen').style.display='flex'; }
+  if([STATE.ASCENT,STATE.COAST_OUT,STATE.LUNAR_DESCENT,STATE.LUNAR_ASCENT,STATE.COAST_BACK].includes(state)){
+    show('telemetry','block'); show('mission-clock','block'); show('flight-controls','flex');
+    if(cameraMode==='cockpit') el('cockpit-frame').style.display='block';
+  }
+  if(state===STATE.COAST_OUT){ el('timewarp-btn').style.display='block'; }
+  if(state===STATE.CABIN_OUT){ show('cabin-panel','block'); }
+  if(state===STATE.EVA){ show('eva-hud','block'); }
+  if(state===STATE.REENTRY){ show('reentry-hud','block'); }
+  if(state===STATE.END){ show('end-screen','flex'); }
+}
+
+/* ---------------------------------------------------------------------
+   7. PRELAUNCH -> COUNTDOWN -> ASCENT
+   --------------------------------------------------------------------- */
+orbitState.target.set(0,20,0); orbitState.radius=70; orbitState.theta=0.6; orbitState.phi=1.25;
+
+el('launch-btn').addEventListener('click', ()=>{
+  state = STATE.COUNTDOWN;
+  setUIForState();
+  let n = 10;
+  el('countdown-num').textContent = n;
+  const iv = setInterval(()=>{
+    n--;
+    if(n>0){ el('countdown-num').textContent = n; }
+    else if(n===0){ el('countdown-num').textContent = 'LIFTOFF'; }
+    else { clearInterval(iv); beginAscent(); }
+  },1000);
+});
+
+function beginAscent(){
+  state = STATE.ASCENT;
+  cameraMode = 'cockpit';
+  missionStartTime = performance.now();
+  flight.ascentT = 0;
+  flameMesh.visible = true;
+  flameLight.intensity = 3.5;
+  floodLights.forEach(f=>f.intensity=6);
+  earthBig.visible = false; earthAtmo.visible = false;
+  setUIForState();
+  showBanner('LIFTOFF — HLVM3 CLEARS THE TOWER', 3000);
+}
+
+/* ---------------------------------------------------------------------
+   8. ASCENT UPDATE (scripted gravity-turn kinematics)
+   --------------------------------------------------------------------- */
+function updateAscent(dt){
+  flight.ascentT += dt;
+  const t = flight.ascentT;
+  const f = clamp(t/flight.ascentDur, 0, 1);
+
+  const altKm = flight.leoAltKm * easeOutCubic(f);
+  const velKms = flight.leoVelKms * easeInOutQuad(f);
+  const thetaDeg = 42 * easeInOutQuad(f); // pitch-over angle from vertical
+  const theta = thetaDeg*Math.PI/180;
+  const downrangeKm = 60 * f*f;
+
+  // visual radius: blend from pad-scale to big-earth-scale smoothly
+  const visualAlt = altKm*0.62; // visual units
+  const r = EARTH_R + visualAlt;
+
+  // staged events
+  if(!flight._boosterSep && t>flight.boosterSepT){
+    flight._boosterSep = true;
+    detachAndTumble(stageParts.boosterL, new THREE.Vector3(-1,-0.2,0));
+    detachAndTumble(stageParts.boosterR, new THREE.Vector3(1,-0.2,0));
+    showBanner('S200 BOOSTER SEPARATION', 2600);
+    el('tm-stage').textContent = 'STAGE: L110 LIQUID CORE';
+  }
+  if(!flight._stage1Sep && t>flight.stage1SepT){
+    flight._stage1Sep = true;
+    detachAndTumble(stageParts.coreLower, new THREE.Vector3(0,-1,0.15));
+    showBanner('CORE STAGE SEPARATION', 2600);
+    el('tm-stage').textContent = 'STAGE: C25 CRYOGENIC UPPER STAGE';
+    flameLight.intensity = 2.4;
+  }
+  if(!flight._fairingSep && t>flight.fairingSepT){
+    flight._fairingSep = true;
+    detachAndTumble(stageParts.fairing, new THREE.Vector3(0.3,-0.4,0.9));
+    stageParts.capsule.visible = true;
+    showBanner('PAYLOAD FAIRING JETTISONED', 2600);
+  }
+  if(f>=1 && !flight._leo){
+    flight._leo = true;
+    flameMesh.visible = false; flameLight.intensity=0;
+    showBanner('ORBIT INSERTION — LOW EARTH ORBIT ACHIEVED', 3400);
+    setTimeout(()=>beginTransLunarCoast(), 1600);
+  }
+
+  // world-scale blend: near ground we stay in pad-local space; once altitude climbs
+  // we crossfade into the big-earth frame for a curvature view.
+  const blend = clamp((altKm-2)/40, 0, 1);
+  const localPos = new THREE.Vector3(0, 2+visualAlt, 0);
+  const bigPos = vec2FromPolar(r, theta);
+  const worldPos = new THREE.Vector3(
+    lerp(localPos.x, bigPos.x, blend),
+    lerp(localPos.y, bigPos.y - EARTH_R + 2, blend),
+    0
+  );
+  rocketGroup.position.copy(worldPos);
+
+  // orientation: tangent of path
+  const dt2 = 0.02;
+  const f2 = clamp((t+dt2)/flight.ascentDur,0,1);
+  const theta2 = 42*easeInOutQuad(f2)*Math.PI/180;
+  const alt2 = flight.leoAltKm*easeOutCubic(f2)*0.62;
+  const r2 = EARTH_R+alt2;
+  const bigPos2 = vec2FromPolar(r2, theta2);
+  const worldPos2 = new THREE.Vector3(
+    lerp(localPos.x, bigPos2.x, blend),
+    lerp(2+alt2, bigPos2.y-EARTH_R+2, blend), 0
+  );
+  const dir = worldPos2.clone().sub(worldPos).normalize();
+  if(dir.lengthSq()>0.0001){
+    const angle = Math.atan2(dir.x, dir.y);
+    rocketGroup.rotation.z = -angle;
+  }
+
+  // crossfade environments
+  earthBig.visible = blend>0.02; earthAtmo.visible = blend>0.02;
+  if(earthBig.material){ earthBig.material.opacity = 1; }
+  nightSky.material.opacity = 1;
+  padGroup.visible = blend<0.98;
+  ambientLight.intensity = lerp(0.35,0.55,blend);
+
+  // camera
+  if(cameraMode==='cockpit'){
+    const nose = new THREE.Vector3(0, 34+20+14+3, 0);
+    const noseWorld = nose.clone().applyMatrix4(rocketGroup.userData.body.matrixWorld);
+    camera.position.copy(noseWorld);
+    const lookDir = new THREE.Vector3(0,1,0).applyQuaternion(rocketGroup.userData.body.getWorldQuaternion(new THREE.Quaternion()));
+    camera.up.set(0,1,0);
+    camera.lookAt(noseWorld.clone().add(lookDir));
+  } else {
+    orbitState.target.copy(rocketGroup.position);
+    if(orbitState.radius<20) orbitState.radius = 46;
+    const camPos = orbitCameraPosition(orbitState.target, orbitState.radius, orbitState.theta, orbitState.phi);
+    camera.position.copy(camPos);
+    camera.up.set(0,1,0);
+    camera.lookAt(orbitState.target);
+  }
+
+  updateTelemetry(altKm, velKms, downrangeKm, computeFuelPct(f));
+  updateMissionClock(t*7); // stylised x7 mission-time multiplier for a realistic-feeling clock
+  updateTrajectoryCanvas();
+}
+
+function computeFuelPct(f){
+  return clamp(100*(1-f), 2, 100).toFixed(0);
+}
+
+function detachAndTumble(mesh, dir){
+  if(!mesh || mesh.userData.detached) return;
+  mesh.userData.detached = true;
+  const worldPos = new THREE.Vector3(); mesh.getWorldPosition(worldPos);
+  const worldQuat = new THREE.Quaternion(); mesh.getWorldQuaternion(worldQuat);
+  scene.attach ? scene.attach(mesh) : scene.add(mesh);
+  mesh.position.copy(worldPos); mesh.quaternion.copy(worldQuat);
+  mesh.userData.tumbleVel = dir.clone().multiplyScalar(3+Math.random()*2);
+  mesh.userData.tumbleSpin = new THREE.Vector3((Math.random()-0.5)*2,(Math.random()-0.5)*2,(Math.random()-0.5)*2);
+  mesh.userData.tumbleLife = 0;
+  tumblingParts.push(mesh);
+}
+const tumblingParts = [];
+function updateTumblingParts(dt){
+  for(let i=tumblingParts.length-1;i>=0;i--){
+    const m = tumblingParts[i];
+    m.userData.tumbleLife += dt;
+    m.position.addScaledVector(m.userData.tumbleVel, dt);
+    m.userData.tumbleVel.y -= 1.2*dt;
+    m.rotation.x += m.userData.tumbleSpin.x*dt;
+    m.rotation.y += m.userData.tumbleSpin.y*dt;
+    m.rotation.z += m.userData.tumbleSpin.z*dt;
+    if(m.userData.tumbleLife>9){
+      scene.remove(m);
+      tumblingParts.splice(i,1);
+    } else if(m.userData.tumbleLife>5){
+      m.traverse(o=>{ if(o.material){ o.material.transparent=true; o.material.opacity = clamp(1-(m.userData.tumbleLife-5)/4,0,1);} });
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------
+   9. TRANS-LUNAR COAST + TIMEWARP + TRAJECTORY MAP
+   --------------------------------------------------------------------- */
+function simplifyShipForCoast(){
+  // Spent upper stage separates too — from here on our "ship" is just the
+  // crew capsule (+ its engine flash), re-parented to rocketGroup at local
+  // origin so world position / orientation stay exact for camera framing.
+  if(flight._simplified) return;
+  flight._simplified = true;
+  const body = rocketGroup.userData.body; // the tall "g" stack
+  if(stageParts.core) detachAndTumble(stageParts.core, new THREE.Vector3(0,-0.6,0.2));
+  const capsuleWorld = new THREE.Vector3(); stageParts.capsule.getWorldPosition(capsuleWorld);
+  body.remove(stageParts.capsule);
+  rocketGroup.add(stageParts.capsule);
+  stageParts.capsule.position.set(0,0,0);
+  stageParts.capsule.rotation.set(0,0,0);
+  body.remove(flameMesh);
+  rocketGroup.add(flameMesh);
+  flameMesh.position.set(0,-1.4,0);
+  body.remove(flameLight);
+  rocketGroup.add(flameLight);
+  flameLight.position.set(0,-1,0);
+  rocketGroup.rotation.set(0,0,0);
+}
+
+function beginTransLunarCoast(){
+  state = STATE.COAST_OUT;
+  flight.coastProg = 0;
+  moonBig.visible = true;
+  simplifyShipForCoast();
+  setUIForState();
+  showBanner('TRANS-LUNAR INJECTION BURN COMPLETE', 3200);
+}
+
+el('timewarp-btn').addEventListener('click', ()=>{
+  if(state!==STATE.COAST_OUT) return;
+  runTimewarp(()=>{
+    flight.coastProg = 1;
+    beginLunarDescent();
+  }, 'Fast-forwarding trans-lunar coast…');
+});
+
+function runTimewarp(onDone, subtitle){
+  el('timewarp-overlay').style.display='flex';
+  el('tw-sub').textContent = subtitle;
+  const twCanvas = el('tw-canvas');
+  twCanvas.width = window.innerWidth; twCanvas.height = window.innerHeight;
+  const ctx = twCanvas.getContext('2d');
+  const streaks = [];
+  for(let i=0;i<160;i++){
+    streaks.push({x:Math.random()*twCanvas.width, y:Math.random()*twCanvas.height, len:20+Math.random()*80, speed:8+Math.random()*22, ang:Math.atan2(twCanvas.height/2-Math.random()*twCanvas.height, twCanvas.width/2-Math.random()*twCanvas.width)});
+  }
+  let raf;
+  const start = performance.now();
+  function frame(){
+    const t = (performance.now()-start)/1000;
+    ctx.fillStyle='rgba(0,0,0,0.35)';
+    ctx.fillRect(0,0,twCanvas.width,twCanvas.height);
+    ctx.strokeStyle = 'rgba(140,220,255,0.8)';
+    ctx.lineWidth = 1.4;
+    const cx=twCanvas.width/2, cy=twCanvas.height/2;
+    streaks.forEach(s=>{
+      const dx = s.x-cx, dy = s.y-cy;
+      const dist = Math.hypot(dx,dy)||1;
+      const nx = dx/dist, ny=dy/dist;
+      s.x += nx*s.speed; s.y += ny*s.speed;
+      ctx.beginPath();
+      ctx.moveTo(s.x,s.y);
+      ctx.lineTo(s.x-nx*s.len, s.y-ny*s.len);
+      ctx.stroke();
+      if(s.x<0||s.x>twCanvas.width||s.y<0||s.y>twCanvas.height){ s.x=cx+(Math.random()-0.5)*40; s.y=cy+(Math.random()-0.5)*40; }
+    });
+    if(t<10){ raf = requestAnimationFrame(frame); }
+    else {
+      cancelAnimationFrame(raf);
+      el('timewarp-overlay').style.display='none';
+      onDone();
+    }
+  }
+  frame();
+}
+
+el('trajectory-btn').addEventListener('click', ()=>{
+  const p = el('trajectory-panel');
+  p.style.display = (p.style.display==='block') ? 'none' : 'block';
+});
+
+el('view-toggle-btn').addEventListener('click', ()=>{
+  if(cameraMode==='cockpit'){
+    cameraMode='external';
+    el('view-toggle-btn').textContent = 'Enter the Cockpit';
+    el('cockpit-frame').style.display='none';
+    orbitState.radius = 55; orbitState.theta = 0.7; orbitState.phi=1.2;
+  } else {
+    cameraMode='cockpit';
+    el('view-toggle-btn').textContent = 'View from Outside';
+    if([STATE.ASCENT,STATE.COAST_OUT,STATE.LUNAR_DESCENT,STATE.LUNAR_ASCENT,STATE.COAST_BACK].includes(state))
+      el('cockpit-frame').style.display='block';
+  }
+});
+
+function updateCoastOut(dt){
+  flight.coastProg = clamp(flight.coastProg + dt/flight.coastDur, 0, 1);
+  const p = easeInOutQuad(flight.coastProg);
+  // bezier from LEO exit point toward Low Moon Orbit point
+  const p0 = new THREE.Vector3(EARTH_R+130, 60, 0);
+  const p1 = new THREE.Vector3(MOON_DIST*0.45, 900, 300);
+  const p2 = new THREE.Vector3(MOON_DIST - MOON_R - 40, 30, 0);
+  const pos = bezier3(p0,p1,p2,p);
+  rocketGroup.position.copy(pos);
+  const posAhead = bezier3(p0,p1,p2,clamp(p+0.01,0,1));
+  const dir = posAhead.clone().sub(pos).normalize();
+  rocketGroup.userData.body.up.set(0,1,0);
+  const m = new THREE.Matrix4().lookAt(new THREE.Vector3(0,0,0), dir, new THREE.Vector3(0,1,0));
+  rocketGroup.quaternion.setFromRotationMatrix(m);
+
+  earthBig.visible = true; earthAtmo.visible = true; moonBig.visible = true; padGroup.visible=false;
+  earthBig.position.set(0,0,0); moonBig.position.set(MOON_DIST,0,0);
+
+  if(cameraMode==='cockpit'){
+    camera.position.copy(pos);
+    camera.lookAt(pos.clone().add(dir));
+  } else {
+    orbitState.target.copy(pos);
+    const camPos = orbitCameraPosition(pos, orbitState.radius, orbitState.theta, orbitState.phi);
+    camera.position.copy(camPos);
+    camera.lookAt(pos);
+  }
+
+  const distToMoon = pos.distanceTo(moonBig.position);
+  updateTelemetry(
+    (distToMoon/1000*10).toFixed(0)*1, // stylised distance-derived "altitude" label reused as range
+    lerp(1.0, 0.15, p).toFixed(2)*1,
+    (p*384400).toFixed(0)*1,
+    100
+  );
+  el('tm-stage').textContent = 'PHASE: TRANS-LUNAR COAST';
+  el('tm-alt').textContent = (384400*(1-p)).toFixed(0)+' km to Moon';
+  el('tm-vel').textContent = lerp(1.02,0.20,p).toFixed(2)+' km/s';
+  el('tm-range').textContent = (384400*p).toFixed(0)+' km';
+  updateMissionClock(missionElapsed + dt*260);
+  updateTrajectoryCanvas();
+
+  if(flight.coastProg>=1){ beginLunarDescent(); }
+}
+
+function bezier3(p0,p1,p2,t){
+  const a = p0.clone().lerp(p1,t);
+  const b = p1.clone().lerp(p2,t);
+  return a.lerp(b,t);
+}
+
+/* ---------------------------------------------------------------------
+   10. LUNAR DESCENT (analytic soft-landing curve)
+   --------------------------------------------------------------------- */
+function beginLunarDescent(){
+  state = STATE.LUNAR_DESCENT;
+  cameraMode = 'cockpit';
+  flight.descentT = 0;
+  el('view-toggle-btn').textContent='View from Outside';
+  landerGroup.visible = false; // shown once close
+  setUIForState();
+  showBanner('POWERED DESCENT INITIATED', 3000);
+}
+
+function updateLunarDescent(dt){
+  flight.descentT += dt;
+  const f = clamp(flight.descentT/flight.descentDur,0,1);
+  const altKm = flight.descentStartAltKm * Math.pow(1-f,2); // -> 0 smoothly (soft landing)
+  const velKms = flight.descentStartAltKm*2*(1-f)/flight.descentDur; // derivative-consistent, -> 0
+
+  const visualAlt = altKm*6;
+  const landingSpot = new THREE.Vector3(MOON_DIST, MOON_R, 40);
+  const approachStart = new THREE.Vector3(MOON_DIST-70, MOON_R+90, 260);
+  const pos = approachStart.clone().lerp(landingSpot, easeInOutQuad(f));
+  pos.y = MOON_R + visualAlt + 2;
+  rocketGroup.position.copy(pos);
+
+  const thrustOn = f>0.15;
+  flameMesh.visible = thrustOn;
+  flameLight.intensity = thrustOn ? 2.0*(1-f*0.5) : 0;
+
+  moonBig.visible = false; // we crossfade to the detailed lunar surface group near touchdown
+  const showDetailed = f>0.55;
+  lunarSurfaceGroup.visible = showDetailed;
+  earthBig.visible=false; earthAtmo.visible=false;
+  if(showDetailed){
+    // reposition into the small-scale lunar surface coordinate frame
+    const localAlt = altKm*10;
+    rocketGroup.position.set(0, localAlt+6, 0);
+    ambientLight.intensity = 0.4;
+  }
+
+  if(cameraMode==='cockpit'){
+    camera.position.copy(rocketGroup.position).add(new THREE.Vector3(0,3,0));
+    const lookTarget = showDetailed ? new THREE.Vector3(0,0,0) : landingSpot;
+    camera.lookAt(lookTarget);
+  } else {
+    orbitState.target.copy(rocketGroup.position);
+    const camPos = orbitCameraPosition(rocketGroup.position, Math.max(orbitState.radius,20), orbitState.theta, orbitState.phi);
+    camera.position.copy(camPos);
+    camera.lookAt(rocketGroup.position);
+  }
+
+  el('tm-stage').textContent = 'PHASE: POWERED DESCENT';
+  el('tm-alt').textContent = (altKm*1000).toFixed(0)+' m';
+  el('tm-vel').textContent = velKms.toFixed(3)+' km/s';
+  el('tm-range').textContent = '—';
+  el('tm-fuel').textContent = Math.round(lerp(40,8,f))+'%';
+  updateMissionClock(missionElapsed+dt*40);
+
+  if(f>=1){ completeLanding(); }
+}
+
+function completeLanding(){
+  state = STATE.CABIN_OUT;
+  flameMesh.visible = false; flameLight.intensity=0;
+  rocketGroup.visible = false;
+  landerGroup.visible = true;
+  landerGroup.position.set(0,0,0);
+  lunarSurfaceGroup.visible = true;
+  moonBig.visible = false; earthBig.visible=false; earthAtmo.visible=false; padGroup.visible=false;
+  orbitState.target.set(0,4,6); orbitState.radius=16; orbitState.theta=0.4; orbitState.phi=1.25;
+  cabinStep = 0;
+  advanceCabinStep();
+  setUIForState();
+  showBanner('TOUCHDOWN — SEA OF TRANQUILITY-ANALOG SITE', 3600);
+}
+
+/* ---------------------------------------------------------------------
+   11. CABIN SEQUENCE (approach suit -> wear suit -> open hatch)
+   --------------------------------------------------------------------- */
+let cabinStep = 0;
+const cabinSteps = [
+  { text:'Touchdown confirmed. <b>Lunar Module — SHAKTI</b> is stable and level.', btn:'Approach Spacesuit' },
+  { text:'You approach the EVA suit locker and begin donning the pressure garment.', btn:'Wear Spacesuit' },
+  { text:'Suit pressurised. Life support <b>nominal</b>. Ready to open the hatch.', btn:'Open Hatch' },
+  { text:'Hatch open. Ladder extended to the surface.', btn:'Step Onto the Moon' },
+];
+function advanceCabinStep(){
+  const s = cabinSteps[cabinStep];
+  el('cabin-step-text').innerHTML = s.text;
+  el('cabin-action-btn').textContent = s.btn;
+}
+el('cabin-action-btn').addEventListener('click', ()=>{
+  cabinStep++;
+  if(landerGroup.userData.hatchGlow) landerGroup.userData.hatchGlow.material.opacity = cabinStep>=2?0.8:0;
+  if(cabinStep < cabinSteps.length){
+    advanceCabinStep();
+  } else {
+    beginEVA();
+  }
+});
+
+/* ---------------------------------------------------------------------
+   12. EVA (moonwalk) — real integrated low-gravity physics
+   --------------------------------------------------------------------- */
+const keys = {};
+window.addEventListener('keydown', e=>{ keys[e.code]=true; if(e.code==='Space') e.preventDefault(); });
+window.addEventListener('keyup', e=>{ keys[e.code]=false; });
+
+function beginEVA(){
+  state = STATE.EVA;
+  cameraMode = 'external';
+  astronaut.visible = true;
+  astronaut.position.set(0,0,4);
+  astronautVel.y = 0; astronautGrounded = true;
+  orbitState.target.copy(astronaut.position);
+  orbitState.radius = 12; orbitState.theta = 0.4; orbitState.phi = 1.15;
+  setUIForState();
+  el('flag-btn').style.display='inline-block';
+  el('return-btn').style.display='inline-block';
+  showBanner('EVA COMMENCED — ONE SMALL STEP', 3400);
+}
+
+function updateEVA(dt){
+  const moveSpeed = 4.2;
+  const jumpSpeed = 5.3; // tuned for floaty low-g arcs
+  const camForward = new THREE.Vector3(Math.sin(orbitState.theta),0,Math.cos(orbitState.theta));
+  const camRight = new THREE.Vector3(camForward.z,0,-camForward.x);
+  let move = new THREE.Vector3();
+  if(keys['KeyW']||keys['ArrowUp']) move.add(camForward);
+  if(keys['KeyS']||keys['ArrowDown']) move.sub(camForward);
+  if(keys['KeyD']||keys['ArrowRight']) move.add(camRight);
+  if(keys['KeyA']||keys['ArrowLeft']) move.sub(camRight);
+  if(move.lengthSq()>0){
+    move.normalize();
+    astronaut.position.addScaledVector(move, moveSpeed*dt);
+    const ang = Math.atan2(move.x, move.z);
+    astronaut.rotation.y = lerp(astronaut.rotation.y, ang, 0.2);
+  }
+  if((keys['Space']) && astronautGrounded){
+    astronautVel.y = jumpSpeed;
+    astronautGrounded = false;
+  }
+  astronautVel.y -= G_MOON_VIS*dt;
+  astronaut.position.y += astronautVel.y*dt;
+  if(astronaut.position.y<=0){
+    astronaut.position.y = 0;
+    astronautVel.y = 0;
+    astronautGrounded = true;
+  }
+  astronaut.position.x = clamp(astronaut.position.x,-140,140);
+  astronaut.position.z = clamp(astronaut.position.z,-140,160);
+
+  orbitState.target.lerp(astronaut.position.clone().add(new THREE.Vector3(0,1.2,0)), 0.15);
+  const camPos = orbitCameraPosition(orbitState.target, orbitState.radius, orbitState.theta, orbitState.phi);
+  camera.position.copy(camPos);
+  camera.lookAt(orbitState.target);
+
+  el('eva-status').textContent = astronautGrounded ? 'SURFACE OPERATIONS NOMINAL' : 'LOW-GRAVITY ARC IN PROGRESS';
+}
+
+el('flag-btn').addEventListener('click', ()=>{
+  if(flagInstalled) return;
+  flagInstalled = true;
+  flagGroup.position.copy(astronaut.position).add(new THREE.Vector3(0.9,0,0.4));
+  flagGroup.visible = true;
+  flagGroup.scale.set(0.001,0.001,0.001);
+  const start = performance.now();
+  function grow(){
+    const t = clamp((performance.now()-start)/900,0,1);
+    const s = easeOutCubic(t);
+    flagGroup.scale.set(s,s,s);
+    if(t<1) requestAnimationFrame(grow);
+  }
+  grow();
+  showBanner('FLAG OF INDIA INSTALLED ON THE MOON', 3600);
+  el('flag-btn').textContent = 'Flag Installed ✓';
+  el('flag-btn').disabled = true;
+});
+
+el('return-btn').addEventListener('click', ()=>{
+  beginLunarAscent();
+});
+
+/* ---------------------------------------------------------------------
+   13. LUNAR ASCENT -> COAST BACK -> REENTRY -> SPLASHDOWN
+   --------------------------------------------------------------------- */
+function beginLunarAscent(){
+  state = STATE.LUNAR_ASCENT;
+  cameraMode = 'cockpit';
+  astronaut.visible = false;
+  flight.ascentMoonT = 0;
+  rocketGroup.visible = true;
+  rocketGroup.position.set(0,6,0);
+  landerAscentStage.visible = false; // ascent stage flies as our rocketGroup capsule stand-in
+  flameMesh.visible = true; flameLight.intensity = 2.2;
+  el('view-toggle-btn').textContent = 'View from Outside';
+  setUIForState();
+  el('tm-stage').textContent = 'STAGE: ASCENT MODULE — LIFTOFF FROM MOON';
+  showBanner('LUNAR ASCENT — LEAVING DESCENT STAGE BEHIND', 3400);
+}
+
+function updateLunarAscent(dt){
+  flight.ascentMoonT += dt;
+  const f = clamp(flight.ascentMoonT/flight.ascentMoonDur,0,1);
+  const altKm = 12*easeOutCubic(f);
+  const velKms = 1.7*easeInOutQuad(f);
+  const localAlt = altKm*40;
+  rocketGroup.position.set(0, 6+localAlt, f*30);
+
+  if(cameraMode==='cockpit'){
+    camera.position.copy(rocketGroup.position).add(new THREE.Vector3(0,2,0));
+    camera.lookAt(rocketGroup.position.clone().add(new THREE.Vector3(0,10,6)));
+  } else {
+    orbitState.target.copy(rocketGroup.position);
+    const camPos = orbitCameraPosition(rocketGroup.position, Math.max(orbitState.radius,18), orbitState.theta, orbitState.phi);
+    camera.position.copy(camPos); camera.lookAt(rocketGroup.position);
+  }
+
+  el('tm-alt').textContent = (altKm*1000).toFixed(0)+' m';
+  el('tm-vel').textContent = velKms.toFixed(2)+' km/s';
+  el('tm-range').textContent = (f*30).toFixed(0)+' m downrange';
+  el('tm-fuel').textContent = Math.round(lerp(30,5,f))+'%';
+  updateMissionClock(missionElapsed+dt*30);
+
+  if(f>=1 && !flight._lmo){
+    flight._lmo = true;
+    flameMesh.visible=false; flameLight.intensity=0;
+    showBanner('LOW MOON ORBIT ACHIEVED — TRANS-EARTH INJECTION', 3400);
+    setTimeout(beginCoastBack, 1400);
+  }
+}
+
+function beginCoastBack(){
+  state = STATE.COAST_BACK;
+  lunarSurfaceGroup.visible = false;
+  landerGroup.visible = false;
+  flight.coastBackProg = 0;
+  moonBig.visible = true; earthBig.visible = true; earthAtmo.visible = true;
+  el('timewarp-btn').style.display = 'none';
+  setUIForState();
+  el('timewarp-btn').style.display = 'none';
+}
+
+function updateCoastBack(dt){
+  flight.coastBackProg = clamp(flight.coastBackProg + dt/flight.coastBackDur, 0, 1);
+  const p = easeInOutQuad(flight.coastBackProg);
+  const p0 = new THREE.Vector3(MOON_DIST-40, 30, 0);
+  const p1 = new THREE.Vector3(MOON_DIST*0.45, -700, -260);
+  const p2 = new THREE.Vector3(EARTH_R+90, 40, 0);
+  const pos = bezier3(p0,p1,p2,p);
+  rocketGroup.position.copy(pos);
+  const posAhead = bezier3(p0,p1,p2, clamp(p+0.01,0,1));
+  const dir = posAhead.clone().sub(pos).normalize();
+  const m = new THREE.Matrix4().lookAt(new THREE.Vector3(0,0,0), dir, new THREE.Vector3(0,1,0));
+  rocketGroup.quaternion.setFromRotationMatrix(m);
+
+  if(cameraMode==='cockpit'){ camera.position.copy(pos); camera.lookAt(pos.clone().add(dir)); }
+  else {
+    orbitState.target.copy(pos);
+    camera.position.copy(orbitCameraPosition(pos, orbitState.radius, orbitState.theta, orbitState.phi));
+    camera.lookAt(pos);
+  }
+
+  const distToEarth = pos.distanceTo(new THREE.Vector3(0,0,0));
+  el('tm-stage').textContent = 'PHASE: TRANS-EARTH COAST';
+  el('tm-alt').textContent = (384400*(1-p)).toFixed(0)+' km to Earth';
+  el('tm-vel').textContent = lerp(1.5,10.9,p).toFixed(2)+' km/s';
+  el('tm-range').textContent = (384400*p).toFixed(0)+' km';
+  updateMissionClock(missionElapsed+dt*260);
+  updateTrajectoryCanvas();
+
+  if(distToEarth < EARTH_R+130 && state!==STATE.REENTRY){ beginReentry(); }
+}
+
+function beginReentry(){
+  state = STATE.REENTRY;
+  cameraMode = 'external';
+  el('cockpit-frame').style.display = 'none';
+  flight.reentryT = 0;
+  stageParts.capsule.visible = true;
+  orbitState.radius = 30; orbitState.theta = 0.5; orbitState.phi = 1.3;
+  setUIForState();
+  showBanner('ATMOSPHERIC ENTRY INTERFACE — 400,000 FT', 3400);
+}
+
+function updateReentry(dt){
+  flight.reentryT += dt;
+  const f = clamp(flight.reentryT/flight.reentryDur, 0, 1);
+  const altKm = lerp(130,0, easeInCubic(f));
+  const gForce = f<0.6 ? lerp(1,4.2, f/0.6) : lerp(4.2,1.1,(f-0.6)/0.4);
+  const heatC = f<0.55 ? lerp(120,1650, easeOutQuad(f/0.55)) : lerp(1650,80,(f-0.55)/0.45);
+
+  padGroup.visible = f>0.5;
+  earthBig.visible = f<0.85; earthAtmo.visible = f<0.85;
+  moonBig.visible = false;
+  const pos = new THREE.Vector3(lerp(0,0,f), lerp(120,4,f), lerp(-260,-40,f));
+  rocketGroup.position.copy(pos);
+  rocketGroup.rotation.set(0,0,0);
+
+  heatGlowMesh.visible = f<0.65 && f>0.05;
+  heatGlowMesh.position.copy(pos).add(new THREE.Vector3(0,-2,0));
+  heatGlowMesh.material.opacity = f<0.65 ? clamp(Math.sin(f/0.65*Math.PI)*0.85,0,0.85) : 0;
+  heatGlowMesh.material.color.set(f<0.3 ? 0xffb347: 0xff5522);
+
+  chuteGroup.visible = f>0.62;
+  if(chuteGroup.visible) chuteGroup.position.copy(pos).add(new THREE.Vector3(0,4,0));
+
+  ocean.visible = f>0.55;
+
+  orbitState.target.copy(pos);
+  camera.position.copy(orbitCameraPosition(pos, orbitState.radius, orbitState.theta, orbitState.phi));
+  camera.lookAt(pos);
+
+  el('re-temp').textContent = heatC.toFixed(0)+'°C';
+  el('re-g').textContent = gForce.toFixed(1)+' G';
+  el('re-alt').textContent = altKm.toFixed(0)+' km';
+
+  if(f>=1){ beginSplashdown(); }
+}
+
+function beginSplashdown(){
+  state = STATE.SPLASHDOWN;
+  ocean.visible = true;
+  showBanner('SPLASHDOWN — CREW MODULE RECOVERED', 3200);
+  setTimeout(()=>{
+    state = STATE.END;
+    el('end-time').textContent = formatClock(missionElapsed);
+    el('end-flag').textContent = flagInstalled ? 'Yes' : 'No';
+    setUIForState();
+  }, 2600);
+}
+
+el('restart-btn').addEventListener('click', ()=> location.reload());
+
+/* ---------------------------------------------------------------------
+   14. TELEMETRY / CLOCK / TRAJECTORY HELPERS
+   --------------------------------------------------------------------- */
+function updateTelemetry(altKm, velKms, rangeKm, fuelPct){
+  el('tm-alt').textContent = fmt(altKm,0)+' km';
+  el('tm-vel').textContent = fmt(velKms,2)+' km/s';
+  el('tm-range').textContent = fmt(rangeKm,0)+' km';
+  el('tm-fuel').textContent = fuelPct+'%';
+}
+function formatClock(sec){
+  sec = Math.max(0,Math.floor(sec));
+  const h = String(Math.floor(sec/3600)).padStart(2,'0');
+  const m = String(Math.floor((sec%3600)/60)).padStart(2,'0');
+  const s = String(Math.floor(sec%60)).padStart(2,'0');
+  return 'T+'+h+':'+m+':'+s;
+}
+function updateMissionClock(sec){
+  missionElapsed = sec;
+  el('mc-time').textContent = formatClock(sec);
+  const phaseNames = {
+    ASCENT:'ASCENT', COAST_OUT:'TRANS-LUNAR COAST', LUNAR_DESCENT:'LUNAR DESCENT',
+    LUNAR_ASCENT:'LUNAR ASCENT', COAST_BACK:'TRANS-EARTH COAST'
+  };
+  el('mc-phase').textContent = phaseNames[state] || '';
+}
+
+const trajCanvas = el('traj-canvas');
+const trajCtx = trajCanvas.getContext('2d');
+function updateTrajectoryCanvas(){
+  const W = trajCanvas.width, H = trajCanvas.height;
+  trajCtx.clearRect(0,0,W,H);
+  trajCtx.fillStyle = 'rgba(3,5,9,1)';
+  trajCtx.fillRect(0,0,W,H);
+  const ex = 34, ey = H/2, mx = W-34, my = H/2;
+  // transfer ellipse (dashed)
+  trajCtx.strokeStyle = 'rgba(79,216,255,0.35)';
+  trajCtx.setLineDash([4,4]);
+  trajCtx.beginPath();
+  trajCtx.moveTo(ex,ey);
+  trajCtx.quadraticCurveTo(W/2, ey-70, mx,my);
+  trajCtx.stroke();
+  trajCtx.setLineDash([]);
+  // earth
+  trajCtx.fillStyle = '#2a6fb0'; trajCtx.beginPath(); trajCtx.arc(ex,ey,12,0,Math.PI*2); trajCtx.fill();
+  trajCtx.strokeStyle = 'rgba(79,216,255,0.5)'; trajCtx.stroke();
+  // moon
+  trajCtx.fillStyle = '#aaa79f'; trajCtx.beginPath(); trajCtx.arc(mx,my,7,0,Math.PI*2); trajCtx.fill();
+
+  let p = 0, reverse=false;
+  if(state===STATE.ASCENT) p = 0.02;
+  else if(state===STATE.COAST_OUT) p = flight.coastProg;
+  else if([STATE.LUNAR_DESCENT,STATE.CABIN_OUT,STATE.EVA,STATE.LUNAR_ASCENT].includes(state)) p = 1;
+  else if(state===STATE.COAST_BACK){ p = 1-flight.coastBackProg; }
+  else p = null;
+
+  if(p!==null){
+    const tpt = quadPoint(ex,ey, W/2, ey-70, mx, my, p);
+    trajCtx.fillStyle = '#ffcf5a';
+    trajCtx.beginPath(); trajCtx.arc(tpt.x,tpt.y,4,0,Math.PI*2); trajCtx.fill();
+    trajCtx.shadowColor = '#ffcf5a'; trajCtx.shadowBlur = 8;
+    trajCtx.fill();
+    trajCtx.shadowBlur = 0;
+  }
+  el('traj-label').textContent = state===STATE.COAST_BACK ? 'MOON → EARTH TRANSFER' : 'EARTH → MOON TRANSFER';
+}
+function quadPoint(x0,y0,cx,cy,x1,y1,t){
+  const ax = lerp(x0,cx,t), ay = lerp(y0,cy,t);
+  const bx = lerp(cx,x1,t), by = lerp(cy,y1,t);
+  return { x: lerp(ax,bx,t), y: lerp(ay,by,t) };
+}
+
+/* ---------------------------------------------------------------------
+   15. REENTRY PARTICLE TRAIL (cheap, only active during REENTRY)
+   --------------------------------------------------------------------- */
+function updateReentryParticles(dt){
+  const active = state===STATE.REENTRY && flight.reentryT/flight.reentryDur < 0.65;
+  reentryParticles.visible = active;
+  if(!active) return;
+  const posAttr = reentryParticles.geometry.attributes.position;
+  for(let i=0;i<reentryParticleData.length;i++){
+    const d = reentryParticleData[i];
+    d.life -= dt;
+    if(d.life<=0){
+      d.life = 0.4+Math.random()*0.5;
+      posAttr.setXYZ(i,
+        rocketGroup.position.x+(Math.random()-0.5)*1.5,
+        rocketGroup.position.y-2-Math.random()*2,
+        rocketGroup.position.z+(Math.random()-0.5)*1.5);
+    } else {
+      posAttr.setY(i, posAttr.getY(i)-dt*4);
+    }
+  }
+  posAttr.needsUpdate = true;
+}
+
+/* =========================================================================
+   16. MAIN LOOP
+   ========================================================================= */
+function animate(){
+  requestAnimationFrame(animate);
+  const dt = Math.min(clock.getDelta(), 0.05);
+
+  // ambient rocket idle sway + moon in sky drift for prelaunch cinematic feel
+  if(state===STATE.PRELAUNCH){
+    orbitState.theta += dt*0.03;
+    const camPos = orbitCameraPosition(orbitState.target, orbitState.radius, orbitState.theta, orbitState.phi);
+    camera.position.copy(camPos);
+    camera.lookAt(orbitState.target);
+  }
+  else if(state===STATE.ASCENT) updateAscent(dt);
+  else if(state===STATE.COAST_OUT) updateCoastOut(dt);
+  else if(state===STATE.LUNAR_DESCENT) updateLunarDescent(dt);
+  else if(state===STATE.EVA) updateEVA(dt);
+  else if(state===STATE.LUNAR_ASCENT) updateLunarAscent(dt);
+  else if(state===STATE.COAST_BACK) updateCoastBack(dt);
+  else if(state===STATE.REENTRY) updateReentry(dt);
+  else if(state===STATE.CABIN_OUT){
+    // gentle static cockpit-adjacent view over the lander
+    orbitState.target.set(0,4,0);
+    camera.position.copy(orbitCameraPosition(orbitState.target, orbitState.radius, orbitState.theta+dt*0.02, orbitState.phi));
+    camera.lookAt(orbitState.target);
+  }
+  else if(state===STATE.SPLASHDOWN || state===STATE.END){
+    orbitState.target.copy(rocketGroup.position);
+    camera.position.copy(orbitCameraPosition(orbitState.target, Math.max(orbitState.radius,26), orbitState.theta+dt*0.02, orbitState.phi));
+    camera.lookAt(orbitState.target);
+  }
+
+  updateTumblingParts(dt);
+  updateReentryParticles(dt);
+
+  // gentle flame flicker
+  if(flameMesh && flameMesh.visible){
+    const s = 1+Math.sin(performance.now()*0.02)*0.08;
+    flameMesh.scale.set(s,1+Math.sin(performance.now()*0.03)*0.15,s);
+  }
+
+  renderer.render(scene, camera);
+}
+
+/* ---------------------------------------------------------------------
+   17. BOOT SEQUENCE
+   --------------------------------------------------------------------- */
+let bootPct = 0;
+const bootIv = setInterval(()=>{
+  bootPct += 8+Math.random()*14;
+  el('boot-bar').style.width = Math.min(bootPct,100)+'%';
+  if(bootPct>=100){
+    clearInterval(bootIv);
+    el('boot-start').style.display='inline-block';
+  }
+},160);
+el('boot-start').addEventListener('click', ()=>{
+  document.getElementById('boot').style.opacity='0';
+  setTimeout(()=>{ document.getElementById('boot').style.display='none'; }, 850);
+  setUIForState();
+});
+
+setUIForState();
+animate();
+
+})();
+</script>
+</body>
+</html>
