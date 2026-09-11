@@ -10,7 +10,6 @@ Every project has a story to tell, an emotion to awaken inside you, aiming to br
 This is a thought experiment of Humanity!
 Welcome to the chaos.
 
-zygotebuilder.github.io 
-Regards, 
-Pradhyumna Nittala 
+zygotebuilder.github.io |
+Pradhyumna Nittala |
 Contact - pradhyumna.nittala@gmail.com
