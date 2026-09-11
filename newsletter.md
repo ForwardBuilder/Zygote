@@ -1,3 +1,4 @@
+**Newsletter**
 September 11, 2026
 
 **Hello Dear Visitors!**
@@ -7,6 +8,3 @@ I'd want you to sit back, relax and enjoy all the programs being published simul
 Any changes, or updates will be notified on this page in the coming future.
 
 Thank you for being a part of this experiment!
-
-Regards
-*Pradhyumna Nittala*
