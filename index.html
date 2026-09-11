@@ -1006,6 +1006,125 @@ footer{
   animation:cellPulse 4s ease-in-out infinite;
 }
 
+
+/* ---------- ambient audio control ---------- */
+
+.audio-toggle{
+  min-width:86px;
+  height:31px;
+  padding:0 11px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:rgba(5,9,16,.58);
+  color:var(--muted);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  cursor:pointer;
+  box-shadow:0 10px 30px var(--shadow);
+  transition:.35s ease;
+  font-family:var(--mono);
+  letter-spacing:.09em;
+  font-size:.58rem;
+}
+body.light .audio-toggle{background:rgba(255,255,255,.62);}
+.audio-toggle:hover{transform:translateY(-2px);border-color:var(--cyan);color:var(--text);}
+.audio-toggle.is-on{color:var(--cyan);border-color:rgba(115,216,255,.48);box-shadow:0 10px 30px var(--shadow),0 0 20px rgba(115,216,255,.12);}
+.audio-icon{font-size:.78rem;letter-spacing:-.1em;line-height:1;transform:translateY(-1px);}
+.audio-toggle.is-on .audio-icon{animation:audioPulse 1.25s ease-in-out infinite;}
+@keyframes audioPulse{0%,100%{opacity:.58;transform:scale(.95) translateY(-1px);}50%{opacity:1;transform:scale(1.12) translateY(-1px);}}
+
+/* ---------- centerpiece enhancement ---------- */
+
+.zg-core-label{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,94px);
+  white-space:nowrap;
+  font-family:var(--mono);
+  font-size:.51rem;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--muted);
+  opacity:.62;
+  pointer-events:none;
+}
+.zg-core-halo{
+  position:absolute;
+  width:208px;height:208px;border-radius:50%;
+  border:1px solid rgba(115,216,255,.11);
+  background:radial-gradient(circle,rgba(115,216,255,.04),transparent 62%);
+  box-shadow:inset 0 0 45px rgba(115,216,255,.06),0 0 40px rgba(115,216,255,.08);
+  animation:coreHalo 8s ease-in-out infinite;
+  pointer-events:none;
+}
+.zg-core-halo::before,.zg-core-halo::after{
+  content:"";position:absolute;inset:14px;border-radius:50%;
+  border:1px dotted rgba(159,140,255,.16);
+  animation:coreHaloSpin 22s linear infinite;
+}
+.zg-core-halo::after{
+  inset:34px;border-style:solid;border-color:rgba(132,237,198,.10);
+  animation-duration:15s;animation-direction:reverse;
+}
+@keyframes coreHalo{0%,100%{transform:scale(.98);opacity:.65;}50%{transform:scale(1.045);opacity:1;}}
+@keyframes coreHaloSpin{to{transform:rotate(360deg);}}
+.cell{cursor:pointer;isolation:isolate;transition:filter .25s ease,transform .25s ease;}
+.cell:hover{filter:brightness(1.1) saturate(1.12);}
+.zg-core-label{z-index:6;}
+.cell .core-orbit{
+  position:absolute;width:76px;height:31px;border:1px solid rgba(255,255,255,.42);
+  border-radius:50%;transform:rotate(-24deg);
+  box-shadow:0 0 12px rgba(255,255,255,.14);opacity:.8;
+  animation:coreOrbitSpin 5.8s linear infinite;z-index:4;
+}
+.cell .core-orbit::after{
+  content:"";position:absolute;width:7px;height:7px;border-radius:50%;
+  top:-4px;left:50%;background:#fff;
+  box-shadow:0 0 9px var(--cyan),0 0 18px var(--cyan);
+}
+@keyframes coreOrbitSpin{to{transform:rotate(336deg);}}
+.cell .core-membrane-ring{
+  position:absolute;width:126px;height:126px;border-radius:50%;
+  border:1px dashed rgba(255,255,255,.18);opacity:.62;
+  animation:membraneRingSpin 13s linear infinite reverse;pointer-events:none;
+}
+@keyframes membraneRingSpin{to{transform:rotate(-360deg);}}
+body.light .zg-core-halo{border-color:rgba(25,141,108,.18);box-shadow:inset 0 0 45px rgba(25,141,108,.08),0 0 50px rgba(17,130,184,.10);}
+body.light .zg-core-label{color:#4f6777;}
+
+/* ---------- microscope / glass-slide biology layer ---------- */
+
+body:not(.light) #bioCanvas{opacity:0;}
+body.light #bioCanvas{opacity:1;mix-blend-mode:multiply;}
+body.light .nebula{opacity:.075;filter:blur(110px);mix-blend-mode:multiply;}
+body.light::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:2;
+  background:radial-gradient(circle at 28% 26%,rgba(255,255,255,.36),transparent 23%),radial-gradient(circle at 78% 72%,rgba(255,255,255,.25),transparent 25%),linear-gradient(120deg,rgba(255,255,255,.10),transparent 36%,rgba(58,125,160,.05) 75%,transparent);
+  opacity:.62;
+}
+
+/* ---------- whole-site activation pulse ---------- */
+
+body.site-flash::after{animation:siteFlash .72s cubic-bezier(.2,.8,.2,1);}
+body.site-flash header,body.site-flash main,body.site-flash footer{animation:flashLift .72s ease-out;}
+@keyframes siteFlash{0%{background:rgba(255,255,255,0);opacity:0;}18%{background:rgba(255,255,255,.7);opacity:1;}48%{background:rgba(170,235,255,.24);opacity:.72;}100%{background:rgba(255,255,255,0);opacity:0;}}
+@keyframes flashLift{0%{filter:brightness(1);}16%{filter:brightness(1.38) saturate(1.25);}45%{filter:brightness(1.12) saturate(1.08);}100%{filter:brightness(1);}}
+body.core-active .cell{animation:cellPulse .95s ease-in-out 1,cellBreathe 7s ease-in-out infinite;}
+body.core-active .zg-core-halo{animation:coreBurst .95s ease-out 1;}
+@keyframes coreBurst{0%{transform:scale(.92);opacity:.7;}45%{transform:scale(1.22);opacity:1;filter:brightness(1.45);}100%{transform:scale(1);opacity:.75;}}
+
+@media(max-width:700px){
+  .audio-toggle{min-width:36px;width:36px;padding:0;}
+  .audio-label{display:none;}
+  .audio-icon{font-size:.75rem;}
+  .zg-core-label{display:none;}
+}
+
 /* ---------- responsive ---------- */
 
 @media(max-width:700px){
@@ -1192,6 +1311,18 @@ footer{
     <span class="toggle-knob"></span>
   </button>
 
+  <button
+    class="audio-toggle"
+    id="audioToggle"
+    type="button"
+    aria-label="Turn ambient audio on"
+    aria-pressed="false"
+    title="Ambient audio: off"
+  >
+    <span class="audio-icon" aria-hidden="true">◖))</span>
+    <span class="audio-label">AUDIO</span>
+  </button>
+
 </div>
 
 <!-- =====================================================
@@ -1213,8 +1344,10 @@ footer{
     and the orbit system deliberately resembles a miniature planetary system.
   -->
 
-  <div class="zygote-system" aria-hidden="true">
+  <div class="zygote-system" id="zygoteSystem" role="button" tabindex="0"
+       aria-label="Activate the Zygote core: explore the intersection of biology and astronomy">
 
+    <div class="zg-core-halo"></div>
     <div class="shell s1"></div>
     <div class="shell s2"></div>
     <div class="shell s3"></div>
@@ -1223,7 +1356,10 @@ footer{
     <div class="electron e2"></div>
     <div class="electron e3"></div>
 
-    <div class="cell">
+    <div class="cell" id="zygoteCore">
+
+      <div class="core-membrane-ring"></div>
+      <div class="core-orbit"></div>
 
       <div class="organelle a"></div>
       <div class="organelle b"></div>
@@ -1254,6 +1390,8 @@ footer{
       <span class="dna-bar" style="top:174px;"></span>
       <span class="dna-bar" style="top:192px;"></span>
     </div>
+
+    <div class="zg-core-label">life ↔ cosmos · observe · build · wonder</div>
 
   </div>
 
@@ -1629,6 +1767,156 @@ themeToggle.addEventListener("click", () => {
 });
 
 /* =========================================================
+   ZYGOTE CORE — PURPOSE + LIGHTBURST
+========================================================= */
+
+const zygoteSystem=document.getElementById("zygoteSystem");
+let coreFlashTimer=null;
+
+function activateZygoteCore(){
+  if(!zygoteSystem)return;
+  document.body.classList.remove("site-flash","core-active");
+  void document.body.offsetWidth;
+  document.body.classList.add("site-flash","core-active");
+
+  if(coreFlashTimer)clearTimeout(coreFlashTimer);
+  coreFlashTimer=setTimeout(()=>document.body.classList.remove("site-flash","core-active"),780);
+
+  if(window.ZygoteAudio?.isEnabled())window.ZygoteAudio.ping();
+}
+if(zygoteSystem){
+  zygoteSystem.addEventListener("click",activateZygoteCore);
+  zygoteSystem.addEventListener("keydown",e=>{
+    if(e.key==="Enter"||e.key===" "){e.preventDefault();activateZygoteCore();}
+  });
+}
+
+/* =========================================================
+   SELF-CONTAINED AMBIENT AUDIO
+   Dark = futuristic astronomy / Light = biological laboratory.
+========================================================= */
+
+const audioToggle=document.getElementById("audioToggle");
+
+class ZygoteAmbientAudio{
+  constructor(){
+    this.ctx=null;this.master=null;this.currentMode=null;
+    this.enabled=false;this.nodes=[];this.timer=null;
+  }
+  ensureContext(){
+    if(!this.ctx){
+      const Ctx=window.AudioContext||window.webkitAudioContext;
+      if(!Ctx)return false;
+      this.ctx=new Ctx();
+      this.master=this.ctx.createGain();
+      this.master.gain.value=.0001;
+
+      const compressor=this.ctx.createDynamicsCompressor();
+      compressor.threshold.value=-24;compressor.knee.value=18;
+      compressor.ratio.value=3.2;compressor.attack.value=.02;compressor.release.value=.45;
+      this.master.connect(compressor);compressor.connect(this.ctx.destination);
+    }
+    return true;
+  }
+  isEnabled(){return this.enabled;}
+  async toggle(){
+    if(!this.ensureContext())return;
+    this.enabled=!this.enabled;
+    if(this.enabled){await this.ctx.resume();this.start();}else this.stop();
+    this.syncUI();
+  }
+  syncUI(){
+    if(!audioToggle)return;
+    audioToggle.classList.toggle("is-on",this.enabled);
+    audioToggle.setAttribute("aria-pressed",String(this.enabled));
+    audioToggle.setAttribute("aria-label",this.enabled?"Turn ambient audio off":"Turn ambient audio on");
+    audioToggle.title=this.enabled?"Ambient audio: on":"Ambient audio: off";
+  }
+  clearNodes(){
+    this.nodes.forEach(n=>{try{n.stop?.();}catch(_){}try{n.disconnect?.();}catch(_){}});
+    this.nodes=[];if(this.timer){clearInterval(this.timer);this.timer=null;}
+  }
+  start(){
+    if(!this.ctx||!this.master)return;
+    this.clearNodes();
+    this.currentMode=document.body.classList.contains("light")?"bio":"space";
+    const now=this.ctx.currentTime;
+    this.master.gain.cancelScheduledValues(now);
+    this.master.gain.setTargetAtTime(.052,now,.8);
+    this.currentMode==="space"?this.startSpace():this.startBio();
+  }
+  stop(){
+    if(!this.ctx||!this.master)return;
+    const now=this.ctx.currentTime;
+    this.master.gain.cancelScheduledValues(now);
+    this.master.gain.setTargetAtTime(.0001,now,.35);
+    setTimeout(()=>this.clearNodes(),450);
+  }
+  makePad(freq,type="sine",gainValue=.018,detune=0){
+    const osc=this.ctx.createOscillator(),gain=this.ctx.createGain();
+    osc.type=type;osc.frequency.value=freq;osc.detune.value=detune;gain.gain.value=gainValue;
+    osc.connect(gain);gain.connect(this.master);osc.start();this.nodes.push(osc,gain);
+    return {osc,gain};
+  }
+  startSpace(){
+    const root=this.makePad(55,"sine",.024),fifth=this.makePad(82.41,"triangle",.014,3),shimmer=this.makePad(220,"sine",.007,-6);
+    const lfo=this.ctx.createOscillator(),lg=this.ctx.createGain();
+    lfo.frequency.value=.028;lg.gain.value=9;lfo.connect(lg);lg.connect(root.osc.detune);lfo.start();this.nodes.push(lfo,lg);
+
+    const notes=[55,65.41,73.42,82.41,98,110,123.47,146.83];
+    let index=Math.floor(Math.random()*notes.length);
+    this.timer=setInterval(()=>{
+      if(!this.enabled||!this.ctx)return;
+      index=(index+1+Math.floor(Math.random()*2))%notes.length;
+      const tone=this.makePad(notes[index],"sine",.004+Math.random()*.004,(Math.random()-.5)*10);
+      const t=this.ctx.currentTime;
+      tone.gain.gain.setValueAtTime(.0001,t);
+      tone.gain.gain.exponentialRampToValueAtTime(.012,t+.45);
+      tone.gain.gain.exponentialRampToValueAtTime(.0001,t+4.3);
+      setTimeout(()=>{try{tone.osc.stop();}catch(_){}},4600);
+    },3600);
+  }
+  startBio(){
+    const root=this.makePad(110,"sine",.018),third=this.makePad(164.81,"sine",.011,2),air=this.makePad(329.63,"triangle",.004,-4);
+    const trem=this.ctx.createOscillator(),tg=this.ctx.createGain();
+    trem.frequency.value=.11;tg.gain.value=.006;trem.connect(tg);tg.connect(this.master);trem.start();this.nodes.push(trem,tg);
+
+    const sequence=[110,123.47,146.83,164.81,196,220,246.94,293.66];
+    let index=Math.floor(Math.random()*sequence.length);
+    this.timer=setInterval(()=>{
+      if(!this.enabled||!this.ctx)return;
+      index=(index+1)%sequence.length;
+      const tone=this.makePad(sequence[index],"sine",.0035,(Math.random()-.5)*7),t=this.ctx.currentTime;
+      tone.gain.gain.setValueAtTime(.0001,t);
+      tone.gain.gain.exponentialRampToValueAtTime(.010,t+.32);
+      tone.gain.gain.exponentialRampToValueAtTime(.0001,t+2.7);
+      setTimeout(()=>{try{tone.osc.stop();}catch(_){}},3000);
+    },2400);
+    this.makePad(440,"sine",.002,-12);this.makePad(442.7,"sine",.0017,12);
+  }
+  setTheme(theme){if(this.enabled&&this.ctx&&((theme==="light"?"bio":"space")!==this.currentMode))this.start();}
+  ping(){
+    if(!this.ctx||!this.master)return;
+    const t=this.ctx.currentTime,isLight=document.body.classList.contains("light");
+    const osc=this.ctx.createOscillator(),gain=this.ctx.createGain();
+    osc.type="sine";
+    osc.frequency.setValueAtTime(isLight?392:261.63,t);
+    osc.frequency.exponentialRampToValueAtTime(isLight?784:523.25,t+.34);
+    gain.gain.setValueAtTime(.0001,t);gain.gain.exponentialRampToValueAtTime(.018,t+.025);gain.gain.exponentialRampToValueAtTime(.0001,t+.42);
+    osc.connect(gain);gain.connect(this.master);osc.start(t);osc.stop(t+.45);
+  }
+}
+const zygoteAudio=new ZygoteAmbientAudio();
+window.ZygoteAudio=zygoteAudio;
+if(audioToggle)audioToggle.addEventListener("click",()=>zygoteAudio.toggle());
+
+const originalApplyTheme=applyTheme;
+applyTheme=function(theme){
+  originalApplyTheme(theme);
+  if(window.ZygoteAudio)window.ZygoteAudio.setTheme(theme);
+};
+
+/* =========================================================
    SCROLL PROGRESS + SCROLL-REACTIVE COSMOS
 ========================================================= */
 
@@ -1765,121 +2053,168 @@ requestAnimationFrame(drawSpace);
 
 /* =========================================================
    BIOLOGY CANVAS
-   Neural/cellular filaments drift behind the cards.
+   Light mode = a moving microscope view across a glass slide.
 ========================================================= */
 
-const bioCanvas = document.getElementById("bioCanvas");
-const bctx = bioCanvas.getContext("2d");
-
-let bw = 0;
-let bh = 0;
+const bioCanvas=document.getElementById("bioCanvas");
+const bctx=bioCanvas.getContext("2d");
+let bw=0,bh=0;
 
 function resizeBio(){
-
-  bw = window.innerWidth;
-  bh = window.innerHeight;
-
-  bioCanvas.width = Math.floor(bw * dpr);
-  bioCanvas.height = Math.floor(bh * dpr);
-  bioCanvas.style.width = bw + "px";
-  bioCanvas.style.height = bh + "px";
-
+  bw=window.innerWidth; bh=window.innerHeight;
+  bioCanvas.width=Math.floor(bw*dpr);
+  bioCanvas.height=Math.floor(bh*dpr);
+  bioCanvas.style.width=bw+"px";
+  bioCanvas.style.height=bh+"px";
   bctx.setTransform(dpr,0,0,dpr,0,0);
 }
-
 resizeBio();
-window.addEventListener("resize", resizeBio);
+window.addEventListener("resize",resizeBio);
 
-const filaments = [];
+const bacteria=[],dnaStrands=[],bioDust=[];
+const BACTERIA_COUNT=48,DNA_COUNT=13,DUST_COUNT=90;
 
-for(let i=0;i<13;i++){
+function seedBacterium(){
+  const capsule=Math.random()>.45;
+  return {
+    x:Math.random()*bw,y:Math.random()*bh,
+    vx:(-.16+Math.random()*.32)*(0.7+Math.random()*1.4),
+    vy:(-.13+Math.random()*.26)*(0.7+Math.random()*1.4),
+    size:7+Math.random()*17,
+    aspect:capsule?1.7+Math.random()*1.4:.85+Math.random()*.55,
+    angle:Math.random()*Math.PI*2,
+    spin:(-.0006+Math.random()*.0012),
+    phase:Math.random()*Math.PI*2,
+    wobble:.45+Math.random()*.9,
+    pulse:.45+Math.random()*.75,
+    capsule,
+    hue:Math.random()>.72?164:(Math.random()>.5?196:148)
+  };
+}
+function seedDNA(){
+  return {
+    x:Math.random()*bw,y:Math.random()*bh,
+    length:90+Math.random()*220,width:24+Math.random()*26,
+    speed:.018+Math.random()*.035,drift:-.025+Math.random()*.05,
+    rotation:Math.random()*Math.PI*2,phase:Math.random()*Math.PI*2,
+    alpha:.09+Math.random()*.13
+  };
+}
+function seedDust(){
+  return {
+    x:Math.random()*bw,y:Math.random()*bh,r:.4+Math.random()*1.6,
+    vx:-.03+Math.random()*.06,vy:-.03+Math.random()*.06,
+    a:.04+Math.random()*.08,phase:Math.random()*Math.PI*2
+  };
+}
+for(let i=0;i<BACTERIA_COUNT;i++)bacteria.push(seedBacterium());
+for(let i=0;i<DNA_COUNT;i++)dnaStrands.push(seedDNA());
+for(let i=0;i<DUST_COUNT;i++)bioDust.push(seedDust());
 
-  filaments.push({
-    x: Math.random() * bw,
-    y: Math.random() * bh,
-    length: 70 + Math.random() * 180,
-    amplitude: 8 + Math.random() * 20,
-    speed: .00035 + Math.random() * .0004,
-    phase: Math.random()*Math.PI*2
-  });
+function wrap(v,max){return v<-40?max+40:v>max+40?-40:v;}
 
+function drawDNA(d,time){
+  bctx.save();
+  bctx.translate(d.x,d.y);
+  bctx.rotate(d.rotation);
+  bctx.globalAlpha=d.alpha;
+  bctx.lineWidth=1.25;
+
+  for(const sign of [1,-1]){
+    bctx.beginPath();
+    for(let i=0;i<=44;i++){
+      const t=i/44,x=t*d.length;
+      const y=sign*Math.sin(t*Math.PI*4.25+time*d.speed+d.phase)*d.width*.5;
+      i===0?bctx.moveTo(x,y):bctx.lineTo(x,y);
+    }
+    bctx.strokeStyle=sign===1?"rgba(24,116,142,.78)":"rgba(38,145,113,.72)";
+    bctx.stroke();
+  }
+
+  bctx.lineWidth=.7;
+  for(let i=2;i<43;i+=2){
+    const t=i/44,x=t*d.length;
+    const wave=Math.sin(t*Math.PI*4.25+time*d.speed+d.phase)*d.width*.5;
+    bctx.beginPath();bctx.moveTo(x,wave);bctx.lineTo(x,-wave);
+    bctx.strokeStyle="rgba(72,126,142,.58)";bctx.stroke();
+  }
+  bctx.restore();
+}
+
+function drawBacterium(b,time){
+  const pulse=1+Math.sin(time*.0008*b.pulse+b.phase)*.045;
+  const len=b.size*b.aspect*pulse,wid=b.size*pulse;
+
+  bctx.save();
+  bctx.translate(b.x,b.y);
+  bctx.rotate(b.angle+Math.sin(time*.00035+b.phase)*.12);
+
+  const glow=bctx.createRadialGradient(0,0,Math.min(wid,len)*.2,0,0,Math.max(len,wid)*1.2);
+  glow.addColorStop(0,"rgba(55,157,135,.11)");
+  glow.addColorStop(1,"rgba(55,157,135,0)");
+  bctx.fillStyle=glow;
+  bctx.beginPath();bctx.ellipse(0,0,len*1.05,wid*1.15,0,0,Math.PI*2);bctx.fill();
+
+  bctx.beginPath();
+  if(b.capsule)bctx.roundRect(-len*.5,-wid*.5,len,wid,wid*.5);
+  else bctx.ellipse(0,0,len*.5,wid*.5,0,0,Math.PI*2);
+  bctx.fillStyle=`hsla(${b.hue},48%,52%,.105)`;
+  bctx.fill();
+  bctx.strokeStyle=`hsla(${b.hue},44%,38%,.33)`;
+  bctx.lineWidth=.8;bctx.stroke();
+
+  for(let i=0;i<4;i++){
+    const px=(-.28+Math.random()*.56)*len,py=(-.28+Math.random()*.56)*wid;
+    bctx.beginPath();
+    bctx.fillStyle=`hsla(${b.hue+12},55%,40%,.23)`;
+    bctx.arc(px,py,.9+Math.random()*1.1,0,Math.PI*2);bctx.fill();
+  }
+
+  bctx.beginPath();
+  const tail=len*.72;
+  for(let i=0;i<=28;i++){
+    const t=i/28,x=tail*t;
+    const y=Math.sin(t*Math.PI*2.6+time*.001*b.wobble+b.phase)*wid*(.65+t*.45);
+    i===0?bctx.moveTo(x,y):bctx.lineTo(x,y);
+  }
+  bctx.strokeStyle="rgba(34,116,128,.22)";
+  bctx.lineWidth=.65;bctx.stroke();
+  bctx.restore();
 }
 
 function drawBio(time){
-
   bctx.clearRect(0,0,bw,bh);
+  if(!document.body.classList.contains("light")){
+    requestAnimationFrame(drawBio);return;
+  }
 
-  const light = document.body.classList.contains("light");
+  const sheen=bctx.createLinearGradient(0,0,bw,bh);
+  sheen.addColorStop(0,"rgba(255,255,255,.055)");
+  sheen.addColorStop(.42,"rgba(255,255,255,0)");
+  sheen.addColorStop(1,"rgba(72,138,168,.025)");
+  bctx.fillStyle=sheen;bctx.fillRect(0,0,bw,bh);
 
-  bctx.lineWidth = 1;
-
-  filaments.forEach((f,i) => {
-
+  bioDust.forEach(d=>{
+    d.x=wrap(d.x+d.vx,bw);d.y=wrap(d.y+d.vy,bh);
     bctx.beginPath();
+    bctx.fillStyle=`rgba(65,116,128,${Math.max(.025,d.a+Math.sin(time*.0007+d.phase)*.02)})`;
+    bctx.arc(d.x,d.y,d.r,0,Math.PI*2);bctx.fill();
+  });
 
-    for(let j=0;j<=70;j++){
+  dnaStrands.forEach(d=>{
+    d.x=wrap(d.x+d.drift+Math.sin(time*.00025+d.phase)*.03,bw);
+    d.y=wrap(d.y+d.speed*.35,bh);
+    d.rotation+=Math.sin(time*.00018+d.phase)*.00025;
+    drawDNA(d,time);
+  });
 
-      const t = j/70;
-
-      const x =
-        f.x +
-        t * f.length;
-
-      const y =
-        f.y +
-        Math.sin(
-          t * Math.PI * 4 +
-          time * f.speed +
-          f.phase
-        ) * f.amplitude;
-
-      if(j===0){
-        bctx.moveTo(x,y);
-      }else{
-        bctx.lineTo(x,y);
-      }
-    }
-
-    bctx.strokeStyle =
-      light
-      ? `rgba(55,115,155,${.045 + (i%3)*.01})`
-      : `rgba(115,216,255,${.045 + (i%3)*.015})`;
-
-    bctx.stroke();
-
-    /* cell-like nodes */
-    for(let k=1;k<5;k++){
-
-      const t = k/5;
-
-      const x =
-        f.x +
-        t * f.length;
-
-      const y =
-        f.y +
-        Math.sin(
-          t * Math.PI * 4 +
-          time * f.speed +
-          f.phase
-        ) * f.amplitude;
-
-      bctx.beginPath();
-
-      bctx.fillStyle =
-        light
-        ? "rgba(65,145,165,.15)"
-        : "rgba(132,237,198,.10)";
-
-      bctx.arc(x,y,2.2,0,Math.PI*2);
-      bctx.fill();
-    }
-
+  bacteria.forEach(b=>{
+    b.x=wrap(b.x+b.vx,bw);b.y=wrap(b.y+b.vy,bh);
+    b.angle+=b.spin;drawBacterium(b,time);
   });
 
   requestAnimationFrame(drawBio);
 }
-
 requestAnimationFrame(drawBio);
 
 /* =========================================================
@@ -1887,7 +2222,7 @@ requestAnimationFrame(drawBio);
    Hero orbit system gently reacts to page movement.
 ========================================================= */
 
-const zygoteSystem =
+const zygoteMotionSystem =
   document.querySelector(".zygote-system");
 
 const nebulaNodes =
@@ -1901,8 +2236,8 @@ function smoothFrame(){
   const heroShift =
     Math.min(smoothScroll,window.innerHeight) * .055;
 
-  if(zygoteSystem){
-    zygoteSystem.style.transform =
+  if(zygoteMotionSystem && !document.body.classList.contains("core-active")){
+    zygoteMotionSystem.style.transform =
       `translateY(${-heroShift}px) scale(1)`;
   }
 
