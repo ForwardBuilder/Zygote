@@ -1842,7 +1842,7 @@ class ZygoteAmbientAudio{
     this.currentMode=document.body.classList.contains("light")?"bio":"space";
     const now=this.ctx.currentTime;
     this.master.gain.cancelScheduledValues(now);
-    this.master.gain.setTargetAtTime(.052,now,.8);
+    this.master.gain.setTargetAtTime(.075,now,.8);
     this.currentMode==="space"?this.startSpace():this.startBio();
   }
   stop(){
