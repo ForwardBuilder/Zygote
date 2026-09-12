@@ -4,100 +4,153 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07142f">
-<title>Dreamscape — Zygote Builder</title>
+<title>Dreamscape: Panchabhūta — Zygote Builder</title>
 <style>
 :root{
-  --bg:#07142f; --bg2:#0b1f46; --glass:rgba(8,22,51,.72); --glass2:rgba(18,39,78,.68);
+  --bg:#07142f; --glass:rgba(11,29,63,.82); --glass2:rgba(8,20,46,.68);
   --line:rgba(160,205,255,.18); --text:#eef7ff; --muted:#9eb5d6; --cyan:#59e7ff;
-  --violet:#a98cff; --green:#74e7a5; --gold:#ffd56b; --pink:#ff91d5; --shadow:0 24px 70px rgba(0,0,0,.32);
+  --violet:#a98cff; --green:#74e7a5; --gold:#ffd56b; --pink:#ff91d5; --red:#ff6b6b;
+  --shadow:0 24px 70px rgba(0,0,0,.35);
 }
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-tap-highlight-color:transparent}
 button,input,textarea{font:inherit}
 button{color:inherit}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:rgba(160,205,255,.25);border-radius:8px}
+
 #app{position:relative;width:100%;height:100%;overflow:hidden;background:
- radial-gradient(circle at 50% 38%,rgba(64,139,255,.18),transparent 33%),
- radial-gradient(circle at 80% 15%,rgba(168,120,255,.14),transparent 28%),
- linear-gradient(180deg,#06122d 0%,#0a1c40 48%,#09182e 100%)}
-#sky{position:absolute;inset:0;width:100%;height:100%;display:block}
-.vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 42%,rgba(0,0,0,.43) 100%)}
-.topbar{position:absolute;z-index:20;left:0;right:0;top:0;height:78px;padding:0 30px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,rgba(3,11,28,.9),rgba(3,11,28,.25));border-bottom:1px solid rgba(160,205,255,.08);backdrop-filter:blur(10px)}
-.brand{display:flex;align-items:center;gap:12px}
-.logo{width:42px;height:42px;border:2px solid #89caff;border-radius:50%;position:relative;box-shadow:0 0 25px rgba(89,231,255,.28)}
-.logo:before{content:"";position:absolute;left:-7px;right:-7px;top:15px;height:9px;border:2px solid #89caff;border-radius:50%;transform:rotate(-18deg)}
-.logo:after{content:"✦";position:absolute;right:-9px;top:-11px;color:#b4eaff;font-size:13px}
-.brand b{display:block;font-size:19px;letter-spacing:.2px}
-.brand small{display:block;color:var(--muted);font-size:11px;margin-top:1px}
-.nav{display:flex;align-items:center;gap:8px}
-.nav button,.iconbtn{background:transparent;border:0;padding:9px 13px;border-radius:12px;color:#a9bfdf;cursor:pointer;transition:.2s}
-.nav button:hover,.nav button.active{color:#fff;background:rgba(135,184,255,.1)}
-.theme{border:1px solid var(--line)!important;width:72px;height:38px;border-radius:20px!important;display:flex;justify-content:space-around;align-items:center;font-size:16px!important}
+ radial-gradient(circle at 50% 30%,rgba(64,139,255,.14),transparent 40%),
+ radial-gradient(circle at 82% 12%,rgba(168,120,255,.12),transparent 32%),
+ linear-gradient(180deg,#05102a 0%,#0a1c40 55%,#08162c 100%)}
+#sky{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,.45) 100%)}
 
-.panel{position:absolute;z-index:15;background:linear-gradient(145deg,rgba(11,29,63,.82),rgba(8,20,46,.68));border:1px solid var(--line);box-shadow:var(--shadow),inset 0 1px rgba(255,255,255,.06);backdrop-filter:blur(18px);border-radius:22px}
-.hero{z-index:10;position:absolute;left:42px;top:132px;max-width:430px}
-.kicker{color:#9beaff;font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:8px}
-h1{font-size:clamp(42px,5.2vw,74px);line-height:.93;margin:0 0 15px;letter-spacing:-3px;background:linear-gradient(100deg,#fff 15%,#b8eaff 48%,#c7a7ff 88%);-webkit-background-clip:text;background-clip:text;color:transparent}
-.hero p{font-size:15px;line-height:1.65;color:#b6c9e3;max-width:405px;margin:0 0 21px}
-.primary{border:0;cursor:pointer;padding:14px 20px;border-radius:15px;font-weight:750;background:linear-gradient(100deg,#39cfff,#a87cff);box-shadow:0 12px 30px rgba(78,170,255,.25);transition:.2s}
-.primary:hover{transform:translateY(-2px);box-shadow:0 16px 34px rgba(78,170,255,.35)}
-.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
-.tag{font-size:12px;padding:7px 10px;border-radius:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#cbd9ec}
-.tag:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:7px;box-shadow:0 0 9px var(--green)}
+/* ---------- top bar ---------- */
+.topbar{position:absolute;z-index:30;left:0;right:0;top:0;min-height:60px;padding:8px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:linear-gradient(180deg,rgba(3,11,28,.92),rgba(3,11,28,.3));border-bottom:1px solid rgba(160,205,255,.08);backdrop-filter:blur(10px)}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:34px;height:34px;border:2px solid #89caff;border-radius:50%;position:relative;box-shadow:0 0 20px rgba(89,231,255,.28);flex:none}
+.logo:before{content:"";position:absolute;left:-6px;right:-6px;top:12px;height:8px;border:2px solid #89caff;border-radius:50%;transform:rotate(-18deg)}
+.logo:after{content:"✦";position:absolute;right:-8px;top:-10px;color:#b4eaff;font-size:11px}
+.brand b{display:block;font-size:15px;letter-spacing:.2px;line-height:1.15}
+.brand small{display:block;color:var(--muted);font-size:10px;margin-top:1px}
 
-.dashboard{right:26px;top:104px;width:286px;padding:17px}
-.paneltitle{display:flex;justify-content:space-between;align-items:center;font-weight:750;font-size:14px}
-.live{font-size:10px;color:#76efb1;display:flex;align-items:center;gap:5px}
-.live:before{content:"";width:6px;height:6px;border-radius:50%;background:#56e9a1;box-shadow:0 0 10px #56e9a1}
-.preview{height:105px;border-radius:15px;margin:13px 0;background:
- radial-gradient(circle at 72% 28%,#ffcf83 0 2%,transparent 3%),
- linear-gradient(160deg,#7e71cb,#ffaeaf 47%,#4db3ce 48%,#143d68 70%);
- position:relative;overflow:hidden}
-.preview:after{content:"";position:absolute;left:20%;right:8%;bottom:18%;height:34%;background:linear-gradient(160deg,#4f7e7c,#193c44);clip-path:polygon(0 65%,25% 25%,48% 48%,70% 0,100% 40%,100% 100%,0 100%);filter:drop-shadow(0 12px 10px rgba(0,0,0,.3))}
-.stats{display:grid;gap:10px}
-.stat{display:flex;align-items:center;justify-content:space-between;color:#b8cae4;font-size:12px}
-.stat strong{color:#fff;font-size:14px}.stat span:first-child{display:flex;gap:9px;align-items:center}.ico{font-size:16px}
+.resources{display:flex;gap:6px;flex-wrap:wrap}
+.res{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.05);border:1px solid var(--line);padding:6px 10px;border-radius:12px;font-size:12px;white-space:nowrap}
+.res .ico{font-size:14px}
+.res b{font-variant-numeric:tabular-nums}
+.res.rate{color:var(--muted);font-size:10px}
 
-.recent{right:26px;top:382px;width:286px;padding:17px}
-.event{display:flex;gap:11px;align-items:center;margin-top:13px}
-.eventicon{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:rgba(90,211,255,.1);border:1px solid rgba(90,211,255,.13)}
-.event b{display:block;font-size:12px}.event small{color:#849dc0;font-size:10px}
+.navbtns{display:flex;gap:6px;flex-wrap:wrap}
+.navbtns button{background:rgba(255,255,255,.05);border:1px solid var(--line);padding:8px 11px;border-radius:11px;cursor:pointer;font-size:12px;transition:.2s;display:flex;align-items:center;gap:5px}
+.navbtns button:hover{background:rgba(135,184,255,.14)}
+.navbtns button.active{background:rgba(135,184,255,.2);border-color:rgba(135,184,255,.4)}
 
-.tools{left:32px;bottom:28px;width:420px;padding:14px}
-.toolrow{display:flex;gap:9px;margin-top:11px}
-.tool{flex:1;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.055);border-radius:15px;padding:11px 6px 9px;cursor:pointer;transition:.18s;text-align:center}
-.tool:hover,.tool.selected{transform:translateY(-3px);border-color:rgba(117,221,255,.4);background:rgba(74,182,255,.12)}
-.tool .big{font-size:22px;display:block;margin-bottom:5px}.tool span:last-child{font-size:10px;color:#aac0dd}
+/* ---------- panels ---------- */
+.panel{position:absolute;z-index:15;background:linear-gradient(145deg,rgba(11,29,63,.85),rgba(8,20,46,.72));border:1px solid var(--line);box-shadow:var(--shadow),inset 0 1px rgba(255,255,255,.06);backdrop-filter:blur(18px);border-radius:20px}
+.paneltitle{display:flex;justify-content:space-between;align-items:center;font-weight:750;font-size:13px;padding:12px 14px 0}
+.paneltitle small{color:var(--muted);font-weight:400}
 
-.journal{right:26px;bottom:28px;width:330px;padding:16px}
-.journal textarea{width:100%;height:56px;resize:none;background:rgba(2,10,26,.35);border:1px solid rgba(155,202,255,.14);outline:none;border-radius:13px;padding:11px;color:#fff;margin-top:10px}
-.journal textarea::placeholder{color:#6f87aa}
-.journal .send{float:right;margin-top:-45px;margin-right:8px;border:0;background:transparent;color:#b8eaff;font-size:20px;cursor:pointer}
-.quote{position:absolute;z-index:5;left:50%;bottom:43px;transform:translateX(-50%);font-size:12px;color:#b5c9e4;text-align:center;font-style:italic;opacity:.9;pointer-events:none}
-.footer{position:absolute;z-index:15;left:35px;right:28px;bottom:10px;display:flex;justify-content:space-between;color:#6683aa;font-size:9px;pointer-events:none}
+.left-dock{left:16px;top:78px;width:250px;max-height:calc(100% - 170px);display:flex;flex-direction:column;overflow:hidden}
+.stats-body{padding:10px 14px 14px;overflow:auto}
+.statrow{margin-top:10px}
+.statrow .lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px}
+.bar{height:8px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden;border:1px solid rgba(255,255,255,.06)}
+.bar>i{display:block;height:100%;border-radius:6px;transition:width .4s ease}
+.bar.atm>i{background:linear-gradient(90deg,#89caff,#59e7ff)}
+.bar.wat>i{background:linear-gradient(90deg,#3f7ea8,#59c9ff)}
+.bar.bio>i{background:linear-gradient(90deg,#4f9a5f,#74e7a5)}
+.bar.pol>i{background:linear-gradient(90deg,#a8461f,#ff8b6b)}
+.bar.sus>i{background:linear-gradient(90deg,#a98cff,#ffd56b)}
+.bar.pop>i{background:linear-gradient(90deg,#ff91d5,#a98cff)}
+.sustained-badge{margin-top:10px;font-size:11px;color:#0a1c0f;background:linear-gradient(100deg,#74e7a5,#ffd56b);padding:6px 10px;border-radius:10px;text-align:center;font-weight:750}
 
-.toast{position:absolute;z-index:100;left:50%;top:92px;transform:translate(-50%,-18px);opacity:0;pointer-events:none;background:rgba(7,20,45,.92);border:1px solid rgba(151,211,255,.25);padding:11px 16px;border-radius:14px;box-shadow:var(--shadow);transition:.35s;font-size:12px}
+.right-dock{right:16px;top:78px;width:270px;max-height:calc(100% - 170px);display:flex;flex-direction:column;overflow:hidden}
+.build-body{padding:10px 12px 14px;overflow:auto;display:flex;flex-direction:column;gap:8px}
+.bldrow{border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.045);border-radius:14px;padding:9px 10px;cursor:pointer;transition:.15s}
+.bldrow:hover{border-color:rgba(117,221,255,.35);background:rgba(74,182,255,.1)}
+.bldrow.locked{opacity:.45;cursor:not-allowed}
+.bldrow.unaffordable .cost{color:#ff9d9d}
+.bldrow-top{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;font-weight:700}
+.bldrow-top .lvl{color:var(--cyan);font-weight:800}
+.bldrow-desc{font-size:10.5px;color:var(--muted);margin:3px 0 6px;line-height:1.4}
+.cost{font-size:11px;color:#c9e6ff;display:flex;gap:8px;flex-wrap:wrap}
+
+.bottombar{position:absolute;z-index:20;left:16px;right:16px;bottom:12px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.bottombar button{background:rgba(255,255,255,.06);border:1px solid var(--line);padding:9px 14px;border-radius:14px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:6px}
+.bottombar button.primary{background:linear-gradient(100deg,#39cfff,#a87cff);border:0;font-weight:750;box-shadow:0 12px 26px rgba(78,170,255,.28)}
+.bottombar button:hover{filter:brightness(1.1)}
+
+.viewtoggle{position:absolute;z-index:20;left:50%;top:70px;transform:translateX(-50%);display:flex;gap:4px;background:rgba(8,20,46,.75);border:1px solid var(--line);border-radius:14px;padding:4px;backdrop-filter:blur(10px)}
+.viewtoggle button{background:transparent;border:0;padding:7px 13px;border-radius:11px;font-size:11.5px;cursor:pointer;color:#a9bfdf}
+.viewtoggle button.active{background:rgba(135,184,255,.22);color:#fff}
+
+.toast{position:absolute;z-index:100;left:50%;top:66px;transform:translate(-50%,-18px);opacity:0;pointer-events:none;background:rgba(7,20,45,.94);border:1px solid rgba(151,211,255,.25);padding:10px 16px;border-radius:14px;box-shadow:var(--shadow);transition:.35s;font-size:12px;max-width:88vw;text-align:center}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
-.modal{position:absolute;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(1,7,20,.58);backdrop-filter:blur(9px)}
+/* ---------- modal ---------- */
+.modal{position:absolute;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(1,7,20,.62);backdrop-filter:blur(9px);padding:16px}
 .modal.show{display:flex}
-.modalcard{width:min(620px,calc(100% - 32px));max-height:82vh;overflow:auto;padding:24px;border-radius:24px;background:linear-gradient(145deg,#0d244c,#081735);border:1px solid rgba(166,215,255,.2);box-shadow:0 35px 100px rgba(0,0,0,.55)}
-.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:17px}.modalhead h2{margin:0;font-size:22px}
-.close{border:0;background:rgba(255,255,255,.06);border-radius:10px;width:34px;height:34px;cursor:pointer}
-.cardgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.mini{padding:14px;border-radius:16px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08)}.mini b{display:block;margin-bottom:5px}.mini small{color:#91a9c9;line-height:1.5}
-.journalentry{padding:13px;border-left:2px solid #6edcff;background:rgba(255,255,255,.035);margin-top:10px;border-radius:0 12px 12px 0;color:#c7d7eb;font-size:13px;line-height:1.5}
+.modalcard{width:min(640px,100%);max-height:86vh;overflow:auto;padding:22px;border-radius:22px;background:linear-gradient(145deg,#0d244c,#081735);border:1px solid rgba(166,215,255,.2);box-shadow:0 35px 100px rgba(0,0,0,.55)}
+.modalhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:14px}
+.modalhead h2{margin:0;font-size:20px}
+.modalhead p{margin:4px 0 0;color:var(--muted);font-size:12.5px}
+.close{border:0;background:rgba(255,255,255,.06);border-radius:10px;width:32px;height:32px;cursor:pointer;flex:none}
 
-#focus{position:absolute;z-index:180;inset:0;display:none;align-items:center;justify-content:center;background:radial-gradient(circle,rgba(25,70,112,.75),rgba(3,12,29,.97) 72%);backdrop-filter:blur(12px)}
-#focus.show{display:flex}
-.focusbox{text-align:center;width:min(520px,90vw)}
-.focusbox .orb{width:150px;height:150px;border-radius:50%;margin:0 auto 26px;background:radial-gradient(circle at 35% 30%,#fff,#7ae8ff 18%,#9e79ff 58%,rgba(92,83,255,.05) 70%);box-shadow:0 0 75px rgba(92,216,255,.45);animation:breathe 6s ease-in-out infinite}
-@keyframes breathe{0%,100%{transform:scale(.82);opacity:.8}50%{transform:scale(1.08);opacity:1}}
-.timer{font-size:55px;font-variant-numeric:tabular-nums;letter-spacing:-2px}.focusbox p{color:#9db5d4}.focusactions{display:flex;justify-content:center;gap:9px}.secondary{padding:11px 16px;border-radius:12px;border:1px solid rgba(180,220,255,.16);background:rgba(255,255,255,.06);cursor:pointer}
+.techgrid,.achgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(max-width:520px){.techgrid,.achgrid{grid-template-columns:1fr}}
+.techcard,.achcard{padding:13px;border-radius:15px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08)}
+.techcard b,.achcard b{display:block;margin-bottom:4px;font-size:13px}
+.techcard small,.achcard small{color:#91a9c9;line-height:1.5;display:block;font-size:11px}
+.techcard .buy{margin-top:9px;width:100%;padding:8px;border-radius:10px;border:0;background:linear-gradient(100deg,#39cfff,#a87cff);cursor:pointer;font-weight:700;font-size:11.5px}
+.techcard .buy:disabled{background:rgba(255,255,255,.08);color:#7c93b3;cursor:not-allowed}
+.achcard.locked{opacity:.4}
+.achcard.unlocked{border-color:rgba(255,213,107,.4);background:rgba(255,213,107,.06)}
 
+.council-card{padding:6px 0}
+.council-flavor{font-size:12px;color:#9beaff;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;font-weight:700}
+.council-text{color:#cfe0f4;line-height:1.65;font-size:14px;margin-bottom:16px}
+.optionbtn{display:block;width:100%;text-align:left;padding:13px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);cursor:pointer;margin-top:9px;transition:.15s}
+.optionbtn:hover{border-color:rgba(117,221,255,.4);background:rgba(74,182,255,.1)}
+.optionbtn b{display:block;font-size:13.5px;margin-bottom:3px}
+.optionbtn span{font-size:11.5px;color:var(--muted)}
+
+.journalentry{padding:11px 13px;border-left:2px solid #6edcff;background:rgba(255,255,255,.035);margin-top:9px;border-radius:0 12px 12px 0;color:#c7d7eb;font-size:12.5px;line-height:1.5}
+.chronicle-input{display:flex;gap:8px;margin-top:14px}
+.chronicle-input textarea{flex:1;resize:none;height:44px;background:rgba(2,10,26,.4);border:1px solid rgba(155,202,255,.16);outline:none;border-radius:12px;padding:10px;color:#fff}
+.chronicle-input button{border:0;background:linear-gradient(100deg,#39cfff,#a87cff);border-radius:12px;padding:0 16px;cursor:pointer;font-weight:700}
+
+.datamodal textarea{width:100%;height:120px;background:rgba(2,10,26,.4);border:1px solid rgba(155,202,255,.16);border-radius:12px;padding:10px;color:#cfe0f4;font-size:11px;font-family:ui-monospace,monospace;resize:vertical}
+.dataactions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.dataactions button{border:1px solid var(--line);background:rgba(255,255,255,.06);padding:9px 13px;border-radius:11px;cursor:pointer;font-size:12px}
+.dataactions button.danger{border-color:rgba(255,107,107,.4);color:#ffb0b0}
+
+/* dharma meter */
+.dharma-meter{margin-top:14px}
+.dharma-track{height:10px;border-radius:8px;background:linear-gradient(90deg,#ff8b6b,#3f4a6b 50%,#74e7a5);position:relative;border:1px solid rgba(255,255,255,.1)}
+.dharma-dot{position:absolute;top:-4px;width:18px;height:18px;border-radius:50%;background:#fff;border:2px solid #0a1c40;transform:translateX(-50%);box-shadow:0 0 10px rgba(255,255,255,.5)}
+.dharma-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:5px}
+
+/* onboarding */
+.onb-steps{display:flex;flex-direction:column;gap:10px;margin:14px 0}
+.onb-step{display:flex;gap:11px;align-items:flex-start}
+.onb-step .n{width:26px;height:26px;border-radius:50%;background:rgba(135,184,255,.18);display:flex;align-items:center;justify-content:center;font-size:12px;flex:none;font-weight:800;color:#bfe1ff}
+.onb-step p{margin:0;font-size:12.5px;color:#c7d7eb;line-height:1.55}
+
+.footer{position:absolute;z-index:15;left:20px;right:20px;bottom:12px;display:flex;justify-content:space-between;color:#6683aa;font-size:9px;pointer-events:none}
+
+/* mobile drawer nav */
 @media(max-width:900px){
- .dashboard,.recent,.journal{display:none}.hero{left:24px;top:105px}.tools{left:15px;bottom:18px;width:calc(100% - 30px)}.quote{bottom:122px}.topbar{padding:0 16px}.nav button:not(.theme){display:none}.footer{display:none}
+  .left-dock,.right-dock{left:auto;right:auto;top:auto;bottom:0;width:100%;max-width:100%;max-height:70vh;border-radius:20px 20px 0 0;transform:translateY(105%);transition:transform .28s ease;box-shadow:0 -20px 60px rgba(0,0,0,.5)}
+  .left-dock.open,.right-dock.open{transform:translateY(0)}
+  .footer{display:none}
+  .viewtoggle{top:64px}
 }
 @media(max-width:560px){
- .hero{max-width:calc(100% - 36px)}.hero p{font-size:13px}.tools{padding:10px}.tool{padding:9px 3px}.tool .big{font-size:18px}
+  .brand small{display:none}
+  .resources{gap:4px}
+  .res{padding:5px 8px;font-size:11px}
+  .navbtns button span.lbl{display:none}
 }
 </style>
 </head>
@@ -106,246 +159,974 @@ h1{font-size:clamp(42px,5.2vw,74px);line-height:.93;margin:0 0 15px;letter-spaci
 <canvas id="sky"></canvas><div class="vignette"></div>
 
 <header class="topbar">
-  <div class="brand"><div class="logo"></div><div><b>Zygote Builder</b><small>Small ideas. Big universes.</small></div></div>
-  <nav class="nav">
-    <button class="active" data-modal="none">Home</button><button data-modal="programs">Programs</button><button data-modal="about">About</button>
-    <button class="theme" id="themeBtn" title="Toggle ambience">☀︎ <span>◐</span></button>
-  </nav>
+  <div class="brand"><div class="logo"></div><div><b>Dreamscape: Panchabhūta</b><small>Five worlds. One dharma.</small></div></div>
+  <div class="resources" id="resourceBar"></div>
+  <div class="navbtns">
+    <button data-open="tech">🧠<span class="lbl">Tech</span></button>
+    <button data-open="achievements">🏆<span class="lbl">Deeds</span></button>
+    <button data-open="chronicle">📜<span class="lbl">Chronicle</span></button>
+    <button data-open="data">⚙<span class="lbl">Data</span></button>
+  </div>
 </header>
 
-<section class="hero">
-  <div class="kicker">Zygote Builder • Program 07</div>
-  <h1>Dreamscape ✦</h1>
-  <p>A tiny world with a ridiculous number of possibilities. Build islands, collect thoughts, discover strange little moments, and turn the things you actually want to do into a world you can see.</p>
-  <button class="primary" id="explore">▶ Start Exploring</button>
-  <div class="tags"><span class="tag">Creative</span><span class="tag">Relaxing</span><span class="tag">Useful</span><span class="tag">Endless</span></div>
+<div class="viewtoggle">
+  <button id="vSystem" class="active">◐ Star Map</button>
+  <button id="vPlanet">🪐 World View</button>
+</div>
+
+<button class="navbtns" id="leftToggle" style="position:absolute;left:12px;bottom:70px;z-index:20;display:none">📊</button>
+<button class="navbtns" id="rightToggle" style="position:absolute;right:12px;bottom:70px;z-index:20;display:none">⚒</button>
+
+<section class="panel left-dock" id="leftDock">
+  <div class="paneltitle"><span id="planetTitle">Selected World</span><small id="planetEpithet"></small></div>
+  <div class="stats-body" id="statsBody"></div>
 </section>
 
-<section class="panel dashboard">
-  <div class="paneltitle"><span>◉ Your Dream World</span><span class="live">Live</span></div>
-  <div class="preview"></div>
-  <div class="stats">
-    <div class="stat"><span><span class="ico">♟</span> Islands</span><strong id="islands">3</strong></div>
-    <div class="stat"><span><span class="ico">🌱</span> Dreams Collected</span><strong id="dreams">0</strong></div>
-    <div class="stat"><span><span class="ico">✦</span> Unique Moments</span><strong id="moments">0</strong></div>
-  </div>
+<section class="panel right-dock" id="rightDock">
+  <div class="paneltitle"><span>⚒ Build &amp; Govern</span></div>
+  <div class="build-body" id="buildBody"></div>
 </section>
 
-<section class="panel recent">
-  <div class="paneltitle">✦ Recent Dreams</div>
-  <div id="events">
-    <div class="event"><div class="eventicon">🌱</div><div><b>The world is waiting.</b><small>just now</small></div></div>
-    <div class="event"><div class="eventicon">☁</div><div><b>Try changing the weather.</b><small>hint</small></div></div>
-    <div class="event"><div class="eventicon">⌁</div><div><b>Drag the sky to look around.</b><small>hint</small></div></div>
-  </div>
-</section>
+<div class="bottombar">
+  <button id="unlockBtn" style="display:none">🚀 Launch Expedition</button>
+  <button class="primary" id="councilBtn">☸ Convene Council</button>
+</div>
 
-<section class="panel tools">
-  <div class="paneltitle">⚒ Build Tools <small style="color:#7894b8;font-weight:400">click an island to interact</small></div>
-  <div class="toolrow">
-    <button class="tool selected" data-tool="place"><span class="big">◇</span><span>Place</span></button>
-    <button class="tool" data-tool="decorate"><span class="big">🌿</span><span>Decorate</span></button>
-    <button class="tool" data-tool="weather"><span class="big">☁</span><span>Weather</span></button>
-    <button class="tool" data-tool="time"><span class="big">◷</span><span>Time</span></button>
-    <button class="tool" data-tool="erase"><span class="big">⌫</span><span>Erase</span></button>
-    <button class="tool" id="focusBtn"><span class="big">◉</span><span>Focus</span></button>
-  </div>
-</section>
-
-<div class="quote">“Not just a game, but a place where your imagination lives.”</div>
-<div class="footer"><span>Zygote Builder ✦ Dreamscape v1.0</span><span>Built for curious humans</span></div>
+<div class="footer"><span>Dreamscape: Panchabhūta ✦ Zygote Builder Lab</span><span id="playtimeFooter">Reign begun</span></div>
 <div class="toast" id="toast"></div>
 
+<!-- generic modal -->
 <div class="modal" id="modal"><div class="modalcard">
-  <div class="modalhead"><h2 id="modalTitle"></h2><button class="close" id="closeModal">×</button></div>
+  <div class="modalhead"><div><h2 id="modalTitle"></h2><p id="modalSub"></p></div><button class="close" id="closeModal">×</button></div>
   <div id="modalBody"></div>
 </div></div>
 
-<div id="focus"><div class="focusbox">
-  <div class="orb"></div><div class="timer" id="timer">05:00</div>
-  <p>Five quiet minutes. Let the world move without you.</p>
-  <div class="focusactions"><button class="primary" id="timerBtn">Start</button><button class="secondary" id="exitFocus">Return to world</button></div>
+<!-- council modal -->
+<div class="modal" id="councilModal"><div class="modalcard">
+  <div class="modalhead"><div><h2>Council of Ministers</h2><p>Every choice bends the dharma of your reign.</p></div></div>
+  <div class="council-card" id="councilBody"></div>
 </div></div>
+
+<!-- onboarding -->
+<div class="modal" id="onbModal"><div class="modalcard">
+  <div class="modalhead"><div><h2>Welcome, Architect ✦</h2><p>A dying star system. Five barren worlds. One long game.</p></div></div>
+  <div class="onb-steps">
+    <div class="onb-step"><div class="n">1</div><p><b>Terraform.</b> Build Solar Arrays and Bioreactors to generate Energy and Biomass, then feed a Terraform Station to raise Atmosphere → Water → Biosphere, in that order.</p></div>
+    <div class="onb-step"><div class="n">2</div><p><b>Settle.</b> Once air is breathable, raise Habitat Domes to grow population — your people generate Data and Influence for the whole empire.</p></div>
+    <div class="onb-step"><div class="n">3</div><p><b>Govern.</b> The Council will periodically ask you to rule on a dilemma inspired by classical statecraft. There is no wrong answer — only a direction for your Dharma Index.</p></div>
+    <div class="onb-step"><div class="n">4</div><p><b>Expand.</b> Once a world is reasonably sustainable, launch an expedition to the next of the five elemental worlds — Earth, Water, Air, Fire, Ether.</p></div>
+    <div class="onb-step"><div class="n">5</div><p><b>Return.</b> Progress continues while you're away and saves to this browser automatically. No account — just come back and keep ruling.</p></div>
+  </div>
+  <button class="primary" id="beginBtn" style="border:0;padding:13px 18px;border-radius:14px;width:100%;font-weight:750;cursor:pointer;background:linear-gradient(100deg,#39cfff,#a87cff)">Begin your reign</button>
+</div></div>
+
+<!-- welcome back -->
+<div class="modal" id="backModal"><div class="modalcard">
+  <div class="modalhead"><div><h2 id="backTitle">Welcome back, Architect</h2><p id="backSub"></p></div><button class="close" id="closeBack">×</button></div>
+  <div id="backBody"></div>
+  <button class="primary" id="backOk" style="border:0;padding:12px 18px;border-radius:14px;width:100%;font-weight:750;cursor:pointer;margin-top:14px;background:linear-gradient(100deg,#39cfff,#a87cff)">Resume reign</button>
+</div></div>
+
+<!-- planet unlocked -->
+<div class="modal" id="unlockedModal"><div class="modalcard">
+  <div class="modalhead"><div><h2 id="unlockedTitle"></h2><p id="unlockedSub"></p></div><button class="close" id="closeUnlocked">×</button></div>
+  <p style="color:#c7d7eb;font-size:13px;line-height:1.6" id="unlockedBody"></p>
+</div></div>
+
 </div>
 
 <script>
 (() => {
 "use strict";
-const canvas=document.getElementById("sky"),ctx=canvas.getContext("2d");
-let W=innerWidth,H=innerHeight,DPR=Math.min(devicePixelRatio||1,2);
-function resize(){W=innerWidth;H=innerHeight;canvas.width=W*DPR;canvas.height=H*DPR;canvas.style.width=W+"px";canvas.style.height=H+"px";ctx.setTransform(DPR,0,0,DPR,0,0)}
-addEventListener("resize",resize);resize();
 
-const state={
-  tool:"place", islands:3, dreams:0, moments:0, night:false, weather:"clear",
-  cameraX:0, cameraY:0, dragging:false, lastX:0,lastY:0, journal:[],
-  stars:Array.from({length:130},()=>({x:Math.random(),y:Math.random()*.72,r:Math.random()*1.6+.2,a:Math.random()*.7+.2})),
-  particles:[], placed:[], selected:null
+/* ============================= CONFIG ============================= */
+
+const SAVE_KEY = "dreamscape_panchabhuta_v1";
+const OFFLINE_CAP_SECONDS = 8*3600; // cap offline progress at 8 hours
+const COUNCIL_INTERVAL = 190; // seconds of active play between council events
+
+const BUILDINGS = {
+  solar:    {name:"Solar Array",     icon:"☀", desc:"Generates Energy from starlight.",                         baseCost:{energy:18,biomass:8},   growth:1.15, baseRate:0.55},
+  bioreactor:{name:"Bioreactor",     icon:"🧫", desc:"Converts organic matter into Biomass.",                     baseCost:{energy:22,biomass:12},  growth:1.15, baseRate:0.48},
+  terraform:{name:"Terraform Station",icon:"🌍", desc:"Advances atmosphere → oceans → biosphere, in order.",      baseCost:{energy:38,biomass:28},  growth:1.18, baseRate:0.34},
+  habitat:  {name:"Habitat Dome",    icon:"🏠", desc:"Raises population capacity. Needs atmosphere ≥ 40%.",       baseCost:{energy:55,biomass:45},  growth:1.2,  baseRate:18, requires:{atmosphere:40}},
+  aiCore:   {name:"AI Core",         icon:"🧠", desc:"Turns your population into Data for the whole empire.",     baseCost:{data:14},               growth:1.25, baseRate:0.11},
+  purifier: {name:"Bio-Purifier",    icon:"♻", desc:"Reduces pollution building up on this world.",              baseCost:{energy:32,biomass:18},  growth:1.17, baseRate:0.42}
+};
+const BUILD_ORDER = ["solar","bioreactor","terraform","habitat","aiCore","purifier"];
+
+const PLANETS_CONFIG = [
+  {id:"bhumi",  name:"Bhūmi Minor",    epithet:"Element of Earth",  base:"#8a7159", orbit:0,   period:0,   size:30},
+  {id:"jala",   name:"Jala Prime",     epithet:"Element of Water",  base:"#3f7ea8", orbit:150, period:46,  size:36, unlockCost:{influence:140,data:90}},
+  {id:"vayu",   name:"Vāyu Reach",     epithet:"Element of Air",    base:"#b7c9d6", orbit:205, period:70,  size:27, unlockCost:{influence:380,data:260}},
+  {id:"agni",   name:"Agni Belt",      epithet:"Element of Fire",   base:"#a8461f", orbit:262, period:100, size:33, unlockCost:{influence:820,data:600}},
+  {id:"akasha", name:"Ākāśha's Edge",  epithet:"Element of Ether",  base:"#5b4a8a", orbit:320, period:140, size:29, unlockCost:{influence:1800,data:1400}}
+];
+// bhumi (home world) starts unlocked at orbit 95
+PLANETS_CONFIG[0].orbit = 95; PLANETS_CONFIG[0].period = 30;
+
+const TECHS = {
+  fusion:    {name:"Fusion Efficiency",    icon:"⚡", desc:"Energy generation empire-wide.",           baseCost:100, growth:1.6,  mult:1.2,  suffix:"+20%/tier"},
+  genomics:  {name:"Genomic Acceleration", icon:"🧬", desc:"Biomass generation empire-wide.",          baseCost:100, growth:1.6,  mult:1.2,  suffix:"+20%/tier"},
+  governance:{name:"Neural Governance",    icon:"☸",  desc:"Influence generated by your people.",      baseCost:180, growth:1.65, mult:1.25, suffix:"+25%/tier"},
+  orbital:   {name:"Orbital Purifiers",    icon:"♻",  desc:"Pollution build-up, empire-wide.",         baseCost:180, growth:1.65, mult:0.85, suffix:"−15%/tier"},
+  sensors:   {name:"Deep Space Sensors",   icon:"📡", desc:"Cost of claiming the next world.",         baseCost:220, growth:1.7,  mult:0.88, suffix:"−12%/tier"},
+  cities:    {name:"Sustainable Cities",   icon:"🏙", desc:"Population capacity on every world.",      baseCost:250, growth:1.7,  mult:1.25, suffix:"+25%/tier"}
 };
 
-const baseIslands=[
- {x:.38,y:.53,s:1.15,c:0,house:true,tree:3},
- {x:.67,y:.48,s:.82,c:1,lighthouse:true,tree:2},
- {x:.20,y:.65,s:.62,c:2,tree:2},
- {x:.53,y:.66,s:.42,c:3,tree:1}
+const ACHIEVEMENTS = [
+  {id:"first_breath", name:"First Breath",        desc:"Raise atmosphere to 50% on any world.",           check:s=>s.planets.some(p=>p.atmosphere>=50)},
+  {id:"blue_marble",  name:"Blue Marble",          desc:"Raise water coverage to 50% on any world.",       check:s=>s.planets.some(p=>p.water>=50)},
+  {id:"its_alive",    name:"It's Alive",           desc:"Raise biosphere to 50% on any world.",            check:s=>s.planets.some(p=>p.biosphere>=50)},
+  {id:"first_colonists",name:"First Colonists",    desc:"Grow a population above zero.",                   check:s=>s.planets.some(p=>p.population>=1)},
+  {id:"sustainable",  name:"Sustainable Utopia",   desc:"Bring a world to full sustainability.",           check:s=>s.planets.some(p=>p.sustained)},
+  {id:"five_elements",name:"Panchabhūta",          desc:"Unlock all five worlds.",                         check:s=>s.planets.every(p=>p.unlocked)},
+  {id:"architect",    name:"Galactic Architect",   desc:"Sustain every world in the system.",              check:s=>s.planets.every(p=>p.sustained)},
+  {id:"sage_ruler",   name:"The Sage Ruler",       desc:"Reach a Dharma Index of +50.",                    check:s=>s.dharmaIndex>=50},
+  {id:"pragmatist",   name:"The Pragmatist",       desc:"Reach a Dharma Index of −50.",                    check:s=>s.dharmaIndex<=-50},
+  {id:"centurion",    name:"Centurion",            desc:"Return to rule on 7 different days.",             check:s=>s.streak>=7}
 ];
 
-function toast(t){const el=document.getElementById("toast");el.textContent=t;el.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove("show"),2300)}
-function updateStats(){document.getElementById("islands").textContent=state.islands;document.getElementById("dreams").textContent=state.dreams;document.getElementById("moments").textContent=state.moments}
+const COUNCIL_EVENTS = [
+  {flavor:"Taxation", text:"Ministers propose raising levies on newly settled farmers to speed up expansion.",
+    options:[
+      {label:"Raise the levy", note:"+Influence now, people trust you a little less.", effect:s=>{s.influence+=45; s.dharmaIndex-=6;}},
+      {label:"Keep it light", note:"Small Influence, people trust you more.", effect:s=>{s.influence+=12; s.dharmaIndex+=6;}}
+    ]},
+  {flavor:"Intelligence", text:"Your spymaster wants a network of informants planted across the settlements to catch corruption early.",
+    options:[
+      {label:"Fund the network", note:"+Data, small Influence loss — people dislike being watched.", effect:s=>{s.data+=35; s.influence-=8; s.dharmaIndex-=4;}},
+      {label:"Trust your officers instead", note:"+Influence, slower intelligence.", effect:s=>{s.influence+=25; s.dharmaIndex+=5;}}
+    ]},
+  {flavor:"Agriculture vs Industry", text:"A fertile valley could become farmland or a new Bioreactor complex.",
+    options:[
+      {label:"Farmland for the people", note:"Biomass boost on a random settled world.", effect:s=>{bumpRandomPlanet(s,"biomass",120); s.dharmaIndex+=4;}},
+      {label:"Industrial complex", note:"Energy boost on a random settled world.", effect:s=>{bumpRandomPlanet(s,"energy",120); s.dharmaIndex-=2;}}
+    ]},
+  {flavor:"Justice", text:"A local governor is accused of skimming grain shipments. The evidence is circumstantial.",
+    options:[
+      {label:"Public trial, full transparency", note:"+Influence, small Data loss from disruption.", effect:s=>{s.influence+=30; s.data=Math.max(0,s.data-15); s.dharmaIndex+=8;}},
+      {label:"Quiet reassignment", note:"+Data, people whisper about it.", effect:s=>{s.data+=25; s.dharmaIndex-=6;}}
+    ]},
+  {flavor:"Environment", text:"Industrial run-off is thickening the haze over one of your worlds.",
+    options:[
+      {label:"Emergency clean-up funding", note:"Pollution reduced on a random world.", effect:s=>{bumpRandomPlanet(s,"pollution",-25); s.influence-=10; s.dharmaIndex+=7;}},
+      {label:"Let the Purifiers catch up naturally", note:"+Influence saved, pollution unaffected.", effect:s=>{s.influence+=15; s.dharmaIndex-=3;}}
+    ]},
+  {flavor:"Defense", text:"Border scouts report unidentified debris drifting toward a settled world's orbit.",
+    options:[
+      {label:"Divert Energy to shielding", note:"Small Energy cost on a random world, peace of mind.", effect:s=>{bumpRandomPlanet(s,"energy",-40); s.dharmaIndex+=2;}},
+      {label:"Track it and wait", note:"No cost, small risk noted in the Chronicle.", effect:s=>{s.dharmaIndex-=1; addChronicle("🛰 The council chose to watch the debris rather than act — nothing came of it, this time.");}}
+    ]},
+  {flavor:"AI Ethics", text:"Your AI Cores could be granted more autonomy over resource allocation, freeing your ministers' time.",
+    options:[
+      {label:"Grant greater autonomy", note:"+Data generation feel, −Influence — people worry about oversight.", effect:s=>{s.data+=20; s.influence-=12; s.dharmaIndex-=5;}},
+      {label:"Keep a human hand on the wheel", note:"+Influence, slower automation.", effect:s=>{s.influence+=20; s.dharmaIndex+=5;}}
+    ]},
+  {flavor:"Trade", text:"A merchant guild proposes an exclusive trade route between your worlds in exchange for reduced tariffs.",
+    options:[
+      {label:"Grant the exclusive route", note:"+Influence, some grumbling from smaller traders.", effect:s=>{s.influence+=35; s.dharmaIndex-=3;}},
+      {label:"Keep trade open to all", note:"Smaller +Influence, broad goodwill.", effect:s=>{s.influence+=15; s.dharmaIndex+=6;}}
+    ]},
+  {flavor:"Succession", text:"Advisors ask whether you should begin training a council of successors, in case the reign must one day pass on.",
+    options:[
+      {label:"Begin the mentorship", note:"+Influence over time, +Dharma.", effect:s=>{s.influence+=20; s.dharmaIndex+=8;}},
+      {label:"Focus on the present", note:"+Data now, the question unanswered.", effect:s=>{s.data+=30; s.dharmaIndex-=2;}}
+    ]},
+  {flavor:"Diplomacy", text:"A neighboring research outpost offers to share terraforming data — for a price in Influence.",
+    options:[
+      {label:"Pay for the data", note:"+Data, −Influence.", effect:s=>{s.data+=50; s.influence=Math.max(0,s.influence-30);}},
+      {label:"Decline and go it alone", note:"Nothing changes — but pride is intact.", effect:s=>{s.dharmaIndex+=1;}}
+    ]}
+];
 
-function addEvent(icon,text){
- const e=document.createElement("div");e.className="event";e.innerHTML=`<div class="eventicon">${icon}</div><div><b>${text}</b><small>just now</small></div>`;
- document.getElementById("events").prepend(e);
- while(document.getElementById("events").children.length>4)document.getElementById("events").lastElementChild.remove();
-}
-function rand(a,b){return a+Math.random()*(b-a)}
-function worldToScreen(x,y){return {x:x*W+state.cameraX,y:y*H+state.cameraY}}
-function drawSky(t){
- const day=state.night?0.28:1;
- const g=ctx.createLinearGradient(0,0,0,H);
- g.addColorStop(0,state.night?"#020817":"#071a3d");g.addColorStop(.55,state.night?"#071936":"#153c69");g.addColorStop(1,state.night?"#0a1730":"#5e6f8f");
- ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
- const glow=ctx.createRadialGradient(W*.54,H*.55,10,W*.54,H*.55,Math.max(W,H)*.55);
- glow.addColorStop(0,state.night?"rgba(92,120,255,.10)":"rgba(255,196,126,.34)");glow.addColorStop(1,"transparent");
- ctx.fillStyle=glow;ctx.fillRect(0,0,W,H);
+/* ============================= STATE ============================= */
 
- if(!state.night){
-   const sx=W*.70,sy=H*.46;
-   const sun=ctx.createRadialGradient(sx,sy,2,sx,sy,90);sun.addColorStop(0,"rgba(255,244,199,.95)");sun.addColorStop(1,"rgba(255,190,100,0)");
-   ctx.fillStyle=sun;ctx.fillRect(sx-100,sy-100,200,200);ctx.fillStyle="#fff0bb";ctx.beginPath();ctx.arc(sx,sy,8,0,Math.PI*2);ctx.fill();
- }else{
-   ctx.fillStyle="#e8f2ff";ctx.beginPath();ctx.arc(W*.73,H*.22,20,0,Math.PI*2);ctx.fill();
-   ctx.fillStyle="#07142f";ctx.beginPath();ctx.arc(W*.75,H*.205,18,0,Math.PI*2);ctx.fill();
- }
- state.stars.forEach(s=>{ctx.globalAlpha=s.a*(state.night?1:.45);ctx.fillStyle="#d8edff";ctx.beginPath();ctx.arc(s.x*W,s.y*H,s.r,0,Math.PI*2);ctx.fill()});ctx.globalAlpha=1;
- // distant mist / ocean
- const horizon=H*.64;
- ctx.fillStyle=state.night?"rgba(25,55,88,.55)":"rgba(180,206,224,.24)";ctx.fillRect(0,horizon,W,H-horizon);
- for(let i=0;i<13;i++){
-   const yy=horizon+20+i*25+Math.sin(t*.0004+i)*3;
-   ctx.strokeStyle=state.night?"rgba(130,180,220,.07)":"rgba(255,255,255,.12)";ctx.lineWidth=1;
-   ctx.beginPath();for(let x=-20;x<W+20;x+=22)ctx.lineTo(x,yy+Math.sin(x*.025+i)*2);ctx.stroke();
- }
+let state = null;
+let councilQueue = [];
+let modalOpenName = null;
+let simInterval = null;
+let lastFrameTime = performance.now();
+
+function freshPlanet(i){
+  return {
+    unlocked: i===0, sustained:false,
+    atmosphere:i===0?6:0, water:0, biosphere:0, pollution:0,
+    population:0, popCap:0,
+    energy:0, biomass:0,
+    buildings:{solar:0,bioreactor:0,terraform:0,habitat:0,aiCore:0,purifier:0}
+  };
 }
-function drawIsland(I,i,t){
- const p=worldToScreen(I.x,I.y),s=I.s*Math.min(W,H)*.15;
- const bob=Math.sin(t*.001+i*1.7)*3;
- const x=p.x,y=p.y+bob;
- // shadow
- ctx.fillStyle="rgba(0,0,0,.28)";ctx.beginPath();ctx.ellipse(x,y+s*.56,s*.65,s*.16,0,0,Math.PI*2);ctx.fill();
- // rock underside
- const rock=ctx.createLinearGradient(x,y,x,y+s*.6);rock.addColorStop(0,"#385f67");rock.addColorStop(1,"#122c38");
- ctx.fillStyle=rock;ctx.beginPath();ctx.moveTo(x-s*.7,y);ctx.bezierCurveTo(x-s*.5,y+s*.35,x-s*.25,y+s*.5,x-s*.08,y+s*.64);ctx.bezierCurveTo(x+s*.1,y+s*.55,x+s*.45,y+s*.48,x+s*.72,y);ctx.closePath();ctx.fill();
- // grass top
- const grass=["#6ca07c","#7197a0","#86a77a","#6f8db0"][I.c%4];
- ctx.fillStyle=grass;ctx.beginPath();ctx.ellipse(x,y,s*.72,s*.29,0,0,Math.PI*2);ctx.fill();
- ctx.strokeStyle="rgba(219,255,206,.28)";ctx.lineWidth=2;ctx.stroke();
- // trees
- for(let k=0;k<I.tree;k++){
-   const tx=x+(k-(I.tree-1)/2)*s*.22+Math.sin(k*8+i)*s*.03,ty=y-s*.04-Math.abs(k-(I.tree-1)/2)*s*.04;
-   ctx.fillStyle="#4c6a4e";ctx.fillRect(tx-2,ty,4,s*.14);
-   ctx.fillStyle=k%2?"#5e9d76":"#4f8b68";ctx.beginPath();ctx.arc(tx,ty-s*.06,9+s*.02,0,Math.PI*2);ctx.fill();
- }
- if(I.house){
-   const hx=x-s*.22,hy=y-s*.17;ctx.fillStyle="#5b4050";ctx.fillRect(hx,hy, s*.3,s*.22);
-   ctx.fillStyle="#9d6070";ctx.beginPath();ctx.moveTo(hx-s*.03,hy);ctx.lineTo(hx+s*.15,hy-s*.14);ctx.lineTo(hx+s*.33,hy);ctx.closePath();ctx.fill();
-   ctx.fillStyle="#ffd879";ctx.fillRect(hx+s*.09,hy+s*.08,5,7);ctx.fillRect(hx+s*.22,hy+s*.08,5,7);
- }
- if(I.lighthouse){
-   const lx=x+s*.17,ly=y-s*.34;ctx.fillStyle="#e7e3d0";ctx.fillRect(lx,ly,s*.08,s*.28);
-   ctx.fillStyle="#d85c67";ctx.beginPath();ctx.moveTo(lx-s*.02,ly);ctx.lineTo(lx+s*.12,ly);ctx.lineTo(lx+s*.1,ly-s*.08);ctx.lineTo(lx,ly-s*.08);ctx.closePath();ctx.fill();
-   ctx.fillStyle="#fff1a8";ctx.beginPath();ctx.arc(lx+s*.04,ly-s*.01,4,0,Math.PI*2);ctx.fill();
- }
- if(state.selected===i){ctx.strokeStyle="#b9f1ff";ctx.lineWidth=3;ctx.setLineDash([5,5]);ctx.beginPath();ctx.ellipse(x,y,s*.84,s*.38,0,0,Math.PI*2);ctx.stroke();ctx.setLineDash([])}
+function freshState(){
+  return {
+    version:1,
+    data:20, influence:30, dharmaIndex:0,
+    techTier:{fusion:0,genomics:0,governance:0,orbital:0,sensors:0,cities:0},
+    planets: PLANETS_CONFIG.map((_,i)=>freshPlanet(i)),
+    selectedPlanet:0,
+    unlockedAchievements:[],
+    chronicle:[],
+    councilTimer:0,
+    councilOrder: [],
+    onboarded:false,
+    streak:0, lastVisitDay:null,
+    lastSaveTime: Date.now(),
+    createdAt: Date.now(),
+    playSeconds:0,
+    view:"system"
+  };
 }
-function drawParticles(t){
- if(state.weather==="rain"){
-   ctx.strokeStyle="rgba(137,210,255,.32)";ctx.lineWidth=1;
-   for(let i=0;i<80;i++){const x=(i*97+t*.16)%W,y=(i*53+t*.52)%H*.75;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-3,y+11);ctx.stroke()}
- }else if(state.weather==="snow"){
-   ctx.fillStyle="rgba(255,255,255,.65)";for(let i=0;i<65;i++){const x=(i*73+t*.012)%W,y=(i*47+t*.025)%H;ctx.beginPath();ctx.arc(x,y,2,0,Math.PI*2);ctx.fill()}
- }else if(state.weather==="aurora"){
-   const a=ctx.createLinearGradient(0,0,W*.9,0);a.addColorStop(0,"rgba(75,255,205,0)");a.addColorStop(.5,"rgba(76,230,210,.13)");a.addColorStop(1,"rgba(140,92,255,0)");
-   ctx.fillStyle=a;ctx.beginPath();ctx.moveTo(0,H*.17);ctx.quadraticCurveTo(W*.4,H*.05,W*.8,H*.2);ctx.quadraticCurveTo(W*.4,H*.28,0,H*.25);ctx.fill();
- }
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(!raw) return freshState();
+    const parsed = JSON.parse(raw);
+    const fresh = freshState();
+    // shallow-merge to survive future added fields
+    const merged = Object.assign({}, fresh, parsed);
+    merged.planets = fresh.planets.map((fp,i)=>Object.assign({}, fp, (parsed.planets&&parsed.planets[i])||{}, {
+      buildings: Object.assign({}, fp.buildings, (parsed.planets&&parsed.planets[i]&&parsed.planets[i].buildings)||{})
+    }));
+    merged.techTier = Object.assign({}, fresh.techTier, parsed.techTier||{});
+    return merged;
+  }catch(e){ console.warn("save load failed, starting fresh", e); return freshState(); }
 }
+function saveState(){
+  state.lastSaveTime = Date.now();
+  try{ localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }catch(e){ console.warn("save failed", e); }
+}
+
+/* ============================= HELPERS ============================= */
+
+function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+function fmt(n){
+  n = Math.floor(n*10)/10;
+  if(Math.abs(n)>=1e6) return (n/1e6).toFixed(2)+"M";
+  if(Math.abs(n)>=1e3) return (n/1e3).toFixed(2)+"K";
+  return (Math.round(n*10)/10).toString();
+}
+function techMult(key){ return Math.pow(TECHS[key].mult, state.techTier[key]||0); }
+function techCost(key){ return Math.ceil(TECHS[key].baseCost*Math.pow(TECHS[key].growth, state.techTier[key]||0)); }
+
+function energyCap(p){ return 220 + p.buildings.solar*45; }
+function biomassCap(p){ return 220 + p.buildings.bioreactor*45; }
+
+function sustainability(p){
+  if(!p.unlocked) return 0;
+  return clamp(p.atmosphere*0.25 + p.water*0.25 + p.biosphere*0.35 + (100-p.pollution)*0.15, 0, 100);
+}
+
+function buildingCost(p,key){
+  const cfg=BUILDINGS[key], lvl=p.buildings[key], cost={};
+  for(const res in cfg.baseCost) cost[res]=Math.ceil(cfg.baseCost[res]*Math.pow(cfg.growth,lvl));
+  return cost;
+}
+function canAffordLocal(p,cost){
+  for(const res in cost){
+    const have = (res==="data"||res==="influence") ? state[res] : p[res];
+    if(have < cost[res]) return false;
+  }
+  return true;
+}
+function payLocal(p,cost){
+  for(const res in cost){
+    if(res==="data"||res==="influence") state[res]-=cost[res]; else p[res]-=cost[res];
+  }
+}
+function bumpRandomPlanet(s,field,amount){
+  const unlocked = s.planets.filter(p=>p.unlocked);
+  if(!unlocked.length) return;
+  const p = unlocked[Math.floor(Math.random()*unlocked.length)];
+  if(field==="pollution") p.pollution = clamp(p.pollution+amount,0,100);
+  else p[field] = Math.max(0, p[field]+amount);
+}
+
+function addChronicle(text, manual){
+  state.chronicle.unshift({t:Date.now(), text, manual:!!manual});
+  if(state.chronicle.length>60) state.chronicle.length=60;
+}
+
+function toast(msg){
+  const el=document.getElementById("toast");
+  el.textContent=msg; el.classList.add("show");
+  clearTimeout(toast._t); toast._t=setTimeout(()=>el.classList.remove("show"),2600);
+}
+
+function unlockAchievement(a){
+  state.unlockedAchievements.push(a.id);
+  toast("🏆 Deed unlocked: "+a.name);
+  addChronicle("🏆 "+a.name+" — "+a.desc);
+  state.influence += 25;
+}
+function checkAchievements(){
+  ACHIEVEMENTS.forEach(a=>{
+    if(!state.unlockedAchievements.includes(a.id) && a.check(state)) unlockAchievement(a);
+  });
+}
+
+/* ============================= SIMULATION ============================= */
+
+function tickPlanetEconomy(p, dt){
+  if(!p.unlocked) return;
+  const b=p.buildings;
+  const energyGen = b.solar*BUILDINGS.solar.baseRate*techMult("fusion");
+  const biomassGen = b.bioreactor*BUILDINGS.bioreactor.baseRate*techMult("genomics");
+  p.energy = clamp(p.energy + energyGen*dt, 0, energyCap(p));
+  p.biomass = clamp(p.biomass + biomassGen*dt, 0, biomassCap(p));
+
+  // terraforming
+  if(b.terraform>0 && (p.atmosphere<100 || p.water<100 || p.biosphere<100)){
+    const wantPoints = b.terraform*BUILDINGS.terraform.baseRate*dt;
+    const costPerPoint = 0.5;
+    const maxByEnergy = p.energy/costPerPoint;
+    const maxByBiomass = p.biomass/costPerPoint;
+    let points = Math.min(wantPoints, maxByEnergy, maxByBiomass);
+    if(points>0){
+      p.energy -= points*costPerPoint; p.biomass -= points*costPerPoint;
+      if(p.atmosphere<100){ const add=Math.min(points,100-p.atmosphere); p.atmosphere+=add; points-=add; }
+      if(points>0 && p.atmosphere>=100 && p.water<100){ const add=Math.min(points,100-p.water); p.water+=add; points-=add; }
+      if(points>0 && p.water>=100 && p.biosphere<100){ const add=Math.min(points,100-p.biosphere); p.biosphere+=add; points-=add; }
+    }
+  }
+
+  // population
+  p.popCap = Math.round(b.habitat*18*techMult("cities"));
+  const habitable = p.atmosphere>=40 && p.water>=15;
+  if(habitable && p.population<p.popCap){
+    const growth = Math.max(0.15,(p.biosphere/100))*p.popCap*0.012*dt;
+    p.population = Math.min(p.popCap, p.population+growth);
+  }
+  if(p.population>0){
+    const upkeep = p.population*0.018*dt;
+    if(p.biomass>=upkeep){ p.biomass-=upkeep; }
+    else { p.biomass=0; p.population=Math.max(0,p.population-p.population*0.01*dt); }
+  }
+
+  // pollution
+  const gen = (b.solar+b.bioreactor+b.terraform)*0.05*techMult("orbital") + p.population*0.012;
+  const reduce = b.purifier*0.55;
+  p.pollution = clamp(p.pollution + (gen-reduce)*dt*0.12, 0, 100);
+
+  // sustained flag
+  if(!p.sustained && sustainability(p)>=100){
+    p.sustained=true;
+    toast("✦ "+PLANETS_CONFIG[state.planets.indexOf(p)].name+" has reached full sustainability!");
+    addChronicle("✦ A world achieves balance — full sustainability reached.");
+  }
+}
+
+function tickGlobal(dt){
+  let totalPop=0, sustainedCount=0, dataGen=0;
+  state.planets.forEach(p=>{
+    if(!p.unlocked) return;
+    totalPop += p.population;
+    if(p.sustained) sustainedCount++;
+    dataGen += p.buildings.aiCore*BUILDINGS.aiCore.baseRate*(1+p.population*0.02);
+  });
+  state.data += dataGen*dt;
+  state.influence += (totalPop*0.0012 + sustainedCount*0.05 + 0.015)*techMult("governance")*dt;
+  state.dharmaIndex = clamp(state.dharmaIndex, -100, 100);
+}
+
+function tickCouncil(dt){
+  state.councilTimer += dt;
+}
+
+function tick(dt){
+  state.planets.forEach(p=>tickPlanetEconomy(p,dt));
+  tickGlobal(dt);
+  tickCouncil(dt);
+  state.playSeconds += dt;
+  checkAchievements();
+}
+
+/* ---- offline / coarse fast-forward simulation ---- */
+function fastForward(totalSeconds){
+  const step = 60; // 1-minute chunks
+  let remaining = totalSeconds;
+  let iterations = 0;
+  while(remaining>0 && iterations<600){
+    const dt = Math.min(step, remaining);
+    tick(dt);
+    remaining -= dt;
+    iterations++;
+  }
+}
+
+/* ============================= COUNCIL ============================= */
+
+function nextCouncilIndex(){
+  if(councilQueue.length===0){
+    councilQueue = COUNCIL_EVENTS.map((_,i)=>i);
+    for(let i=councilQueue.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [councilQueue[i],councilQueue[j]]=[councilQueue[j],councilQueue[i]]; }
+  }
+  return councilQueue.shift();
+}
+function openCouncil(forced){
+  const idx = nextCouncilIndex();
+  const ev = COUNCIL_EVENTS[idx];
+  const body = document.getElementById("councilBody");
+  body.innerHTML = `<div class="council-flavor">${ev.flavor}</div><div class="council-text">${ev.text}</div>` +
+    ev.options.map((o,i)=>`<button class="optionbtn" data-i="${i}"><b>${o.label}</b><span>${o.note}</span></button>`).join("");
+  body.querySelectorAll(".optionbtn").forEach(btn=>{
+    btn.onclick=()=>{
+      const o = ev.options[+btn.dataset.i];
+      o.effect(state);
+      addChronicle("☸ Council ruling — \""+ev.flavor+"\": "+o.label+".");
+      document.getElementById("councilModal").classList.remove("show");
+      toast("The council's decision has been recorded.");
+      state.councilTimer=0;
+      renderAll(); saveState();
+    };
+  });
+  document.getElementById("councilModal").classList.add("show");
+}
+
+/* ============================= RENDER: CANVAS ============================= */
+
+const canvas=document.getElementById("sky"), ctx=canvas.getContext("2d");
+let W=innerWidth,H=innerHeight,DPR=Math.min(devicePixelRatio||1,2);
+function resize(){ W=innerWidth;H=innerHeight;canvas.width=W*DPR;canvas.height=H*DPR;canvas.style.width=W+"px";canvas.style.height=H+"px";ctx.setTransform(DPR,0,0,DPR,0,0); }
+addEventListener("resize",resize); resize();
+
+const stars = Array.from({length:150},()=>({x:Math.random(),y:Math.random()*.85,r:Math.random()*1.6+.2,a:Math.random()*.7+.2}));
+let planetScreenPos = []; // recomputed each frame for system view hit-testing
+let parallax = {x:0,y:0};
+
+function drawStarfield(t){
+  const g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,"#050f26"); g.addColorStop(.6,"#0a1d43"); g.addColorStop(1,"#08152c");
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  stars.forEach(s=>{
+    ctx.globalAlpha = s.a*(0.55+0.45*Math.sin(t*0.0006+s.x*10));
+    ctx.fillStyle="#d8edff";
+    ctx.beginPath(); ctx.arc(s.x*W+parallax.x*8, s.y*H+parallax.y*8, s.r, 0, Math.PI*2); ctx.fill();
+  });
+  ctx.globalAlpha=1;
+}
+
+function planetVisualColor(p, cfg){
+  // blend base rocky color toward blue (water) and green (biosphere)
+  const base = hexToRgb(cfg.base);
+  const water = hexToRgb("#2c78c9");
+  const bio = hexToRgb("#4f9a5f");
+  let r=base.r,g=base.g,b=base.b;
+  const wf=p.water/100, bf=p.biosphere/100;
+  r = r*(1-wf)+water.r*wf; g=g*(1-wf)+water.g*wf; b=b*(1-wf)+water.b*wf;
+  r = r*(1-bf*0.6)+bio.r*(bf*0.6); g=g*(1-bf*0.6)+bio.g*(bf*0.6); b=b*(1-bf*0.6)+bio.b*(bf*0.6);
+  return `rgb(${r|0},${g|0},${b|0})`;
+}
+function hexToRgb(hex){ const n=parseInt(hex.slice(1),16); return {r:(n>>16)&255,g:(n>>8)&255,b:n&255}; }
+
+function drawSystemView(t){
+  drawStarfield(t);
+  const cx=W*0.52+parallax.x*4, cy=H*0.56+parallax.y*4;
+  // sun
+  const sunR=34;
+  const glow=ctx.createRadialGradient(cx,cy,4,cx,cy,sunR*4.2);
+  glow.addColorStop(0,"rgba(255,224,150,.55)"); glow.addColorStop(1,"transparent");
+  ctx.fillStyle=glow; ctx.fillRect(cx-sunR*4.2,cy-sunR*4.2,sunR*8.4,sunR*8.4);
+  const sunGrad=ctx.createRadialGradient(cx-8,cy-8,2,cx,cy,sunR);
+  sunGrad.addColorStop(0,"#fff6d8"); sunGrad.addColorStop(1,"#ffb24d");
+  ctx.fillStyle=sunGrad; ctx.beginPath(); ctx.arc(cx,cy,sunR,0,Math.PI*2); ctx.fill();
+
+  planetScreenPos = [];
+  PLANETS_CONFIG.forEach((cfg,i)=>{
+    const p = state.planets[i];
+    const scale = Math.min(W,H)/760;
+    const orbitR = cfg.orbit*scale + 40;
+    // orbit ring
+    ctx.strokeStyle = p.unlocked? "rgba(160,205,255,.18)" : "rgba(160,205,255,.07)";
+    ctx.setLineDash(p.unlocked?[]:[4,6]);
+    ctx.lineWidth=1;
+    ctx.beginPath(); ctx.arc(cx,cy,orbitR,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
+
+    const angle = (t*0.00002/(cfg.period/40||1)) + i*1.4;
+    const px = cx+Math.cos(angle)*orbitR, py=cy+Math.sin(angle)*orbitR*0.62;
+    const size = (cfg.size*scale)+ (p.unlocked? sustainability(p)*0.04 : 0);
+    planetScreenPos.push({x:px,y:py,r:Math.max(size,16),idx:i});
+
+    // shadow
+    ctx.fillStyle="rgba(0,0,0,.25)"; ctx.beginPath(); ctx.ellipse(px,py+size*0.7,size*0.9,size*0.25,0,0,Math.PI*2); ctx.fill();
+
+    if(!p.unlocked){
+      ctx.fillStyle="rgba(120,140,170,.35)";
+      ctx.beginPath(); ctx.arc(px,py,size,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle="rgba(200,220,255,.3)"; ctx.lineWidth=1.5; ctx.setLineDash([3,4]);
+      ctx.beginPath(); ctx.arc(px,py,size,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle="#cfe0f4"; ctx.font="11px Inter, sans-serif"; ctx.textAlign="center";
+      ctx.fillText("🔒", px, py+4);
+    } else {
+      const col = planetVisualColor(p,cfg);
+      const pg = ctx.createRadialGradient(px-size*0.3,py-size*0.3,1,px,py,size);
+      pg.addColorStop(0, col); pg.addColorStop(1, "rgba(5,10,25,.6)");
+      ctx.fillStyle=pg; ctx.beginPath(); ctx.arc(px,py,size,0,Math.PI*2); ctx.fill();
+      // atmosphere ring
+      if(p.atmosphere>5){
+        ctx.strokeStyle=`rgba(140,210,255,${clamp(p.atmosphere/140,0,.55)})`;
+        ctx.lineWidth=Math.max(1.5,size*0.14);
+        ctx.beginPath(); ctx.arc(px,py,size+ctx.lineWidth*0.6,0,Math.PI*2); ctx.stroke();
+      }
+      // city lights
+      if(p.population>2){
+        for(let k=0;k<Math.min(6,Math.ceil(p.population/20));k++){
+          const a2=k*1.1+i;
+          ctx.fillStyle="#ffe9a8";
+          ctx.beginPath(); ctx.arc(px+Math.cos(a2)*size*0.5, py+Math.sin(a2)*size*0.3, 1.4, 0, Math.PI*2); ctx.fill();
+        }
+      }
+      if(p.sustained){
+        ctx.strokeStyle="rgba(255,213,107,.85)"; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(px,py,size+5,0,Math.PI*2); ctx.stroke();
+      }
+      if(i===state.selectedPlanet){
+        ctx.strokeStyle="#b9f1ff"; ctx.lineWidth=2; ctx.setLineDash([5,5]);
+        ctx.beginPath(); ctx.arc(px,py,size+9,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
+      }
+    }
+    ctx.fillStyle="#dceeff"; ctx.font="600 11px Inter, sans-serif"; ctx.textAlign="center";
+    ctx.fillText(cfg.name, px, py+size+16);
+  });
+}
+
+function drawPlanetView(t){
+  drawStarfield(t);
+  const p = state.planets[state.selectedPlanet];
+  const cfg = PLANETS_CONFIG[state.selectedPlanet];
+  const cx=W*0.5+parallax.x*3, cy=H*0.55+parallax.y*3;
+  const size = Math.min(W,H)*0.28;
+
+  if(!p.unlocked){
+    ctx.fillStyle="rgba(120,140,170,.3)"; ctx.beginPath(); ctx.arc(cx,cy,size,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle="#cfe0f4"; ctx.font="16px Inter, sans-serif"; ctx.textAlign="center";
+    ctx.fillText("This world has not been claimed yet.", cx, cy+size+40);
+    return;
+  }
+
+  // base sphere
+  const col = planetVisualColor(p,cfg);
+  const pg = ctx.createRadialGradient(cx-size*0.3,cy-size*0.35,size*0.1,cx,cy,size);
+  pg.addColorStop(0,col); pg.addColorStop(1,"rgba(4,8,20,.75)");
+  ctx.fillStyle=pg; ctx.beginPath(); ctx.arc(cx,cy,size,0,Math.PI*2); ctx.fill();
+
+  // terrain texture patches (rocky base always visible under haze)
+  ctx.save(); ctx.beginPath(); ctx.arc(cx,cy,size,0,Math.PI*2); ctx.clip();
+  for(let i=0;i<14;i++){
+    const a=i*0.9+ i*i*0.3, r=size*(0.2+0.7*((i*53)%97)/97);
+    const bx=cx+Math.cos(a)*r*0.8, by=cy+Math.sin(a)*r*0.5;
+    ctx.fillStyle="rgba(0,0,0,.06)";
+    ctx.beginPath(); ctx.ellipse(bx,by,size*0.16,size*0.09,a,0,Math.PI*2); ctx.fill();
+  }
+  // biosphere patches
+  if(p.biosphere>3){
+    const count = Math.round(p.biosphere/8);
+    for(let i=0;i<count;i++){
+      const a=(i*2.4)+t*0.00005, r=size*(0.15+0.7*((i*37)%53)/53);
+      const bx=cx+Math.cos(a)*r*0.85, by=cy+Math.sin(a)*r*0.5;
+      ctx.fillStyle="rgba(90,210,140,.5)";
+      ctx.beginPath(); ctx.ellipse(bx,by,size*0.09,size*0.05,a,0,Math.PI*2); ctx.fill();
+    }
+  }
+  // cloud swirls once there's water
+  if(p.water>10){
+    ctx.strokeStyle=`rgba(255,255,255,${clamp(p.water/220,0,.4)})`;
+    ctx.lineWidth=size*0.05;
+    for(let i=0;i<3;i++){
+      ctx.beginPath();
+      ctx.arc(cx+Math.sin(t*0.00012+i*2)*size*0.3, cy+Math.cos(t*0.00009+i)*size*0.3, size*0.55, i*1.1, i*1.1+1.6);
+      ctx.stroke();
+    }
+  }
+  // pollution haze
+  if(p.pollution>5){
+    ctx.fillStyle=`rgba(140,90,50,${clamp(p.pollution/180,0,.5)})`;
+    ctx.beginPath(); ctx.arc(cx,cy,size,0,Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+
+  // atmosphere ring
+  if(p.atmosphere>3){
+    ctx.strokeStyle=`rgba(140,210,255,${clamp(p.atmosphere/140,0,.6)})`;
+    ctx.lineWidth=size*0.06;
+    ctx.beginPath(); ctx.arc(cx,cy,size+size*0.03,0,Math.PI*2); ctx.stroke();
+  }
+  // city lights
+  if(p.population>1){
+    const count=Math.min(40,Math.ceil(p.population/3));
+    for(let i=0;i<count;i++){
+      const a=(i*2.9)+i, r=size*(0.2+0.75*((i*29)%41)/41);
+      const bx=cx+Math.cos(a)*r*0.85, by=cy+Math.sin(a)*r*0.5;
+      ctx.fillStyle="rgba(255,233,168,.85)";
+      ctx.beginPath(); ctx.arc(bx,by,1.3,0,Math.PI*2); ctx.fill();
+    }
+  }
+  // orbiting satellites = ai core / solar presence
+  const sats = p.buildings.solar+p.buildings.aiCore;
+  for(let i=0;i<Math.min(6,sats);i++){
+    const a=t*0.0008+i*(Math.PI*2/6);
+    const sx=cx+Math.cos(a)*(size+22), sy=cy+Math.sin(a)*(size+22)*0.55;
+    ctx.fillStyle="#bcd6ff"; ctx.beginPath(); ctx.arc(sx,sy,2.4,0,Math.PI*2); ctx.fill();
+  }
+}
+
 function render(t){
- drawSky(t);
- const arr=[...baseIslands,...state.placed];
- arr.forEach((I,i)=>drawIsland(I,i,t));
- drawParticles(t);
- // tiny floating motes
- for(let i=0;i<18;i++){const x=(i*137+t*.01)%W,y=H*.3+(i*71)%H*.42;ctx.globalAlpha=.16;ctx.fillStyle="#b8eaff";ctx.fillRect(x,y,2,2)}
- ctx.globalAlpha=1;
- requestAnimationFrame(render);
+  if(state){
+    if(state.view==="system") drawSystemView(t); else drawPlanetView(t);
+  }
+  requestAnimationFrame(render);
 }
 requestAnimationFrame(render);
 
-function nearestIsland(mx,my){
- const arr=[...baseIslands,...state.placed];let best=-1,bd=Infinity;
- arr.forEach((I,i)=>{const p=worldToScreen(I.x,I.y),d=Math.hypot(mx-p.x,my-p.y);const radius=I.s*Math.min(W,H)*.18;if(d<radius&&d<bd){bd=d;best=i}});
- return best;
-}
-canvas.addEventListener("pointerdown",e=>{state.dragging=true;state.lastX=e.clientX;state.lastY=e.clientY;canvas.setPointerCapture?.(e.pointerId)});
-canvas.addEventListener("pointermove",e=>{if(state.dragging&&state.tool==="place"&&e.buttons===1){state.cameraX+=(e.clientX-state.lastX)*.35;state.cameraY+=(e.clientY-state.lastY)*.2;state.lastX=e.clientX;state.lastY=e.clientY}});
-canvas.addEventListener("pointerup",e=>{
- state.dragging=false;
- if(Math.hypot(e.clientX-state.lastX,e.clientY-state.lastY)<6){
-   const i=nearestIsland(e.clientX,e.clientY);
-   if(state.tool==="place"){
-     if(i>=0){state.selected=i;state.moments++;state.dreams++;addEvent("✦","You noticed something new.");toast("A small moment counts.")}
-     else{
-       const nx=(e.clientX-state.cameraX)/W,ny=(e.clientY-state.cameraY)/H;
-       if(ny>.38&&ny<.78&&state.placed.length<12){state.placed.push({x:nx,y:ny,s:rand(.35,.65),c:Math.floor(rand(0,4)),tree:Math.floor(rand(1,4))});state.islands++;state.moments++;state.dreams+=2;addEvent("🏝️","You built a new island.");toast("New island born.");updateStats()}
-     }
-   } else if(state.tool==="decorate"&&i>=0){state.moments++;state.dreams++;toast("A little more life.");addEvent("🌿","You decorated an island.")}
-   else if(state.tool==="erase"&&i>=baseIslands.length){state.placed.splice(i-baseIslands.length,1);state.islands--;state.selected=null;toast("Island returned to the void.");updateStats()}
-   else if(state.tool==="weather"){cycleWeather()}
-   else if(state.tool==="time"){state.night=!state.night;toast(state.night?"Night has fallen.":"Morning returned.");addEvent("◷",state.night?"You stayed for the night.":"You brought back the morning.");}
- }
+/* pointer / click handling */
+canvas.addEventListener("pointermove",e=>{
+  parallax.x = clamp((e.clientX/W-0.5)*1.2,-1,1);
+  parallax.y = clamp((e.clientY/H-0.5)*1.2,-1,1);
 });
-canvas.addEventListener("pointerleave",()=>state.dragging=false);
+canvas.addEventListener("pointerdown",e=>{
+  if(state.view!=="system") return;
+  const mx=e.clientX, my=e.clientY;
+  let best=-1, bd=Infinity;
+  planetScreenPos.forEach(o=>{ const d=Math.hypot(mx-o.x,my-o.y); if(d<o.r+14 && d<bd){bd=d; best=o.idx;} });
+  if(best>=0){
+    if(state.planets[best].unlocked){
+      state.selectedPlanet=best; setView("planet"); renderAll();
+    } else {
+      toast("This world hasn't been claimed yet — build up your current world first.");
+    }
+  }
+});
 
-function cycleWeather(){const list=["clear","rain","snow","aurora"];state.weather=list[(list.indexOf(state.weather)+1)%list.length];const names={clear:"Clear skies.",rain:"Rainfall activated.",snow:"Snow is falling.",aurora:"Aurora mode."};toast(names[state.weather]);addEvent("☁",names[state.weather]);state.moments++;updateStats()}
-document.querySelectorAll(".tool[data-tool]").forEach(b=>b.addEventListener("click",()=>{
- document.querySelectorAll(".tool").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");state.tool=b.dataset.tool;
- if(state.tool==="weather")cycleWeather(); if(state.tool==="time"){state.night=!state.night;toast(state.night?"Night has fallen.":"Morning returned.");}
-}));
-document.getElementById("explore").addEventListener("click",()=>{state.tool="place";document.querySelectorAll(".tool").forEach(x=>x.classList.toggle("selected",x.dataset.tool==="place"));toast("Click empty sky to build an island.");addEvent("🧭","You began exploring.");state.moments++;updateStats()});
-document.getElementById("themeBtn").addEventListener("click",()=>{state.night=!state.night;toast(state.night?"Night ambience":"Day ambience");});
+/* ============================= UI RENDER ============================= */
 
-const modal=document.getElementById("modal"),title=document.getElementById("modalTitle"),body=document.getElementById("modalBody");
-function openModal(type){
- modal.classList.add("show");
- if(type==="programs"){title.textContent="Programs";body.innerHTML=`<div class="cardgrid"><div class="mini"><b>Dreamscape</b><small>Build a tiny universe from thoughts and moments.</small></div><div class="mini"><b>Coming soon</b><small>Something involving biology, memory and a camera.</small></div><div class="mini"><b>???</b><small>The next strange experiment has not been invented yet.</small></div></div>`}
- if(type==="about"){title.textContent="Why Dreamscape?";body.innerHTML=`<p style="color:#b7cbe5;line-height:1.7">Dreamscape is deliberately small. Instead of asking you to grind for points, it turns curiosity into a toy: build something, notice something, write something down, then leave with a tiny useful habit.</p><div class="cardgrid"><div class="mini"><b>Play</b><small>No tutorial maze. Click, drag, experiment.</small></div><div class="mini"><b>Think</b><small>The journal turns random thoughts into visible memories.</small></div><div class="mini"><b>Focus</b><small>A built-in five-minute quiet mode when you need it.</small></div></div>`}
- if(type==="journal"){title.textContent="Dream Journal";body.innerHTML=state.journal.length?state.journal.map(x=>`<div class="journalentry">${x}</div>`).join(""):"<p style='color:#8fa7c7'>Your journal is empty. That is a perfectly respectable beginning.</p>"}
+function setView(v){
+  state.view=v;
+  document.getElementById("vSystem").classList.toggle("active", v==="system");
+  document.getElementById("vPlanet").classList.toggle("active", v==="planet");
 }
-document.querySelectorAll(".nav button[data-modal]").forEach(b=>b.addEventListener("click",()=>b.dataset.modal!=="none"&&openModal(b.dataset.modal)));
-document.getElementById("closeModal").onclick=()=>modal.classList.remove("show");
-modal.addEventListener("click",e=>{if(e.target===modal)modal.classList.remove("show")});
+document.getElementById("vSystem").onclick=()=>{ setView("system"); };
+document.getElementById("vPlanet").onclick=()=>{ setView("planet"); };
 
-const ta=document.querySelector(".journal textarea"),send=document.querySelector(".send");
-send?.remove(); // journal input is injected below on purpose
-document.querySelector(".journal")?.remove(); // compact journal dock is replaced by keyboard shortcut
+function renderResourceBar(){
+  const el = document.getElementById("resourceBar");
+  el.innerHTML = `
+    <div class="res"><span class="ico">📡</span> <b>${fmt(state.data)}</b></div>
+    <div class="res"><span class="ico">☸</span> <b>${fmt(state.influence)}</b></div>
+  `;
+}
 
-// Keyboard-friendly journal dock
-const dock=document.createElement("section");dock.className="panel journal";
-dock.innerHTML=`<div class="paneltitle"><span>▣ Your Dream Journal</span><button id="openJ" class="iconbtn">→</button></div><textarea id="journalInput" placeholder="Maybe I'll build a floating library…"></textarea><button class="send" id="saveJ">➤</button>`;
-document.getElementById("app").appendChild(dock);
-document.getElementById("openJ").onclick=()=>openModal("journal");
-document.getElementById("saveJ").onclick=saveJournal;
-document.getElementById("journalInput").addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key==="Enter")saveJournal()});
-function saveJournal(){const v=document.getElementById("journalInput").value.trim();if(!v)return;state.journal.unshift(v);state.dreams++;state.moments++;document.getElementById("journalInput").value="";addEvent("📖","A thought became a memory.");toast("Saved to your dream journal.");updateStats()}
+function renderStatsPanel(){
+  const p = state.planets[state.selectedPlanet];
+  const cfg = PLANETS_CONFIG[state.selectedPlanet];
+  document.getElementById("planetTitle").textContent = cfg.name;
+  document.getElementById("planetEpithet").textContent = cfg.epithet;
+  const body = document.getElementById("statsBody");
 
-const focus=document.getElementById("focus"),timerEl=document.getElementById("timer"),timerBtn=document.getElementById("timerBtn");
-let seconds=300,interval=null;
-document.getElementById("focusBtn").onclick=()=>{focus.classList.add("show");seconds=300;updateTimer();};
-document.getElementById("exitFocus").onclick=()=>{focus.classList.remove("show");clearInterval(interval);interval=null;timerBtn.textContent="Start"};
-function updateTimer(){timerEl.textContent=String(Math.floor(seconds/60)).padStart(2,"0")+":"+String(seconds%60).padStart(2,"0")}
-timerBtn.onclick=()=>{if(interval){clearInterval(interval);interval=null;timerBtn.textContent="Resume"}else{timerBtn.textContent="Pause";interval=setInterval(()=>{seconds--;updateTimer();if(seconds<=0){clearInterval(interval);interval=null;timerBtn.textContent="Done";toast("Five minutes. Nicely done.");state.moments++;state.dreams++;updateStats()}},1000)}};
+  if(!p.unlocked){
+    const canUnlockPrev = state.selectedPlanet>0 ? sustainability(state.planets[state.selectedPlanet-1]) : 100;
+    body.innerHTML = `<p style="font-size:12.5px;color:var(--muted);line-height:1.6">This world is unclaimed. ${state.selectedPlanet>0? `${PLANETS_CONFIG[state.selectedPlanet-1].name} must reach 60% sustainability before an expedition can be launched here.`:""}</p>`;
+    document.getElementById("unlockBtn").style.display="none";
+    return;
+  }
 
-updateStats();
+  const sus = sustainability(p);
+  body.innerHTML = `
+    <div class="statrow"><div class="lbl"><span>⚡ Energy</span><span>${fmt(p.energy)} / ${energyCap(p)}</span></div><div class="bar"><i style="width:${clamp(p.energy/energyCap(p)*100,0,100)}%;background:linear-gradient(90deg,#ffd56b,#ffb24d)"></i></div></div>
+    <div class="statrow"><div class="lbl"><span>🧬 Biomass</span><span>${fmt(p.biomass)} / ${biomassCap(p)}</span></div><div class="bar"><i style="width:${clamp(p.biomass/biomassCap(p)*100,0,100)}%;background:linear-gradient(90deg,#74e7a5,#4f9a5f)"></i></div></div>
+    <div class="statrow"><div class="lbl"><span>Atmosphere</span><span>${p.atmosphere.toFixed(1)}%</span></div><div class="bar atm"><i style="width:${p.atmosphere}%"></i></div></div>
+    <div class="statrow"><div class="lbl"><span>Oceans</span><span>${p.water.toFixed(1)}%</span></div><div class="bar wat"><i style="width:${p.water}%"></i></div></div>
+    <div class="statrow"><div class="lbl"><span>Biosphere</span><span>${p.biosphere.toFixed(1)}%</span></div><div class="bar bio"><i style="width:${p.biosphere}%"></i></div></div>
+    <div class="statrow"><div class="lbl"><span>Pollution</span><span>${p.pollution.toFixed(1)}%</span></div><div class="bar pol"><i style="width:${p.pollution}%"></i></div></div>
+    <div class="statrow"><div class="lbl"><span>Population</span><span>${fmt(p.population)} / ${p.popCap}</span></div><div class="bar pop"><i style="width:${p.popCap? clamp(p.population/p.popCap*100,0,100):0}%"></i></div></div>
+    <div class="statrow"><div class="lbl"><span>Sustainability</span><span>${sus.toFixed(1)}%</span></div><div class="bar sus"><i style="width:${sus}%"></i></div></div>
+    ${p.sustained? `<div class="sustained-badge">✦ Fully Sustained</div>` : ""}
+  `;
+
+  const nextIdx = state.selectedPlanet+1;
+  const unlockBtn = document.getElementById("unlockBtn");
+  if(nextIdx < PLANETS_CONFIG.length && !state.planets[nextIdx].unlocked){
+    unlockBtn.style.display="inline-flex";
+    unlockBtn.textContent = `🚀 Claim ${PLANETS_CONFIG[nextIdx].name}`;
+    unlockBtn.onclick=()=>unlockPlanet(nextIdx);
+  } else {
+    unlockBtn.style.display="none";
+  }
+}
+
+function renderBuildPanel(){
+  const p = state.planets[state.selectedPlanet];
+  const body = document.getElementById("buildBody");
+  if(!p.unlocked){ body.innerHTML=`<p style="font-size:12px;color:var(--muted)">Claim this world to begin building.</p>`; return; }
+  body.innerHTML = BUILD_ORDER.map(key=>{
+    const cfg = BUILDINGS[key];
+    const lvl = p.buildings[key];
+    const cost = buildingCost(p,key);
+    const locked = cfg.requires && Object.keys(cfg.requires).some(f=>p[f] < cfg.requires[f]);
+    const affordable = !locked && canAffordLocal(p,cost);
+    const costStr = Object.entries(cost).map(([k,v])=>{
+      const icon = k==="energy"?"⚡":k==="biomass"?"🧬":k==="data"?"📡":"☸";
+      return `<span>${icon} ${fmt(v)}</span>`;
+    }).join("");
+    return `<div class="bldrow ${locked?'locked':''} ${!affordable&&!locked?'unaffordable':''}" data-key="${key}">
+      <div class="bldrow-top"><span>${cfg.icon} ${cfg.name}</span><span class="lvl">Lv.${lvl}</span></div>
+      <div class="bldrow-desc">${cfg.desc}${locked? ` — requires atmosphere ≥ ${cfg.requires.atmosphere}%`:""}</div>
+      <div class="cost">${costStr}</div>
+    </div>`;
+  }).join("");
+  body.querySelectorAll(".bldrow").forEach(row=>{
+    row.onclick=()=>{
+      const key = row.dataset.key;
+      const cfg = BUILDINGS[key];
+      if(cfg.requires && Object.keys(cfg.requires).some(f=>p[f] < cfg.requires[f])){ toast("Not ready yet — check the requirement."); return; }
+      const cost = buildingCost(p,key);
+      if(!canAffordLocal(p,cost)){ toast("Not enough resources for this."); return; }
+      payLocal(p,cost); p.buildings[key]++;
+      toast(`${cfg.icon} ${cfg.name} upgraded to level ${p.buildings[key]}.`);
+      renderAll(); saveState();
+    };
+  });
+}
+
+function renderTechModal(){
+  document.getElementById("modalTitle").textContent="AI & Terraforming Tech";
+  document.getElementById("modalSub").textContent="Spend Data on empire-wide upgrades. No cap on tiers.";
+  const body = document.getElementById("modalBody");
+  body.innerHTML = `<div class="techgrid">` + Object.entries(TECHS).map(([key,cfg])=>{
+    const tier = state.techTier[key]||0;
+    const cost = techCost(key);
+    const affordable = state.data>=cost;
+    return `<div class="techcard">
+      <b>${cfg.icon} ${cfg.name} <span style="color:var(--cyan)">Lv.${tier}</span></b>
+      <small>${cfg.desc} (${cfg.suffix})</small>
+      <button class="buy" data-key="${key}" ${affordable?'':'disabled'}>Upgrade — 📡 ${fmt(cost)}</button>
+    </div>`;
+  }).join("") + `</div>`;
+  body.querySelectorAll(".buy").forEach(btn=>{
+    btn.onclick=()=>{
+      const key=btn.dataset.key, cost=techCost(key);
+      if(state.data<cost) return;
+      state.data-=cost; state.techTier[key]=(state.techTier[key]||0)+1;
+      toast(`${TECHS[key].icon} ${TECHS[key].name} advanced to Level ${state.techTier[key]}.`);
+      addChronicle(`🧠 Research completed: ${TECHS[key].name} reached level ${state.techTier[key]}.`);
+      renderTechModal(); renderResourceBar(); saveState();
+    };
+  });
+}
+
+function renderAchievementsModal(){
+  document.getElementById("modalTitle").textContent="Deeds of the Reign";
+  document.getElementById("modalSub").textContent=`${state.unlockedAchievements.length} / ${ACHIEVEMENTS.length} unlocked`;
+  const body = document.getElementById("modalBody");
+  body.innerHTML = `<div class="achgrid">` + ACHIEVEMENTS.map(a=>{
+    const unlocked = state.unlockedAchievements.includes(a.id);
+    return `<div class="achcard ${unlocked?'unlocked':'locked'}"><b>${unlocked?'🏆':'🔒'} ${a.name}</b><small>${a.desc}</small></div>`;
+  }).join("") + `</div>`;
+}
+
+function renderChronicleModal(){
+  document.getElementById("modalTitle").textContent="Ruler's Chronicle";
+  document.getElementById("modalSub").textContent="Notes and events from your reign.";
+  const body = document.getElementById("modalBody");
+  const entries = state.chronicle.map(e=>`<div class="journalentry">${e.text}</div>`).join("") || `<p style="color:#8fa7c7;font-size:12.5px">Your chronicle is empty. That is a perfectly respectable beginning.</p>`;
+  body.innerHTML = `<div class="dharma-meter">
+      <div class="dharma-track"><div class="dharma-dot" style="left:${(state.dharmaIndex+100)/2}%"></div></div>
+      <div class="dharma-labels"><span>Artha — pragmatic</span><span>Dharma Index</span><span>Compassionate</span></div>
+    </div>
+    <div class="chronicle-input"><textarea id="chronicleInput" placeholder="Write a note to your future self…"></textarea><button id="chronicleSend">➤</button></div>
+    <div id="chronicleEntries">${entries}</div>`;
+  document.getElementById("chronicleSend").onclick=()=>{
+    const ta=document.getElementById("chronicleInput");
+    const v=ta.value.trim(); if(!v) return;
+    addChronicle("📖 "+v, true); ta.value="";
+    renderChronicleModal();
+  };
+}
+
+function renderDataModal(){
+  document.getElementById("modalTitle").textContent="Save Data";
+  document.getElementById("modalSub").textContent="Everything is stored in this browser only — no account.";
+  const body = document.getElementById("modalBody");
+  body.innerHTML = `<div class="datamodal">
+    <p style="font-size:12px;color:var(--muted)">Export a backup, or paste one in to restore your reign on another device.</p>
+    <textarea id="exportArea" readonly></textarea>
+    <div class="dataactions">
+      <button id="copyExport">Copy backup</button>
+      <button id="showImport">Paste a backup</button>
+      <button class="danger" id="resetGame">Reset reign</button>
+    </div>
+    <textarea id="importArea" placeholder="Paste your backup JSON here…" style="display:none;margin-top:8px"></textarea>
+    <div class="dataactions" id="importActions" style="display:none"><button id="doImport">Restore this backup</button></div>
+  </div>`;
+  document.getElementById("exportArea").value = JSON.stringify(state);
+  document.getElementById("copyExport").onclick=()=>{
+    document.getElementById("exportArea").select();
+    document.execCommand && document.execCommand("copy");
+    navigator.clipboard && navigator.clipboard.writeText(document.getElementById("exportArea").value).catch(()=>{});
+    toast("Backup copied to clipboard.");
+  };
+  document.getElementById("showImport").onclick=()=>{
+    document.getElementById("importArea").style.display="block";
+    document.getElementById("importActions").style.display="flex";
+  };
+  document.getElementById("doImport").onclick=()=>{
+    try{
+      const parsed = JSON.parse(document.getElementById("importArea").value);
+      localStorage.setItem(SAVE_KEY, JSON.stringify(parsed));
+      toast("Backup restored — reloading…");
+      setTimeout(()=>location.reload(), 700);
+    }catch(e){ toast("That doesn't look like a valid backup."); }
+  };
+  document.getElementById("resetGame").onclick=()=>{
+    if(confirm("This will permanently erase your reign and restart from Bhūmi Minor. Continue?")){
+      localStorage.removeItem(SAVE_KEY);
+      location.reload();
+    }
+  };
+}
+
+function openModal(name){
+  modalOpenName = name;
+  if(name==="tech") renderTechModal();
+  if(name==="achievements") renderAchievementsModal();
+  if(name==="chronicle") renderChronicleModal();
+  if(name==="data") renderDataModal();
+  document.getElementById("modal").classList.add("show");
+  document.querySelectorAll(".navbtns button[data-open]").forEach(b=>b.classList.toggle("active", b.dataset.open===name));
+}
+document.querySelectorAll(".navbtns button[data-open]").forEach(b=>b.addEventListener("click",()=>openModal(b.dataset.open)));
+document.getElementById("closeModal").onclick=()=>{ document.getElementById("modal").classList.remove("show"); modalOpenName=null;
+  document.querySelectorAll(".navbtns button[data-open]").forEach(b=>b.classList.remove("active")); };
+document.getElementById("modal").addEventListener("click",e=>{ if(e.target.id==="modal"){ document.getElementById("modal").classList.remove("show"); modalOpenName=null; document.querySelectorAll(".navbtns button[data-open]").forEach(b=>b.classList.remove("active")); } });
+
+document.getElementById("councilBtn").onclick=()=>{
+  if(state.playSeconds<15){ toast("Give your ministers a moment to convene."); return; }
+  openCouncil(true);
+};
+
+function unlockPlanet(idx){
+  const cfg = PLANETS_CONFIG[idx];
+  const prev = state.planets[idx-1];
+  if(sustainability(prev) < 60){ toast(`${PLANETS_CONFIG[idx-1].name} needs at least 60% sustainability before you can expand.`); return; }
+  const cost = {
+    influence: Math.ceil(cfg.unlockCost.influence*techMult("sensors")),
+    data: Math.ceil(cfg.unlockCost.data*techMult("sensors"))
+  };
+  if(state.influence<cost.influence || state.data<cost.data){ toast("Not enough Influence or Data for this expedition yet."); return; }
+  state.influence-=cost.influence; state.data-=cost.data;
+  state.planets[idx].unlocked=true; state.planets[idx].atmosphere=5;
+  addChronicle(`🚀 Expedition launched — ${cfg.name} (${cfg.epithet}) has been claimed for the empire.`);
+  document.getElementById("unlockedTitle").textContent = "New World Claimed";
+  document.getElementById("unlockedSub").textContent = `${cfg.name} — ${cfg.epithet}`;
+  document.getElementById("unlockedBody").textContent = "Your expedition has planted the first Solar Array. Build up Energy and Biomass, then start terraforming.";
+  document.getElementById("unlockedModal").classList.add("show");
+  state.selectedPlanet = idx; setView("planet");
+  renderAll(); saveState();
+}
+document.getElementById("closeUnlocked").onclick=()=>document.getElementById("unlockedModal").classList.remove("show");
+
+/* mobile drawers */
+function isMobile(){ return innerWidth<=900; }
+function refreshMobileToggles(){
+  document.getElementById("leftToggle").style.display = isMobile()? "flex":"none";
+  document.getElementById("rightToggle").style.display = isMobile()? "flex":"none";
+}
+document.getElementById("leftToggle").onclick=()=>{ document.getElementById("leftDock").classList.toggle("open"); document.getElementById("rightDock").classList.remove("open"); };
+document.getElementById("rightToggle").onclick=()=>{ document.getElementById("rightDock").classList.toggle("open"); document.getElementById("leftDock").classList.remove("open"); };
+addEventListener("resize", refreshMobileToggles);
+
+function renderAll(){
+  renderResourceBar();
+  renderStatsPanel();
+  renderBuildPanel();
+  if(modalOpenName==="tech") renderTechModal();
+  if(modalOpenName==="achievements") renderAchievementsModal();
+}
+
+/* ============================= BOOT ============================= */
+
+function formatDuration(sec){
+  sec=Math.floor(sec);
+  const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
+  if(h>0) return `${h}h ${m}m`;
+  if(m>0) return `${m}m ${s}s`;
+  return `${s}s`;
+}
+function todayKey(d){ const dt=new Date(d); return dt.getFullYear()+"-"+dt.getMonth()+"-"+dt.getDate(); }
+
+function boot(){
+  state = loadState();
+  const isNew = !localStorage.getItem(SAVE_KEY);
+
+  // daily streak
+  const today = todayKey(Date.now());
+  if(state.lastVisitDay !== today){
+    const prevDay = state.lastVisitDay;
+    const oneDayMs = 86400000;
+    if(prevDay && (Date.now() - Date.parse(prevDay+"") )){ /* noop, handled by diff below */ }
+    const diffDays = prevDay===null ? 0 : Math.round((new Date(today.replace(/-/g,"/")) - new Date(prevDay.replace(/-/g,"/")))/oneDayMs);
+    if(prevDay===null){ state.streak=1; }
+    else if(diffDays===1){ state.streak+=1; }
+    else if(diffDays>1){ state.streak=1; }
+    state.lastVisitDay = today;
+    if(prevDay!==null){
+      const bonus = Math.min(200, 15*state.streak);
+      state.influence += bonus;
+      addChronicle(`🌅 Day ${state.streak} of your reign — the council grants +${bonus} Influence for your return.`);
+    }
+  }
+
+  if(isNew || !state.onboarded){
+    document.getElementById("onbModal").classList.add("show");
+  } else {
+    // offline progress
+    const elapsedSec = Math.max(0, Math.floor((Date.now()-state.lastSaveTime)/1000));
+    const capped = Math.min(elapsedSec, OFFLINE_CAP_SECONDS);
+    if(capped>60){
+      const before = {data:state.data, influence:state.influence, planets: state.planets.map(p=>({atmosphere:p.atmosphere,water:p.water,biosphere:p.biosphere,population:p.population}))};
+      fastForward(capped);
+      const gainedData = Math.max(0,state.data-before.data);
+      const gainedInfluence = Math.max(0,state.influence-before.influence);
+      document.getElementById("backTitle").textContent = "Welcome back, Architect";
+      document.getElementById("backSub").textContent = `Your empire kept running for ${formatDuration(capped)}${elapsedSec>OFFLINE_CAP_SECONDS? " (capped at 8h)":""}.`;
+      document.getElementById("backBody").innerHTML = `
+        <div class="statrow"><div class="lbl"><span>📡 Data gained</span><span>+${fmt(gainedData)}</span></div></div>
+        <div class="statrow"><div class="lbl"><span>☸ Influence gained</span><span>+${fmt(gainedInfluence)}</span></div></div>
+        <div class="statrow"><div class="lbl"><span>🔥 Day streak</span><span>${state.streak}</span></div></div>
+      `;
+      document.getElementById("backModal").classList.add("show");
+    }
+  }
+
+  refreshMobileToggles();
+  setView(state.view||"system");
+  renderAll();
+  saveState();
+
+  simInterval = setInterval(()=>{
+    tick(1);
+    if(state.councilTimer >= COUNCIL_INTERVAL){ state.councilTimer=0; openCouncil(false); }
+    renderAll();
+  }, 1000);
+
+  setInterval(saveState, 15000);
+  addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="hidden") saveState(); });
+  addEventListener("beforeunload", saveState);
+
+  setInterval(()=>{
+    document.getElementById("playtimeFooter").textContent = "Ruling for "+formatDuration(state.playSeconds);
+  },1000);
+}
+
+document.getElementById("beginBtn").onclick=()=>{
+  state.onboarded=true;
+  document.getElementById("onbModal").classList.remove("show");
+  addChronicle("✦ Your reign over Bhūmi Minor begins.");
+  saveState();
+};
+document.getElementById("closeBack").onclick=()=>document.getElementById("backModal").classList.remove("show");
+document.getElementById("backOk").onclick=()=>document.getElementById("backModal").classList.remove("show");
+
+boot();
 })();
 </script>
 </body>
