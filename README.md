@@ -12,4 +12,4 @@ Welcome to the chaos.
 
 zygotebuilder.github.io |
 Pradhyumna Nittala |
-Contact - pradhyumna.nittala@gmail.com
+
