@@ -1,10 +1,9 @@
 **Newsletter** |
-September 11, 2026
+September 12, 2026
 
 **Hello Dear Visitors!**
 
-From this date onwards, updates regarding this website would keep coming. I'm thinking and adding new things every now and then, and I'm doing this because at the end it falls under my sphere of interests!
-I'd want you to sit back, relax and enjoy all the programs being published simultaneously. 
-Any changes, or updates will be notified on this page in the coming future.
+Dreamscape - Panchabhootha, a new real experience web browser game has been added today. It’s one of the best pieces of this Zygote Builder till date. It has several levels, which will give you something to take away. No account is required, your progress gets stored automatically. Keep coming, keep growing!
+Do check out!
 
 Thank you for being a part of this experiment!
