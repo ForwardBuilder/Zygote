@@ -202,14 +202,6 @@ The repository contains the implementation; the website contains the experience.
 
 ⸻
 
-📜 License
-
-This project is licensed under the MIT License.
-
-See LICENSE for details.
-
-⸻
-
 👨‍🔬 Creator
 
 Pradhyumna Nittala
