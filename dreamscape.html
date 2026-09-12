@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07142f">
+<title>Dreamscape — Zygote Builder</title>
+<style>
+:root{
+  --bg:#07142f; --bg2:#0b1f46; --glass:rgba(8,22,51,.72); --glass2:rgba(18,39,78,.68);
+  --line:rgba(160,205,255,.18); --text:#eef7ff; --muted:#9eb5d6; --cyan:#59e7ff;
+  --violet:#a98cff; --green:#74e7a5; --gold:#ffd56b; --pink:#ff91d5; --shadow:0 24px 70px rgba(0,0,0,.32);
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,textarea{font:inherit}
+button{color:inherit}
+#app{position:relative;width:100%;height:100%;overflow:hidden;background:
+ radial-gradient(circle at 50% 38%,rgba(64,139,255,.18),transparent 33%),
+ radial-gradient(circle at 80% 15%,rgba(168,120,255,.14),transparent 28%),
+ linear-gradient(180deg,#06122d 0%,#0a1c40 48%,#09182e 100%)}
+#sky{position:absolute;inset:0;width:100%;height:100%;display:block}
+.vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 42%,rgba(0,0,0,.43) 100%)}
+.topbar{position:absolute;z-index:20;left:0;right:0;top:0;height:78px;padding:0 30px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,rgba(3,11,28,.9),rgba(3,11,28,.25));border-bottom:1px solid rgba(160,205,255,.08);backdrop-filter:blur(10px)}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:42px;height:42px;border:2px solid #89caff;border-radius:50%;position:relative;box-shadow:0 0 25px rgba(89,231,255,.28)}
+.logo:before{content:"";position:absolute;left:-7px;right:-7px;top:15px;height:9px;border:2px solid #89caff;border-radius:50%;transform:rotate(-18deg)}
+.logo:after{content:"✦";position:absolute;right:-9px;top:-11px;color:#b4eaff;font-size:13px}
+.brand b{display:block;font-size:19px;letter-spacing:.2px}
+.brand small{display:block;color:var(--muted);font-size:11px;margin-top:1px}
+.nav{display:flex;align-items:center;gap:8px}
+.nav button,.iconbtn{background:transparent;border:0;padding:9px 13px;border-radius:12px;color:#a9bfdf;cursor:pointer;transition:.2s}
+.nav button:hover,.nav button.active{color:#fff;background:rgba(135,184,255,.1)}
+.theme{border:1px solid var(--line)!important;width:72px;height:38px;border-radius:20px!important;display:flex;justify-content:space-around;align-items:center;font-size:16px!important}
+
+.panel{position:absolute;z-index:15;background:linear-gradient(145deg,rgba(11,29,63,.82),rgba(8,20,46,.68));border:1px solid var(--line);box-shadow:var(--shadow),inset 0 1px rgba(255,255,255,.06);backdrop-filter:blur(18px);border-radius:22px}
+.hero{z-index:10;position:absolute;left:42px;top:132px;max-width:430px}
+.kicker{color:#9beaff;font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:8px}
+h1{font-size:clamp(42px,5.2vw,74px);line-height:.93;margin:0 0 15px;letter-spacing:-3px;background:linear-gradient(100deg,#fff 15%,#b8eaff 48%,#c7a7ff 88%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{font-size:15px;line-height:1.65;color:#b6c9e3;max-width:405px;margin:0 0 21px}
+.primary{border:0;cursor:pointer;padding:14px 20px;border-radius:15px;font-weight:750;background:linear-gradient(100deg,#39cfff,#a87cff);box-shadow:0 12px 30px rgba(78,170,255,.25);transition:.2s}
+.primary:hover{transform:translateY(-2px);box-shadow:0 16px 34px rgba(78,170,255,.35)}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.tag{font-size:12px;padding:7px 10px;border-radius:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#cbd9ec}
+.tag:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:7px;box-shadow:0 0 9px var(--green)}
+
+.dashboard{right:26px;top:104px;width:286px;padding:17px}
+.paneltitle{display:flex;justify-content:space-between;align-items:center;font-weight:750;font-size:14px}
+.live{font-size:10px;color:#76efb1;display:flex;align-items:center;gap:5px}
+.live:before{content:"";width:6px;height:6px;border-radius:50%;background:#56e9a1;box-shadow:0 0 10px #56e9a1}
+.preview{height:105px;border-radius:15px;margin:13px 0;background:
+ radial-gradient(circle at 72% 28%,#ffcf83 0 2%,transparent 3%),
+ linear-gradient(160deg,#7e71cb,#ffaeaf 47%,#4db3ce 48%,#143d68 70%);
+ position:relative;overflow:hidden}
+.preview:after{content:"";position:absolute;left:20%;right:8%;bottom:18%;height:34%;background:linear-gradient(160deg,#4f7e7c,#193c44);clip-path:polygon(0 65%,25% 25%,48% 48%,70% 0,100% 40%,100% 100%,0 100%);filter:drop-shadow(0 12px 10px rgba(0,0,0,.3))}
+.stats{display:grid;gap:10px}
+.stat{display:flex;align-items:center;justify-content:space-between;color:#b8cae4;font-size:12px}
+.stat strong{color:#fff;font-size:14px}.stat span:first-child{display:flex;gap:9px;align-items:center}.ico{font-size:16px}
+
+.recent{right:26px;top:382px;width:286px;padding:17px}
+.event{display:flex;gap:11px;align-items:center;margin-top:13px}
+.eventicon{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:rgba(90,211,255,.1);border:1px solid rgba(90,211,255,.13)}
+.event b{display:block;font-size:12px}.event small{color:#849dc0;font-size:10px}
+
+.tools{left:32px;bottom:28px;width:420px;padding:14px}
+.toolrow{display:flex;gap:9px;margin-top:11px}
+.tool{flex:1;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.055);border-radius:15px;padding:11px 6px 9px;cursor:pointer;transition:.18s;text-align:center}
+.tool:hover,.tool.selected{transform:translateY(-3px);border-color:rgba(117,221,255,.4);background:rgba(74,182,255,.12)}
+.tool .big{font-size:22px;display:block;margin-bottom:5px}.tool span:last-child{font-size:10px;color:#aac0dd}
+
+.journal{right:26px;bottom:28px;width:330px;padding:16px}
+.journal textarea{width:100%;height:56px;resize:none;background:rgba(2,10,26,.35);border:1px solid rgba(155,202,255,.14);outline:none;border-radius:13px;padding:11px;color:#fff;margin-top:10px}
+.journal textarea::placeholder{color:#6f87aa}
+.journal .send{float:right;margin-top:-45px;margin-right:8px;border:0;background:transparent;color:#b8eaff;font-size:20px;cursor:pointer}
+.quote{position:absolute;z-index:5;left:50%;bottom:43px;transform:translateX(-50%);font-size:12px;color:#b5c9e4;text-align:center;font-style:italic;opacity:.9;pointer-events:none}
+.footer{position:absolute;z-index:15;left:35px;right:28px;bottom:10px;display:flex;justify-content:space-between;color:#6683aa;font-size:9px;pointer-events:none}
+
+.toast{position:absolute;z-index:100;left:50%;top:92px;transform:translate(-50%,-18px);opacity:0;pointer-events:none;background:rgba(7,20,45,.92);border:1px solid rgba(151,211,255,.25);padding:11px 16px;border-radius:14px;box-shadow:var(--shadow);transition:.35s;font-size:12px}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+.modal{position:absolute;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(1,7,20,.58);backdrop-filter:blur(9px)}
+.modal.show{display:flex}
+.modalcard{width:min(620px,calc(100% - 32px));max-height:82vh;overflow:auto;padding:24px;border-radius:24px;background:linear-gradient(145deg,#0d244c,#081735);border:1px solid rgba(166,215,255,.2);box-shadow:0 35px 100px rgba(0,0,0,.55)}
+.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:17px}.modalhead h2{margin:0;font-size:22px}
+.close{border:0;background:rgba(255,255,255,.06);border-radius:10px;width:34px;height:34px;cursor:pointer}
+.cardgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.mini{padding:14px;border-radius:16px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08)}.mini b{display:block;margin-bottom:5px}.mini small{color:#91a9c9;line-height:1.5}
+.journalentry{padding:13px;border-left:2px solid #6edcff;background:rgba(255,255,255,.035);margin-top:10px;border-radius:0 12px 12px 0;color:#c7d7eb;font-size:13px;line-height:1.5}
+
+#focus{position:absolute;z-index:180;inset:0;display:none;align-items:center;justify-content:center;background:radial-gradient(circle,rgba(25,70,112,.75),rgba(3,12,29,.97) 72%);backdrop-filter:blur(12px)}
+#focus.show{display:flex}
+.focusbox{text-align:center;width:min(520px,90vw)}
+.focusbox .orb{width:150px;height:150px;border-radius:50%;margin:0 auto 26px;background:radial-gradient(circle at 35% 30%,#fff,#7ae8ff 18%,#9e79ff 58%,rgba(92,83,255,.05) 70%);box-shadow:0 0 75px rgba(92,216,255,.45);animation:breathe 6s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(.82);opacity:.8}50%{transform:scale(1.08);opacity:1}}
+.timer{font-size:55px;font-variant-numeric:tabular-nums;letter-spacing:-2px}.focusbox p{color:#9db5d4}.focusactions{display:flex;justify-content:center;gap:9px}.secondary{padding:11px 16px;border-radius:12px;border:1px solid rgba(180,220,255,.16);background:rgba(255,255,255,.06);cursor:pointer}
+
+@media(max-width:900px){
+ .dashboard,.recent,.journal{display:none}.hero{left:24px;top:105px}.tools{left:15px;bottom:18px;width:calc(100% - 30px)}.quote{bottom:122px}.topbar{padding:0 16px}.nav button:not(.theme){display:none}.footer{display:none}
+}
+@media(max-width:560px){
+ .hero{max-width:calc(100% - 36px)}.hero p{font-size:13px}.tools{padding:10px}.tool{padding:9px 3px}.tool .big{font-size:18px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+<canvas id="sky"></canvas><div class="vignette"></div>
+
+<header class="topbar">
+  <div class="brand"><div class="logo"></div><div><b>Zygote Builder</b><small>Small ideas. Big universes.</small></div></div>
+  <nav class="nav">
+    <button class="active" data-modal="none">Home</button><button data-modal="programs">Programs</button><button data-modal="about">About</button>
+    <button class="theme" id="themeBtn" title="Toggle ambience">☀︎ <span>◐</span></button>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="kicker">Zygote Builder • Program 07</div>
+  <h1>Dreamscape ✦</h1>
+  <p>A tiny world with a ridiculous number of possibilities. Build islands, collect thoughts, discover strange little moments, and turn the things you actually want to do into a world you can see.</p>
+  <button class="primary" id="explore">▶ Start Exploring</button>
+  <div class="tags"><span class="tag">Creative</span><span class="tag">Relaxing</span><span class="tag">Useful</span><span class="tag">Endless</span></div>
+</section>
+
+<section class="panel dashboard">
+  <div class="paneltitle"><span>◉ Your Dream World</span><span class="live">Live</span></div>
+  <div class="preview"></div>
+  <div class="stats">
+    <div class="stat"><span><span class="ico">♟</span> Islands</span><strong id="islands">3</strong></div>
+    <div class="stat"><span><span class="ico">🌱</span> Dreams Collected</span><strong id="dreams">0</strong></div>
+    <div class="stat"><span><span class="ico">✦</span> Unique Moments</span><strong id="moments">0</strong></div>
+  </div>
+</section>
+
+<section class="panel recent">
+  <div class="paneltitle">✦ Recent Dreams</div>
+  <div id="events">
+    <div class="event"><div class="eventicon">🌱</div><div><b>The world is waiting.</b><small>just now</small></div></div>
+    <div class="event"><div class="eventicon">☁</div><div><b>Try changing the weather.</b><small>hint</small></div></div>
+    <div class="event"><div class="eventicon">⌁</div><div><b>Drag the sky to look around.</b><small>hint</small></div></div>
+  </div>
+</section>
+
+<section class="panel tools">
+  <div class="paneltitle">⚒ Build Tools <small style="color:#7894b8;font-weight:400">click an island to interact</small></div>
+  <div class="toolrow">
+    <button class="tool selected" data-tool="place"><span class="big">◇</span><span>Place</span></button>
+    <button class="tool" data-tool="decorate"><span class="big">🌿</span><span>Decorate</span></button>
+    <button class="tool" data-tool="weather"><span class="big">☁</span><span>Weather</span></button>
+    <button class="tool" data-tool="time"><span class="big">◷</span><span>Time</span></button>
+    <button class="tool" data-tool="erase"><span class="big">⌫</span><span>Erase</span></button>
+    <button class="tool" id="focusBtn"><span class="big">◉</span><span>Focus</span></button>
+  </div>
+</section>
+
+<div class="quote">“Not just a game, but a place where your imagination lives.”</div>
+<div class="footer"><span>Zygote Builder ✦ Dreamscape v1.0</span><span>Built for curious humans</span></div>
+<div class="toast" id="toast"></div>
+
+<div class="modal" id="modal"><div class="modalcard">
+  <div class="modalhead"><h2 id="modalTitle"></h2><button class="close" id="closeModal">×</button></div>
+  <div id="modalBody"></div>
+</div></div>
+
+<div id="focus"><div class="focusbox">
+  <div class="orb"></div><div class="timer" id="timer">05:00</div>
+  <p>Five quiet minutes. Let the world move without you.</p>
+  <div class="focusactions"><button class="primary" id="timerBtn">Start</button><button class="secondary" id="exitFocus">Return to world</button></div>
+</div></div>
+</div>
+
+<script>
+(() => {
+"use strict";
+const canvas=document.getElementById("sky"),ctx=canvas.getContext("2d");
+let W=innerWidth,H=innerHeight,DPR=Math.min(devicePixelRatio||1,2);
+function resize(){W=innerWidth;H=innerHeight;canvas.width=W*DPR;canvas.height=H*DPR;canvas.style.width=W+"px";canvas.style.height=H+"px";ctx.setTransform(DPR,0,0,DPR,0,0)}
+addEventListener("resize",resize);resize();
+
+const state={
+  tool:"place", islands:3, dreams:0, moments:0, night:false, weather:"clear",
+  cameraX:0, cameraY:0, dragging:false, lastX:0,lastY:0, journal:[],
+  stars:Array.from({length:130},()=>({x:Math.random(),y:Math.random()*.72,r:Math.random()*1.6+.2,a:Math.random()*.7+.2})),
+  particles:[], placed:[], selected:null
+};
+
+const baseIslands=[
+ {x:.38,y:.53,s:1.15,c:0,house:true,tree:3},
+ {x:.67,y:.48,s:.82,c:1,lighthouse:true,tree:2},
+ {x:.20,y:.65,s:.62,c:2,tree:2},
+ {x:.53,y:.66,s:.42,c:3,tree:1}
+];
+
+function toast(t){const el=document.getElementById("toast");el.textContent=t;el.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove("show"),2300)}
+function updateStats(){document.getElementById("islands").textContent=state.islands;document.getElementById("dreams").textContent=state.dreams;document.getElementById("moments").textContent=state.moments}
+
+function addEvent(icon,text){
+ const e=document.createElement("div");e.className="event";e.innerHTML=`<div class="eventicon">${icon}</div><div><b>${text}</b><small>just now</small></div>`;
+ document.getElementById("events").prepend(e);
+ while(document.getElementById("events").children.length>4)document.getElementById("events").lastElementChild.remove();
+}
+function rand(a,b){return a+Math.random()*(b-a)}
+function worldToScreen(x,y){return {x:x*W+state.cameraX,y:y*H+state.cameraY}}
+function drawSky(t){
+ const day=state.night?0.28:1;
+ const g=ctx.createLinearGradient(0,0,0,H);
+ g.addColorStop(0,state.night?"#020817":"#071a3d");g.addColorStop(.55,state.night?"#071936":"#153c69");g.addColorStop(1,state.night?"#0a1730":"#5e6f8f");
+ ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+ const glow=ctx.createRadialGradient(W*.54,H*.55,10,W*.54,H*.55,Math.max(W,H)*.55);
+ glow.addColorStop(0,state.night?"rgba(92,120,255,.10)":"rgba(255,196,126,.34)");glow.addColorStop(1,"transparent");
+ ctx.fillStyle=glow;ctx.fillRect(0,0,W,H);
+
+ if(!state.night){
+   const sx=W*.70,sy=H*.46;
+   const sun=ctx.createRadialGradient(sx,sy,2,sx,sy,90);sun.addColorStop(0,"rgba(255,244,199,.95)");sun.addColorStop(1,"rgba(255,190,100,0)");
+   ctx.fillStyle=sun;ctx.fillRect(sx-100,sy-100,200,200);ctx.fillStyle="#fff0bb";ctx.beginPath();ctx.arc(sx,sy,8,0,Math.PI*2);ctx.fill();
+ }else{
+   ctx.fillStyle="#e8f2ff";ctx.beginPath();ctx.arc(W*.73,H*.22,20,0,Math.PI*2);ctx.fill();
+   ctx.fillStyle="#07142f";ctx.beginPath();ctx.arc(W*.75,H*.205,18,0,Math.PI*2);ctx.fill();
+ }
+ state.stars.forEach(s=>{ctx.globalAlpha=s.a*(state.night?1:.45);ctx.fillStyle="#d8edff";ctx.beginPath();ctx.arc(s.x*W,s.y*H,s.r,0,Math.PI*2);ctx.fill()});ctx.globalAlpha=1;
+ // distant mist / ocean
+ const horizon=H*.64;
+ ctx.fillStyle=state.night?"rgba(25,55,88,.55)":"rgba(180,206,224,.24)";ctx.fillRect(0,horizon,W,H-horizon);
+ for(let i=0;i<13;i++){
+   const yy=horizon+20+i*25+Math.sin(t*.0004+i)*3;
+   ctx.strokeStyle=state.night?"rgba(130,180,220,.07)":"rgba(255,255,255,.12)";ctx.lineWidth=1;
+   ctx.beginPath();for(let x=-20;x<W+20;x+=22)ctx.lineTo(x,yy+Math.sin(x*.025+i)*2);ctx.stroke();
+ }
+}
+function drawIsland(I,i,t){
+ const p=worldToScreen(I.x,I.y),s=I.s*Math.min(W,H)*.15;
+ const bob=Math.sin(t*.001+i*1.7)*3;
+ const x=p.x,y=p.y+bob;
+ // shadow
+ ctx.fillStyle="rgba(0,0,0,.28)";ctx.beginPath();ctx.ellipse(x,y+s*.56,s*.65,s*.16,0,0,Math.PI*2);ctx.fill();
+ // rock underside
+ const rock=ctx.createLinearGradient(x,y,x,y+s*.6);rock.addColorStop(0,"#385f67");rock.addColorStop(1,"#122c38");
+ ctx.fillStyle=rock;ctx.beginPath();ctx.moveTo(x-s*.7,y);ctx.bezierCurveTo(x-s*.5,y+s*.35,x-s*.25,y+s*.5,x-s*.08,y+s*.64);ctx.bezierCurveTo(x+s*.1,y+s*.55,x+s*.45,y+s*.48,x+s*.72,y);ctx.closePath();ctx.fill();
+ // grass top
+ const grass=["#6ca07c","#7197a0","#86a77a","#6f8db0"][I.c%4];
+ ctx.fillStyle=grass;ctx.beginPath();ctx.ellipse(x,y,s*.72,s*.29,0,0,Math.PI*2);ctx.fill();
+ ctx.strokeStyle="rgba(219,255,206,.28)";ctx.lineWidth=2;ctx.stroke();
+ // trees
+ for(let k=0;k<I.tree;k++){
+   const tx=x+(k-(I.tree-1)/2)*s*.22+Math.sin(k*8+i)*s*.03,ty=y-s*.04-Math.abs(k-(I.tree-1)/2)*s*.04;
+   ctx.fillStyle="#4c6a4e";ctx.fillRect(tx-2,ty,4,s*.14);
+   ctx.fillStyle=k%2?"#5e9d76":"#4f8b68";ctx.beginPath();ctx.arc(tx,ty-s*.06,9+s*.02,0,Math.PI*2);ctx.fill();
+ }
+ if(I.house){
+   const hx=x-s*.22,hy=y-s*.17;ctx.fillStyle="#5b4050";ctx.fillRect(hx,hy, s*.3,s*.22);
+   ctx.fillStyle="#9d6070";ctx.beginPath();ctx.moveTo(hx-s*.03,hy);ctx.lineTo(hx+s*.15,hy-s*.14);ctx.lineTo(hx+s*.33,hy);ctx.closePath();ctx.fill();
+   ctx.fillStyle="#ffd879";ctx.fillRect(hx+s*.09,hy+s*.08,5,7);ctx.fillRect(hx+s*.22,hy+s*.08,5,7);
+ }
+ if(I.lighthouse){
+   const lx=x+s*.17,ly=y-s*.34;ctx.fillStyle="#e7e3d0";ctx.fillRect(lx,ly,s*.08,s*.28);
+   ctx.fillStyle="#d85c67";ctx.beginPath();ctx.moveTo(lx-s*.02,ly);ctx.lineTo(lx+s*.12,ly);ctx.lineTo(lx+s*.1,ly-s*.08);ctx.lineTo(lx,ly-s*.08);ctx.closePath();ctx.fill();
+   ctx.fillStyle="#fff1a8";ctx.beginPath();ctx.arc(lx+s*.04,ly-s*.01,4,0,Math.PI*2);ctx.fill();
+ }
+ if(state.selected===i){ctx.strokeStyle="#b9f1ff";ctx.lineWidth=3;ctx.setLineDash([5,5]);ctx.beginPath();ctx.ellipse(x,y,s*.84,s*.38,0,0,Math.PI*2);ctx.stroke();ctx.setLineDash([])}
+}
+function drawParticles(t){
+ if(state.weather==="rain"){
+   ctx.strokeStyle="rgba(137,210,255,.32)";ctx.lineWidth=1;
+   for(let i=0;i<80;i++){const x=(i*97+t*.16)%W,y=(i*53+t*.52)%H*.75;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-3,y+11);ctx.stroke()}
+ }else if(state.weather==="snow"){
+   ctx.fillStyle="rgba(255,255,255,.65)";for(let i=0;i<65;i++){const x=(i*73+t*.012)%W,y=(i*47+t*.025)%H;ctx.beginPath();ctx.arc(x,y,2,0,Math.PI*2);ctx.fill()}
+ }else if(state.weather==="aurora"){
+   const a=ctx.createLinearGradient(0,0,W*.9,0);a.addColorStop(0,"rgba(75,255,205,0)");a.addColorStop(.5,"rgba(76,230,210,.13)");a.addColorStop(1,"rgba(140,92,255,0)");
+   ctx.fillStyle=a;ctx.beginPath();ctx.moveTo(0,H*.17);ctx.quadraticCurveTo(W*.4,H*.05,W*.8,H*.2);ctx.quadraticCurveTo(W*.4,H*.28,0,H*.25);ctx.fill();
+ }
+}
+function render(t){
+ drawSky(t);
+ const arr=[...baseIslands,...state.placed];
+ arr.forEach((I,i)=>drawIsland(I,i,t));
+ drawParticles(t);
+ // tiny floating motes
+ for(let i=0;i<18;i++){const x=(i*137+t*.01)%W,y=H*.3+(i*71)%H*.42;ctx.globalAlpha=.16;ctx.fillStyle="#b8eaff";ctx.fillRect(x,y,2,2)}
+ ctx.globalAlpha=1;
+ requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+
+function nearestIsland(mx,my){
+ const arr=[...baseIslands,...state.placed];let best=-1,bd=Infinity;
+ arr.forEach((I,i)=>{const p=worldToScreen(I.x,I.y),d=Math.hypot(mx-p.x,my-p.y);const radius=I.s*Math.min(W,H)*.18;if(d<radius&&d<bd){bd=d;best=i}});
+ return best;
+}
+canvas.addEventListener("pointerdown",e=>{state.dragging=true;state.lastX=e.clientX;state.lastY=e.clientY;canvas.setPointerCapture?.(e.pointerId)});
+canvas.addEventListener("pointermove",e=>{if(state.dragging&&state.tool==="place"&&e.buttons===1){state.cameraX+=(e.clientX-state.lastX)*.35;state.cameraY+=(e.clientY-state.lastY)*.2;state.lastX=e.clientX;state.lastY=e.clientY}});
+canvas.addEventListener("pointerup",e=>{
+ state.dragging=false;
+ if(Math.hypot(e.clientX-state.lastX,e.clientY-state.lastY)<6){
+   const i=nearestIsland(e.clientX,e.clientY);
+   if(state.tool==="place"){
+     if(i>=0){state.selected=i;state.moments++;state.dreams++;addEvent("✦","You noticed something new.");toast("A small moment counts.")}
+     else{
+       const nx=(e.clientX-state.cameraX)/W,ny=(e.clientY-state.cameraY)/H;
+       if(ny>.38&&ny<.78&&state.placed.length<12){state.placed.push({x:nx,y:ny,s:rand(.35,.65),c:Math.floor(rand(0,4)),tree:Math.floor(rand(1,4))});state.islands++;state.moments++;state.dreams+=2;addEvent("🏝️","You built a new island.");toast("New island born.");updateStats()}
+     }
+   } else if(state.tool==="decorate"&&i>=0){state.moments++;state.dreams++;toast("A little more life.");addEvent("🌿","You decorated an island.")}
+   else if(state.tool==="erase"&&i>=baseIslands.length){state.placed.splice(i-baseIslands.length,1);state.islands--;state.selected=null;toast("Island returned to the void.");updateStats()}
+   else if(state.tool==="weather"){cycleWeather()}
+   else if(state.tool==="time"){state.night=!state.night;toast(state.night?"Night has fallen.":"Morning returned.");addEvent("◷",state.night?"You stayed for the night.":"You brought back the morning.");}
+ }
+});
+canvas.addEventListener("pointerleave",()=>state.dragging=false);
+
+function cycleWeather(){const list=["clear","rain","snow","aurora"];state.weather=list[(list.indexOf(state.weather)+1)%list.length];const names={clear:"Clear skies.",rain:"Rainfall activated.",snow:"Snow is falling.",aurora:"Aurora mode."};toast(names[state.weather]);addEvent("☁",names[state.weather]);state.moments++;updateStats()}
+document.querySelectorAll(".tool[data-tool]").forEach(b=>b.addEventListener("click",()=>{
+ document.querySelectorAll(".tool").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");state.tool=b.dataset.tool;
+ if(state.tool==="weather")cycleWeather(); if(state.tool==="time"){state.night=!state.night;toast(state.night?"Night has fallen.":"Morning returned.");}
+}));
+document.getElementById("explore").addEventListener("click",()=>{state.tool="place";document.querySelectorAll(".tool").forEach(x=>x.classList.toggle("selected",x.dataset.tool==="place"));toast("Click empty sky to build an island.");addEvent("🧭","You began exploring.");state.moments++;updateStats()});
+document.getElementById("themeBtn").addEventListener("click",()=>{state.night=!state.night;toast(state.night?"Night ambience":"Day ambience");});
+
+const modal=document.getElementById("modal"),title=document.getElementById("modalTitle"),body=document.getElementById("modalBody");
+function openModal(type){
+ modal.classList.add("show");
+ if(type==="programs"){title.textContent="Programs";body.innerHTML=`<div class="cardgrid"><div class="mini"><b>Dreamscape</b><small>Build a tiny universe from thoughts and moments.</small></div><div class="mini"><b>Coming soon</b><small>Something involving biology, memory and a camera.</small></div><div class="mini"><b>???</b><small>The next strange experiment has not been invented yet.</small></div></div>`}
+ if(type==="about"){title.textContent="Why Dreamscape?";body.innerHTML=`<p style="color:#b7cbe5;line-height:1.7">Dreamscape is deliberately small. Instead of asking you to grind for points, it turns curiosity into a toy: build something, notice something, write something down, then leave with a tiny useful habit.</p><div class="cardgrid"><div class="mini"><b>Play</b><small>No tutorial maze. Click, drag, experiment.</small></div><div class="mini"><b>Think</b><small>The journal turns random thoughts into visible memories.</small></div><div class="mini"><b>Focus</b><small>A built-in five-minute quiet mode when you need it.</small></div></div>`}
+ if(type==="journal"){title.textContent="Dream Journal";body.innerHTML=state.journal.length?state.journal.map(x=>`<div class="journalentry">${x}</div>`).join(""):"<p style='color:#8fa7c7'>Your journal is empty. That is a perfectly respectable beginning.</p>"}
+}
+document.querySelectorAll(".nav button[data-modal]").forEach(b=>b.addEventListener("click",()=>b.dataset.modal!=="none"&&openModal(b.dataset.modal)));
+document.getElementById("closeModal").onclick=()=>modal.classList.remove("show");
+modal.addEventListener("click",e=>{if(e.target===modal)modal.classList.remove("show")});
+
+const ta=document.querySelector(".journal textarea"),send=document.querySelector(".send");
+send?.remove(); // journal input is injected below on purpose
+document.querySelector(".journal")?.remove(); // compact journal dock is replaced by keyboard shortcut
+
+// Keyboard-friendly journal dock
+const dock=document.createElement("section");dock.className="panel journal";
+dock.innerHTML=`<div class="paneltitle"><span>▣ Your Dream Journal</span><button id="openJ" class="iconbtn">→</button></div><textarea id="journalInput" placeholder="Maybe I'll build a floating library…"></textarea><button class="send" id="saveJ">➤</button>`;
+document.getElementById("app").appendChild(dock);
+document.getElementById("openJ").onclick=()=>openModal("journal");
+document.getElementById("saveJ").onclick=saveJournal;
+document.getElementById("journalInput").addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key==="Enter")saveJournal()});
+function saveJournal(){const v=document.getElementById("journalInput").value.trim();if(!v)return;state.journal.unshift(v);state.dreams++;state.moments++;document.getElementById("journalInput").value="";addEvent("📖","A thought became a memory.");toast("Saved to your dream journal.");updateStats()}
+
+const focus=document.getElementById("focus"),timerEl=document.getElementById("timer"),timerBtn=document.getElementById("timerBtn");
+let seconds=300,interval=null;
+document.getElementById("focusBtn").onclick=()=>{focus.classList.add("show");seconds=300;updateTimer();};
+document.getElementById("exitFocus").onclick=()=>{focus.classList.remove("show");clearInterval(interval);interval=null;timerBtn.textContent="Start"};
+function updateTimer(){timerEl.textContent=String(Math.floor(seconds/60)).padStart(2,"0")+":"+String(seconds%60).padStart(2,"0")}
+timerBtn.onclick=()=>{if(interval){clearInterval(interval);interval=null;timerBtn.textContent="Resume"}else{timerBtn.textContent="Pause";interval=setInterval(()=>{seconds--;updateTimer();if(seconds<=0){clearInterval(interval);interval=null;timerBtn.textContent="Done";toast("Five minutes. Nicely done.");state.moments++;state.dreams++;updateStats()}},1000)}};
+
+updateStats();
+})();
+</script>
+</body>
+</html>
